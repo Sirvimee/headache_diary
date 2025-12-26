@@ -12,7 +12,6 @@ class AuthView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer(builder: (context, ref, child) {
       final isLoggedIn = ref.watch(isLoggedInProvider);
-      print('isLoggedIn: $isLoggedIn');
       if (isLoggedIn) {
         return const MainView();
       } else {

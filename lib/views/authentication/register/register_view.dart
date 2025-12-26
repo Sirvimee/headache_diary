@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -39,8 +38,6 @@ class RegisterViewState extends ConsumerState<RegisterView> {
       final email = _emailController.text;
       final password = _passwordController.text;
 
-      print('name: $name, email: $email, password: $password');
-
       final authProvider = ref.read(authenticationProvider.notifier);
       await authProvider.registerWithEmailAndPassword(
           email: email, name: name, password: password);
@@ -52,11 +49,11 @@ class RegisterViewState extends ConsumerState<RegisterView> {
     // If the user has registered successfully, we pop the current view
     ref.listen(isLoggedInProvider, (_, isLoggedIn) => context.pop());
 
-
     ref.listen(authenticationProvider,
             (AuthState? previous, AuthState current) {
           // We check if the state is not loading and login failed
-          if (current.result == AuthResult.userAlreadyExists && !current.isLoading) {
+          if (current.result == AuthResult.userAlreadyExists &&
+              !current.isLoading) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text("User already exists!"),
@@ -124,7 +121,7 @@ class RegisterViewState extends ConsumerState<RegisterView> {
                     foregroundColor: AppColors.loginButtonTextColor,
                   ),
                   onPressed: _attemptRegister,
-                  child: Text(
+                  child: const Text(
                     "Register",
                     style: TextStyle(color: Colors.white),
                   ),

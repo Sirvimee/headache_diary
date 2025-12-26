@@ -1,4 +1,5 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import '../../user_info/backend/user_info_storage.dart';
 import '../backend/authenticator.dart';
 import '../models/auth_result.dart';
 import '../models/auth_state.dart';
@@ -8,6 +9,7 @@ part 'authentication_provider.g.dart';
 @riverpod
 class Authentication extends _$Authentication {
   final _authenticator = const Authenticator();
+  final _userInfoStorage = const UserInfoStorage();
 
   @override
   AuthState build() {
@@ -51,13 +53,24 @@ class Authentication extends _$Authentication {
     final result =
     await _authenticator.registerWithEmailAndPassword(email, password);
 
-    /// TODO (Save user info to database)
+    final userId = _authenticator.userId;
+
+    if (result == AuthResult.success && userId != null) {
+      saveUserInfo(userId, email, name);
+    }
 
     state = AuthState(
       result: result,
       isLoading: false,
       userId: _authenticator.userId,
     );
+  }
 
+  Future<void> saveUserInfo(String userId, String email, String name) {
+    return _userInfoStorage.saveUserInfo(
+      userId: userId,
+      displayName: name,
+      email: email,
+    );
   }
 }
