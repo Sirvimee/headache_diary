@@ -1,17 +1,19 @@
+import '../../constants/strings.dart';
+
 String? validateName(String? name) {
   if (name == null || name.isEmpty) {
-    return 'Please enter your name';
+    return Strings.enterYourName;
   }
   return null;
 }
 
 String? validateEmail(String? email) {
   if (email == null || email.isEmpty) {
-    return 'Please enter your email';
+    return Strings.enterYourEmailAddress;
   }
   final emailRegex = RegExp(r'^[a-zA-Z0-9._]+@[a-zA-Z0-9]+\.[a-zA-Z]+');
   if (!emailRegex.hasMatch(email)) {
-    return 'Please enter a valid email';
+    return Strings.enterCorrectEmailAddress;
   }
 
   return null;
@@ -19,13 +21,13 @@ String? validateEmail(String? email) {
 
 String? validatePassword(String? password) {
   if (password == null || password.isEmpty) {
-    return 'Please enter your password';
+    return Strings.enterYourPassword;
   }
   if (password.length < 5) {
-    return 'Password must be at least 5 characters long';
+    return Strings.shortPassword;
   }
   if (!RegExp(r'[A-Z]').hasMatch(password)) {
-    return 'Password must contain at least one uppercase letter';
+    return Strings.passwordMustContainUppercase;
   }
   return null;
 }

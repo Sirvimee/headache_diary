@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:headache_diary/views/authentication/widget/divider_with_margins.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:headache_diary/state/auth/models/auth_result.dart';
 import 'package:headache_diary/state/auth/models/auth_state.dart';
@@ -31,12 +31,38 @@ class LoginViewState extends ConsumerState<LoginView> {
   }
 
   Future<void> _attemptLogin() async {
-    if (_formKey.currentState!.validate()) {
-      final email = _emailController.text;
-      final password = _passwordController.text;
+    final formState = _formKey.currentState;
+    if (formState == null) {
+      // Form not mounted yet; show an error and return safely
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text(Strings.formNotAvailable)),
+      );
+      return;
+    }
 
+    if (!formState.validate()) {
+      // validation failed; do not proceed
+      return;
+    }
+
+    final email = _emailController.text;
+    final password = _passwordController.text;
+
+    try {
       final authProvider = ref.read(authenticationProvider.notifier);
       await authProvider.loginWithEmailAndPassword(email, password);
+
+      // Check latest auth state after attempting login
+      final current = ref.read(authenticationProvider);
+      if (current.result != AuthResult.success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text(Strings.invalidEmailOrPassword), backgroundColor: Colors.red),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${Strings.loginFailed}$e')),
+      );
     }
   }
 
@@ -49,7 +75,7 @@ class LoginViewState extends ConsumerState<LoginView> {
           if (current.result == AuthResult.failure && !current.isLoading) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                content: Text("Wrong email or password!"),
+                content: Text(Strings.invalidEmailOrPassword),
                 backgroundColor: Colors.red,
               ),
             );
@@ -57,77 +83,196 @@ class LoginViewState extends ConsumerState<LoginView> {
         });
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(Strings.appName),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: SingleChildScrollView(
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const DividerWithMargins(20),
-                Text(
-                  Strings.logIntoYourAccount,
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodyMedium
-                      ?.copyWith(height: 1.5),
-                ),
-                const SizedBox(height: 20),
-                // Email field
-                TextFormField(
-                  controller: _emailController,
-                  decoration: const InputDecoration(
-                    labelText: 'Email',
-                    border: OutlineInputBorder(),
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              padding: EdgeInsets.only(
+                left: 24,
+                right: 24,
+                top: 70,
+                bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+              ),
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight - 48),
+                child: IntrinsicHeight(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const SizedBox(height: 36),
+                      // Title
+                      Text(
+                        Strings.appName,
+                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                              fontSize: 36,
+                              color: AppColors.textColor,
+                              fontWeight: FontWeight.w600,
+                            ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 32),
+
+                      // Google sign-in button
+                      SizedBox(
+                        width: double.infinity,
+                        height: 60,
+                        child: ElevatedButton(
+                          onPressed: authProvider.isLoading
+                              ? null
+                              : () async {
+                            // Call provider's Google sign-in which integrates with Firebase
+                            await ref.read(authenticationProvider.notifier).loginWithGoogle();
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.accentColor,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            elevation: 0,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SvgPicture.asset('assets/icons/google.svg', width: 32, height: 32),
+                              const SizedBox(width: 12),
+                              Text(
+                                Strings.signInWithGoogle,
+                                style: const TextStyle(
+                                    color: AppColors.textColor, fontSize: 20, fontWeight: FontWeight.w500),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                      const SizedBox(height: 30),
+
+                      // Divider with "või"
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Divider(
+                              color: AppColors.hintColor,
+                              thickness: 1,
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: Text(Strings.or, style: TextStyle(color: AppColors.hintColor)),
+                          ),
+                          Expanded(
+                            child: Divider(
+                              color: AppColors.hintColor,
+                              thickness: 1,
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 30),
+
+                      // Form with Email, Password and Login button
+                      Form(
+                        key: _formKey,
+                        child: Column(
+                          children: [
+
+                            // Email input
+                            SizedBox(
+                              height: 60,
+                              child: TextFormField(
+                                controller: _emailController,
+                                style: TextStyle(fontSize: 20),
+                                decoration: InputDecoration(
+                                  hintText: Strings.emailAddress,
+                                ),
+                                validator: (value) => validateEmail(value),
+                              ),
+                            ),
+
+                            const SizedBox(height: 16),
+
+                            // Password input
+                            SizedBox(
+                              height: 60,
+                              child: TextFormField(
+                                controller: _passwordController,
+                                obscureText: true,
+                                style: TextStyle(fontSize: 20),
+                                decoration: InputDecoration(
+                                  hintText: Strings.password,
+                                ),
+                                validator: (value) => validatePassword(value),
+                              ),
+                            ),
+
+                            const SizedBox(height: 28),
+
+                            // Login button
+                            SizedBox(
+                              width: double.infinity,
+                              height: 70,
+                              child: ElevatedButton(
+                                onPressed: authProvider.isLoading ? null : _attemptLogin,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.buttonColor,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                  elevation: 0,
+                                ),
+                                child: authProvider.isLoading
+                                    ? const SizedBox(
+                                  height: 24,
+                                  width: 24,
+                                  child: CircularProgressIndicator(color: AppColors.textColor, strokeWidth: 2),
+                                )
+                                    : Text(
+                                  Strings.logIntoYourAccount,
+                                  style: TextStyle(color: AppColors.primaryColor, fontSize: 20, fontWeight: FontWeight.w600),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      // Register and Forgot password links
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          TextButton(
+                            onPressed: () => context.push('/register'),
+                            style: TextButton.styleFrom(
+                              foregroundColor: AppColors.hintColor,
+                              padding: EdgeInsets.zero,
+                              minimumSize: const Size(0, 0),
+                            ),
+                            child: const Text(Strings.signUp, style: TextStyle(fontSize: 16)),
+                          ),
+                          TextButton(
+                            onPressed: () => context.push('/change-password'),
+                            style: TextButton.styleFrom(
+                              foregroundColor: AppColors.hintColor,
+                              padding: EdgeInsets.zero,
+                              minimumSize: const Size(0, 0),
+                            ),
+                            child: const Text(Strings.forgotPassword, style: TextStyle(fontSize: 16)),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 8),
+
+                      const Spacer(),
+
+                    ],
                   ),
-                  keyboardType: TextInputType.emailAddress,
-                  validator:
-                  validateEmail, //-> (String? value) => _validateEmail(value)
                 ),
-                const SizedBox(height: 16),
-                // Password field
-                TextFormField(
-                  controller: _passwordController,
-                  decoration: const InputDecoration(
-                    labelText: 'Password',
-                    border: OutlineInputBorder(),
-                  ),
-                  obscureText: true,
-                  validator: validatePassword,
-                ),
-                const SizedBox(height: 16),
-                TextButton(
-                  style: TextButton.styleFrom(
-                    backgroundColor: AppColors.primaryColor,
-                    foregroundColor: AppColors.loginButtonTextColor,
-                  ),
-                  onPressed: authProvider.isLoading ? null : _attemptLogin,
-                  child: authProvider.isLoading
-                      ? const CircularProgressIndicator()
-                      : const Text("Login"),
-                ),
-                TextButton(
-                  style: TextButton.styleFrom(
-                    backgroundColor: AppColors.secondaryColor,
-                    foregroundColor: AppColors.loginButtonTextColor,
-                  ),
-                  onPressed: () {
-                    context.push("/register");
-                  },
-                  child: const Text(
-                    "Register",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-                const DividerWithMargins(20),
-                //const LoginViewSignupLinks(),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         ),
       ),
     );

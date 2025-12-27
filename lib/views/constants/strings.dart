@@ -3,44 +3,45 @@ import 'package:flutter/foundation.dart';
 @immutable
 class Strings {
   // General app information
-  static const appName = 'Instagram';
+  static const appName = 'Peavalupäevik';
   static const welcomeToAppName = 'Welcome to ${Strings.appName}';
-
-  // Messages related to posts
-  static const youHaveNoPosts =
-      'You have not made a post yet. Press either the video-upload or the photo-upload buttons at the top of the screen to upload your first post!';
-  static const noPostsAvailable =
-      "Nobody seems to have made any posts yet. Why don't you take the first step and upload your first post?!";
-
-  // Search-related messages
-  static const enterYourSearchTerm =
-      'Enter your search term to get started. You can search in the description of all posts available in the system';
 
   // Third-party integration
   static const google = 'Google';
   static const googleSignupUrl = 'https://accounts.google.com/signup';
+  static const signInWithGoogle = 'Logi sisse Googlega';
 
   // Login and account-related messages
-  static const logIntoYourAccount = 'Log into your account.';
-  static const dontHaveAnAccount = "Don't have an account?\n";
-  static const signUp = 'Sign up';
-  static const orCreateAnAccountOn = ' or create an account on ';
+  static const logIn = 'Sisselogimine';
+  static const username = 'Nimi';
+  static const enterYourName = 'Palun sisesta oma nimi';
+  static const emailAddress = 'E-posti aadress';
+  static const enterYourEmailAddress = 'Palun sisesta oma e-posti aadress';
+  static const enterCorrectEmailAddress = 'Palun sisesta korrektne e-posti aadress';
+  static const password = 'Parool';
+  static const enterYourPassword = 'Palun sisesta oma parool';
+  static const repeatPassword = 'Korda parooli';
+  static const passwordsDoNotMatch = 'Paroolid ei ühti';
+  static const shortPassword = 'Parool peab olema vähemalt 5 tähemärki pikk';
+  static const passwordMustContainUppercase = 'Parool peab sisaldama vähemalt ühte suurtähte';
+  static const logIntoYourAccount = 'Logi sisse';
+  static const signUp = 'Registreeru';
+  static const forgotPassword = 'Unustasid parooli?';
+  static const userEmailAlreadyInUse = 'Kasutaja e-posti aadress on juba kasutusel.';
+  static const invalidEmailOrPassword = 'Vale e-posti aadress või parool.';
+  static const userRegistrationFailed = 'Registreerimine ebaõnnestus.';
+  static const loginFailed = 'Sisselogimine ebaõnnestus: ';
+  static const formNotAvailable = 'Vorm pole saadaval';
+  static const resetPasswordInstruction = 'Sisesta oma e-posti aadress ja me saadame uue parooli e-postile';
+  static const send = 'Saada';
+  static const resetEmailSent = 'Saatsime juhised parooli taastamiseks e-postile.';
 
-  // Post interaction strings
-  static const comments = 'Comments';
-  static const writeYourCommentHere = 'Write your comment here...';
-  static const checkOutThisPost = 'Check out this post!';
-  static const postDetails = 'Post Details';
-  static const post = 'post';
-  static const createNewPost = 'Create New Post';
-  static const pleaseWriteYourMessageHere = 'Please write your message here';
+  // Interaction strings
+  static const or = 'või';
+  static const back = 'Tagasi';
+  static const errorMessage = 'Tekkis viga';
+  static const toFrontPage = 'Esilehele';
 
-  // Comments-related message
-  static const noCommentsYet =
-      'Nobody has commented on this post yet. You can change that though, and be the first person who comments!';
-
-  // Search input hint
-  static const enterYourSearchTermHere = 'Enter your search term here';
 
   // Private constructor to prevent instantiation
   const Strings._();

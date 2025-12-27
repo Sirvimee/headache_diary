@@ -1,4 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+
+
 import '../../../typedef/user_id.dart';
 import '../models/auth_result.dart';
 
@@ -47,5 +50,25 @@ class Authenticator {
       return AuthResult.failure;
     }
   }
-}
 
+  Future<AuthResult> signInWithGoogle() async {
+    try {
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+      if (googleUser == null) {
+        return AuthResult.failure; // user aborted
+      }
+
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      await FirebaseAuth.instance.signInWithCredential(credential);
+      return AuthResult.success;
+    } catch (e) {
+      return AuthResult.failure;
+    }
+  }
+}

@@ -9,7 +9,6 @@ import '../../../state/auth/providers/is_logged_in_provider.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/strings.dart';
 import '../validators/validators.dart';
-import '../widget/divider_with_margins.dart';
 
 class RegisterView extends ConsumerStatefulWidget {
   const RegisterView({super.key});
@@ -22,6 +21,7 @@ class RegisterViewState extends ConsumerState<RegisterView> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
   @override
@@ -29,18 +29,48 @@ class RegisterViewState extends ConsumerState<RegisterView> {
     _nameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
   Future<void> _attemptRegister() async {
-    if (_formKey.currentState!.validate()) {
-      final name = _nameController.text;
-      final email = _emailController.text;
-      final password = _passwordController.text;
+    final formState = _formKey.currentState;
+    if (formState == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text(Strings.formNotAvailable)),
+      );
+      return;
+    }
 
+    if (!formState.validate()) {
+      return;
+    }
+
+    final name = _nameController.text;
+    final email = _emailController.text;
+    final password = _passwordController.text;
+    final confirm = _confirmPasswordController.text;
+
+    if (password != confirm) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text(Strings.passwordsDoNotMatch)),
+      );
+      return;
+    }
+
+    try {
       final authProvider = ref.read(authenticationProvider.notifier);
-      await authProvider.registerWithEmailAndPassword(
-          email: email, name: name, password: password);
+      await authProvider.registerWithEmailAndPassword(email: email, name: name, password: password);
+      final current = ref.read(authenticationProvider);
+      if (current.result != AuthResult.success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text(Strings.userRegistrationFailed), backgroundColor: Colors.red),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${Strings.userRegistrationFailed}$e')),
+      );
     }
   }
 
@@ -56,7 +86,7 @@ class RegisterViewState extends ConsumerState<RegisterView> {
               !current.isLoading) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                content: Text("User already exists!"),
+                content: Text(Strings.userEmailAlreadyInUse),
                 backgroundColor: Colors.red,
               ),
             );
@@ -65,72 +95,139 @@ class RegisterViewState extends ConsumerState<RegisterView> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(Strings.appName),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.pop(),
+        ),
+        title: const Text(Strings.back)
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: SingleChildScrollView(
-          child: Form(
-            key: _formKey,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const SizedBox(height: 40),
-                // Header text
-                Text(
-                  Strings.signUp,
-                  style: Theme.of(context).textTheme.displaySmall,
-                ),
-                const DividerWithMargins(20),
-                // Email field
-                TextFormField(
-                  controller: _nameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Name',
-                    border: OutlineInputBorder(),
+      body: SafeArea(
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              padding: EdgeInsets.only(
+                left: 24,
+                right: 24,
+                top: 24,
+                bottom: MediaQuery.of(context).viewInsets.bottom + 24,
+              ),
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight - 48),
+                child: IntrinsicHeight(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const SizedBox(height: 8),
+                      Text(
+                        Strings.signUp,
+                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                              color: AppColors.textColor,
+                              fontWeight: FontWeight.w600,
+                            ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 20),
+
+                      Form(
+                        key: _formKey,
+                        child: Column(
+                          children: [
+
+                            // Username
+                            SizedBox(
+                              height: 60,
+                              child: TextFormField(
+                                controller: _nameController,
+                                style: TextStyle(fontSize: 20),
+                                decoration: InputDecoration(
+                                  hintText: Strings.username,
+                                ),
+                                validator: (value) => validateName(value),
+                              ),
+                            ),
+
+                            const SizedBox(height: 16),
+
+                            // Email
+                            SizedBox(
+                              height: 60,
+                              child: TextFormField(
+                                controller: _emailController,
+                                style: TextStyle(fontSize: 20),
+                                decoration: InputDecoration(
+                                  hintText: Strings.emailAddress,
+                                ),
+                                keyboardType: TextInputType.emailAddress,
+                                validator: (value) => validateEmail(value),
+                              ),
+                            ),
+
+                            const SizedBox(height: 16),
+
+                            // Password
+                            SizedBox(
+                              height: 60,
+                              child: TextFormField(
+                                controller: _passwordController,
+                                obscureText: true,
+                                style: TextStyle(fontSize: 20),
+                                decoration: InputDecoration(
+                                  hintText: Strings.password,
+                                ),
+                                validator: (value) => validatePassword(value),
+                              ),
+                            ),
+
+                            const SizedBox(height: 16),
+
+                            // Confirm password
+                            SizedBox(
+                              height: 60,
+                              child: TextFormField(
+                                controller: _confirmPasswordController,
+                                obscureText: true,
+                                style: TextStyle(fontSize: 20),
+                                decoration: InputDecoration(
+                                  hintText: Strings.repeatPassword,
+                                ),
+                                validator: (value) => value == _passwordController.text ? null : Strings.passwordsDoNotMatch,
+                              ),
+                            ),
+
+                            const SizedBox(height: 24),
+
+                            SizedBox(
+                              width: double.infinity,
+                              height: 70,
+                              child: ElevatedButton(
+                                onPressed: _attemptRegister,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.buttonColor,
+                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                  elevation: 0,
+                                ),
+                                child: const Text(
+                                  Strings.signUp,
+                                  style: TextStyle(color: AppColors.primaryColor, fontSize: 18, fontWeight: FontWeight.w600),
+                                ),
+                              ),
+                            ),
+
+                            const SizedBox(height: 16),
+                          ],
+                        ),
+                      ),
+
+                      // Push remaining space to avoid tight bottom
+                      const Spacer(),
+
+                    ],
                   ),
-                  validator: validateName,
                 ),
-                const SizedBox(height: 16),
-                // Email field
-                TextFormField(
-                  controller: _emailController,
-                  decoration: const InputDecoration(
-                    labelText: 'Email',
-                    border: OutlineInputBorder(),
-                  ),
-                  keyboardType: TextInputType.emailAddress,
-                  validator:
-                  validateEmail, //-> (String? value) => _validateEmail(value)
-                ),
-                const SizedBox(height: 16),
-                // Password field
-                TextFormField(
-                  controller: _passwordController,
-                  decoration: const InputDecoration(
-                    labelText: 'Password',
-                    border: OutlineInputBorder(),
-                  ),
-                  obscureText: true,
-                  validator: validatePassword,
-                ),
-                const SizedBox(height: 16),
-                TextButton(
-                  style: TextButton.styleFrom(
-                    backgroundColor: AppColors.secondaryColor,
-                    foregroundColor: AppColors.loginButtonTextColor,
-                  ),
-                  onPressed: _attemptRegister,
-                  child: const Text(
-                    "Register",
-                    style: TextStyle(color: Colors.white),
-                  ),
-                ),
-                const DividerWithMargins(20),
-                //const LoginViewSignupLinks(),
-              ],
-            ),
-          ),
+              ),
+            );
+          },
         ),
       ),
     );
