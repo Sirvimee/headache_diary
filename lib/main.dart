@@ -63,6 +63,31 @@ class MyApp extends StatelessWidget {
         dialogTheme: const DialogThemeData(
           backgroundColor: AppColors.primaryColor,
         ),
+        // Global BottomNavigationBar theme: controls icon colors and label colors centrally
+        bottomNavigationBarTheme: BottomNavigationBarThemeData(
+          type: BottomNavigationBarType.fixed,
+          backgroundColor: AppColors.primaryColor,
+          // Icon colors (selected vs unselected)
+          selectedIconTheme: IconThemeData(
+            color: AppColors.buttonColor.withAlpha(217),
+            size: 36,
+          ),
+          unselectedIconTheme: IconThemeData(
+            color: AppColors.buttonColor,
+            size: 36,
+          ),
+          // Label text colors (selected vs unselected)
+          selectedLabelStyle: TextStyle(
+            color: AppColors.hintColor.withAlpha(217),
+          ),
+          unselectedLabelStyle: TextStyle(
+            color: AppColors.hintColor,
+          ),
+          showSelectedLabels: true,
+          showUnselectedLabels: true,
+          selectedItemColor: AppColors.buttonColor,
+          unselectedItemColor: AppColors.hintColor,
+        ),
       ),
     );
   }

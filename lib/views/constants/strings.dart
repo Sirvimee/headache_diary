@@ -42,6 +42,17 @@ class Strings {
   static const errorMessage = 'Tekkis viga';
   static const toFrontPage = 'Esilehele';
 
+  // Dialogs
+  static const logOut = 'Logi välja';
+  static const areYouSureYouWantToLogOut = 'Kas oled kindel, et soovid välja logida?';
+  static const cancel = 'Tühista';
+
+  // Navigation
+  static const home = 'Avalehele';
+  static const notes = 'Lisa märkmeid';
+  static const statistics = 'Kokkuvõte';
+  static const profile = 'Profiil';
+
 
   // Private constructor to prevent instantiation
   const Strings._();
