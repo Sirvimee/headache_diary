@@ -67,13 +67,23 @@ class Strings {
   static const november = 'november';
   static const december = 'detsember';
 
-  static const monday = 'E';
-  static const tuesday = 'T';
-  static const wednesday = 'K';
-  static const thursday = 'N';
-  static const friday = 'R';
-  static const saturday = 'L';
-  static const sunday = 'P';
+  static const mo = 'E';
+  static const tu = 'T';
+  static const we = 'K';
+  static const thu = 'N';
+  static const fri = 'R';
+  static const sat = 'L';
+  static const sun = 'P';
+
+  static const monday = 'Esmaspäev';
+  static const tuesday = 'Teisipäev';
+  static const wednesday = 'Kolmapäev';
+  static const thursday = 'Neljapäev';
+  static const friday = 'Reede';
+  static const saturday = 'Laupäev';
+  static const sunday = 'Pühapäev';
+
+  static const today = 'Täna';
 
 
   // Private constructor to prevent instantiation

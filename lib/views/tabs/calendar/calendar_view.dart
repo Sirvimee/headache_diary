@@ -4,7 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../widgets/pill_badge.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/strings.dart';
-import 'day_view.dart';
+import '../../main/main_view.dart';
 
 class CalendarView extends StatefulWidget {
   const CalendarView({super.key});
@@ -23,9 +23,8 @@ class _CalendarViewState extends State<CalendarView> {
   late final DateTime _baseDate; // the date that corresponds to _basePage
 
   final List<String> _weekDays = [
-    Strings.monday, Strings.tuesday,
-    Strings.wednesday, Strings.thursday,
-    Strings.friday, Strings.saturday, Strings.sunday
+    Strings.mo, Strings.tu, Strings.we, Strings.thu,
+    Strings.fri, Strings.sat, Strings.sun,
   ];
 
   final List<String> _monthsEst = [
@@ -212,7 +211,7 @@ class _CalendarViewState extends State<CalendarView> {
                                               Navigator.push(
                                                 context,
                                                 MaterialPageRoute(
-                                                  builder: (_) => DayView(date: DateTime(year, month, day)),
+                                                  builder: (_) => MainView(initialIndex: 1, initialDate: DateTime(year, month, day)),
                                                 ),
                                               );
                                             },
