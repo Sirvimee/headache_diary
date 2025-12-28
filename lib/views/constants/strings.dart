@@ -53,6 +53,28 @@ class Strings {
   static const statistics = 'Kokkuvõte';
   static const profile = 'Profiil';
 
+  // Calendar
+  static const january = 'jaanuar';
+  static const february = 'veebruar';
+  static const march = 'märts';
+  static const april = 'aprill';
+  static const may = 'mai';
+  static const june = 'juuni';
+  static const july = 'juuli';
+  static const august = 'august';
+  static const september = 'september';
+  static const october = 'oktoober';
+  static const november = 'november';
+  static const december = 'detsember';
+
+  static const monday = 'E';
+  static const tuesday = 'T';
+  static const wednesday = 'K';
+  static const thursday = 'N';
+  static const friday = 'R';
+  static const saturday = 'L';
+  static const sunday = 'P';
+
 
   // Private constructor to prevent instantiation
   const Strings._();

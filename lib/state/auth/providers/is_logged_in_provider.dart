@@ -1,5 +1,4 @@
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/auth_result.dart';
 import 'authentication_provider.dart';
 

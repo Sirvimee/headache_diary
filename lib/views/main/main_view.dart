@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:headache_diary/views/tabs/calendar/calendar_view.dart';
 import 'package:headache_diary/views/tabs/notes/add_notes_view.dart';
 
 import '../../state/auth/providers/authentication_provider.dart';
@@ -20,9 +21,7 @@ class MainView extends ConsumerStatefulWidget {
 class _MainViewState extends ConsumerState<MainView> {
   int _currentIndex = 0;
   final List<Widget> screens = [
-    const Center(
-      child: Text(Strings.home),
-    ),
+    const CalendarView(),
     const AddNotesView(),
     const StatisticsView(),
   ];
