@@ -114,7 +114,7 @@ Widget buildMainBottomNavigationBar(BuildContext context, int currentIndex, void
     currentIndex: currentIndex,
     onTap: (index) async {
       if (index == 1) {
-        final date = DayView.activeDate.value;
+        final date = (currentIndex == 0) ? DateTime.now() : DayView.activeDate.value;
         await Navigator.of(context).push(PageRouteBuilder(
           opaque: false,
           pageBuilder: (ctx, a1, a2) => DayActionModal(date: date),

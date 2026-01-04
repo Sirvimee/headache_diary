@@ -100,7 +100,7 @@ class Strings {
   // Notes
   static const headacheLeftSide = 'Vasakpoolne peavalu';
   static const headacheRightSide = 'Parempoolne peavalu';
-  static const headacheFull = 'Õle pea peavalu';
+  static const headacheFull = 'Üle pea peavalu';
   static const addPill = 'Lisa tablett';
   static const subtractPill = 'Eemalda tablett';
   static const injection = 'Süst';

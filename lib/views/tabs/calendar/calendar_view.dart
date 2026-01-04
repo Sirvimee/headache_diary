@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/strings.dart';
 import '../../main/main_view.dart';
+import '../../../widgets/svg_icon.dart';
 
 class CalendarView extends StatefulWidget {
   const CalendarView({super.key});
@@ -18,8 +19,8 @@ class _CalendarViewState extends State<CalendarView> {
 
   // Page view setup for vertical month swiping
   late final PageController _pageController;
-  final int _basePage = 1200; // large center index
-  late final DateTime _baseDate; // the date that corresponds to _basePage
+  final int _basePage = 1200;
+  late final DateTime _baseDate;
 
   final List<String> _weekDays = [
     Strings.mo, Strings.tu, Strings.we, Strings.thu,
@@ -148,7 +149,6 @@ class _CalendarViewState extends State<CalendarView> {
                       final month = monthDate.month;
                       final grid = _generateMonthGrid(year, month);
 
-                      // Build the page so the grid fills the available space.
                       return Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
                         child: Column(
@@ -164,10 +164,9 @@ class _CalendarViewState extends State<CalendarView> {
                             ),
                             const SizedBox(height: 20),
 
-                            // Let the grid take remaining vertical space so it never overflows the page.
+                            // The month grid fills the remaining space
                             Expanded(
                               child: LayoutBuilder(builder: (context, constraints) {
-                                // Calculate cell aspect ratio based on available width/height so grid fills the area.
                                 final availW = constraints.maxWidth;
                                 final availH = constraints.maxHeight;
                                 final cellW = availW / 7.0;
@@ -186,16 +185,9 @@ class _CalendarViewState extends State<CalendarView> {
                                   itemBuilder: (ctx, i) {
                                     final day = grid[i];
 
-                                    // Look up entry for this day
-                                    Map<String, dynamic>? data;
-                                    if (day != null) {
-                                      final key = DateTime(year, month, day);
-                                      data = entries[key];
-                                    }
-
-                                    final meds = data != null
-                                        ? Map<String, dynamic>.from(data['medication'] ?? {})
-                                        : <String, dynamic>{};
+                                    final Map<String, dynamic>? data = day != null
+                                        ? entries[DateTime(year, month, day)]
+                                        : null;
 
                                     final isToday = _isToday(day, year, month);
 
@@ -211,17 +203,18 @@ class _CalendarViewState extends State<CalendarView> {
                                               );
                                             },
                                       child: Container(
-                                        margin: EdgeInsets.all(2.0),
+                                        margin: const EdgeInsets.all(2.0),
+                                        padding: const EdgeInsets.all(4.0),
                                         decoration: BoxDecoration(
                                           color: day != null ? AppColors.accentColor : Colors.transparent,
-                                          border: isToday
-                                              ? Border.all(color: AppColors.buttonColor, width: 3)
-                                              : null,
+                                          border: isToday ? Border.all(color: AppColors.buttonColor, width: 3) : null,
                                         ),
-                                        child: Stack(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.stretch,
                                           children: [
                                             if (day != null)
-                                              Center(
+                                              Align(
+                                                alignment: Alignment.topCenter,
                                                 child: Text(
                                                   '$day',
                                                   style: const TextStyle(
@@ -231,6 +224,93 @@ class _CalendarViewState extends State<CalendarView> {
                                                   ),
                                                 ),
                                               ),
+
+                                            const SizedBox(height: 8),
+
+                                            // Icons area below the day number
+                                            Expanded(
+                                              child: Builder(builder: (ctx) {
+                                                final iconsMap = data != null ? Map<String, dynamic>.from(data['icons'] ?? {}) : <String, dynamic>{};
+                                                final medsMap = data != null ? Map<String, dynamic>.from(data['medication'] ?? {}) : <String, dynamic>{};
+                                                final pillCount = (medsMap['pill'] ?? 0) as int;
+                                                final notesStr = (data != null ? (data['notes'] ?? '') : '') as String;
+
+                                                Widget smallIcon(bool present, String asset, {bool flip = false}) {
+                                                  if (!present) return const SizedBox.shrink();
+                                                  return Center(
+                                                    child: Transform(
+                                                      alignment: Alignment.center,
+                                                      transform: flip ? Matrix4.rotationY(3.14159) : Matrix4.identity(),
+                                                      child: SvgIcon(asset: asset, size: 9.5, color: AppColors.buttonColor),
+                                                    ),
+                                                  );
+                                                }
+
+                                                Widget pillWidget(int count) {
+                                                  if (count <= 0) return const SizedBox.shrink();
+                                                  return Center(
+                                                    child: SizedBox(
+                                                      width: 20,
+                                                      child: FittedBox(
+                                                        fit: BoxFit.scaleDown,
+                                                        alignment: Alignment.center,
+                                                        child: Row(
+                                                          mainAxisSize: MainAxisSize.min,
+                                                          children: [
+                                                            SvgIcon(asset: 'assets/icons/tablett.svg', size: 9.5, color: AppColors.buttonColor),
+                                                            const SizedBox(width: 2),
+                                                            Text('$count', style: const TextStyle(color: AppColors.buttonColor, fontSize: 9, fontWeight: FontWeight.w600)),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  );
+                                                }
+
+                                                // Build 4x4 layout by collecting present icons per row so there are no gaps
+                                                List<Widget> padRow(List<Widget> r) {
+                                                  final out = List<Widget>.from(r);
+                                                  while (out.length < 4) out.add(const SizedBox.shrink());
+                                                  if (out.length > 4) out.removeRange(4, out.length);
+                                                  return out;
+                                                }
+
+                                                // Row 1: headache icons (left, full, right)
+                                                final row1 = <Widget>[];
+                                                if (iconsMap['peavalu_left'] == true) row1.add(smallIcon(true, 'assets/icons/peavalu-pool.svg'));
+                                                if (iconsMap['peavalu_full'] == true) row1.add(smallIcon(true, 'assets/icons/peavalu-terve.svg'));
+                                                if (iconsMap['peavalu_right'] == true) row1.add(smallIcon(true, 'assets/icons/peavalu-pool.svg', flip: true));
+
+                                                // Row 2: pills (with count) and systal
+                                                final row2 = <Widget>[];
+                                                if (pillCount > 0) row2.add(pillWidget(pillCount));
+                                                if (iconsMap['systal'] == true) row2.add(smallIcon(true, 'assets/icons/systal.svg'));
+
+                                                // Row 3: sex, gym, run, wine
+                                                final row3 = <Widget>[];
+                                                if (iconsMap['sex'] == true) row3.add(smallIcon(true, 'assets/icons/heart.svg'));
+                                                if (iconsMap['gym'] == true) row3.add(smallIcon(true, 'assets/icons/gym.svg'));
+                                                if (iconsMap['run'] == true) row3.add(smallIcon(true, 'assets/icons/jooksmine.svg'));
+                                                if (iconsMap['wine'] == true) row3.add(smallIcon(true, 'assets/icons/wine.svg'));
+
+                                                // Row 4: blood, notes
+                                                final row4 = <Widget>[];
+                                                if (iconsMap['blood'] == true) row4.add(smallIcon(true, 'assets/icons/blood.svg'));
+                                                if (notesStr.isNotEmpty) row4.add(smallIcon(true, 'assets/icons/notes.svg'));
+
+                                                final gridItems = <Widget>[...padRow(row1), ...padRow(row2), ...padRow(row3), ...padRow(row4)];
+
+                                                return GridView.count(
+                                                  crossAxisCount: 4,
+                                                  childAspectRatio: 1,
+                                                  mainAxisSpacing: 2,
+                                                  crossAxisSpacing: 2,
+                                                  physics: const NeverScrollableScrollPhysics(),
+                                                  padding: EdgeInsets.zero,
+                                                  children: gridItems,
+                                                );
+                                              }),
+                                            ),
                                           ],
                                         ),
                                       ),
@@ -239,9 +319,6 @@ class _CalendarViewState extends State<CalendarView> {
                                 );
                               }),
                             ),
-
-                            const SizedBox(height: 5),
-
                           ],
                         ),
                       );
