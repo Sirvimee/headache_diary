@@ -1,5 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:go_router/go_router.dart';
+import 'package:headache_diary/views/tabs/calendar/calendar_view.dart';
+import 'package:headache_diary/views/tabs/profile/profile_data_changed_view.dart';
 
 import '../views/auth_view.dart';
 import '../views/authentication/login/change_password_view.dart';
@@ -30,6 +32,18 @@ final GoRouter router = GoRouter(
       path: '/password-sent',
       builder: (BuildContext context, GoRouterState state) {
         return const PasswordSentView();
+      },
+    ),
+    GoRoute(
+      path: '/calendar',
+      builder: (BuildContext context, GoRouterState state) {
+        return const CalendarView();
+      },
+    ),
+    GoRoute(
+      path: '/data-changed',
+      builder: (BuildContext context, GoRouterState state) {
+        return const ProfileDataChangedView();
       },
     ),
   ],

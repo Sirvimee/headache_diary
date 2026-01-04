@@ -3,10 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../constants/app_colors.dart';
 import '../constants/strings.dart';
-import '../tabs/profile/profile_view.dart';
+import '../main/main_view.dart';
 import '../dialogs/logout_dialog.dart';
 import '../dialogs/alert_dialog_model.dart';
 import '../../state/auth/providers/authentication_provider.dart';
+import '../../state/user_info/user_info_provider.dart';
 
 PreferredSizeWidget buildMainAppBar(BuildContext context, WidgetRef ref) {
   return AppBar(
@@ -16,7 +17,7 @@ PreferredSizeWidget buildMainAppBar(BuildContext context, WidgetRef ref) {
       onPressed: () {
         Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (context) => const ProfileView(),
+            builder: (context) => const MainView(initialIndex: 3),
           ),
         );
       },
@@ -28,19 +29,39 @@ PreferredSizeWidget buildMainAppBar(BuildContext context, WidgetRef ref) {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
-        children: const [
-          Icon(
+        children: [
+          const Icon(
             Icons.account_circle,
             color: AppColors.buttonColor,
             size: 36,
           ),
-          SizedBox(height: 4),
-          Text(
-            Strings.profile,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(color: AppColors.hintColor, fontSize: 12),
-          ),
+          const SizedBox(height: 4),
+          Builder(builder: (context) {
+            final authState = ref.watch(authenticationProvider);
+            final userId = authState.userId;
+            final userInfoAsync = ref.watch(userInfoModelProvider(userId!));
+
+            return userInfoAsync.when(
+              data: (userInfo) => Text(
+                (userInfo.displayName.isNotEmpty) ? userInfo.displayName : Strings.profile,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(color: AppColors.hintColor, fontSize: 12),
+              ),
+              loading: () => const Text(
+                Strings.profile,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(color: AppColors.hintColor, fontSize: 12),
+              ),
+              error: (_, __) => const Text(
+                Strings.profile,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(color: AppColors.hintColor, fontSize: 12),
+              ),
+            );
+          }),
         ],
       ),
     ),
