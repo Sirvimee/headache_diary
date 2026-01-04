@@ -8,6 +8,8 @@ import '../dialogs/logout_dialog.dart';
 import '../dialogs/alert_dialog_model.dart';
 import '../../state/auth/providers/authentication_provider.dart';
 import '../../state/user_info/user_info_provider.dart';
+import '../tabs/calendar/day_action_modal.dart';
+import '../tabs/calendar/day_view.dart';
 
 PreferredSizeWidget buildMainAppBar(BuildContext context, WidgetRef ref) {
   return AppBar(
@@ -54,7 +56,7 @@ PreferredSizeWidget buildMainAppBar(BuildContext context, WidgetRef ref) {
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(color: AppColors.hintColor, fontSize: 12),
               ),
-              error: (_, __) => const Text(
+              error: (_, _) => const Text(
                 Strings.profile,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -106,11 +108,26 @@ PreferredSizeWidget buildMainAppBar(BuildContext context, WidgetRef ref) {
   );
 }
 
-Widget buildMainBottomNavigationBar(int currentIndex, void Function(int) onTap) {
+Widget buildMainBottomNavigationBar(BuildContext context, int currentIndex, void Function(int) onTap) {
   return BottomNavigationBar(
     type: BottomNavigationBarType.fixed,
     currentIndex: currentIndex,
-    onTap: onTap,
+    onTap: (index) async {
+      if (index == 1) {
+        final date = DayView.activeDate.value;
+        await Navigator.of(context).push(PageRouteBuilder(
+          opaque: false,
+          pageBuilder: (ctx, a1, a2) => DayActionModal(date: date),
+          transitionsBuilder: (ctx, anim, sec, child) {
+            final tween = Tween(begin: const Offset(0, 1), end: Offset.zero).chain(CurveTween(curve: Curves.easeOut));
+            return SlideTransition(position: anim.drive(tween), child: child);
+          },
+        ));
+        return;
+      }
+
+      onTap(index);
+    },
     items: const [
       BottomNavigationBarItem(
         icon: Icon(Icons.home),

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../../widgets/pill_badge.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/strings.dart';
 import '../../main/main_view.dart';
@@ -197,10 +196,6 @@ class _CalendarViewState extends State<CalendarView> {
                                     final meds = data != null
                                         ? Map<String, dynamic>.from(data['medication'] ?? {})
                                         : <String, dynamic>{};
-                                    final pillCount = meds.values.fold<int>(0, (s, v) => s + (v as int));
-
-                                    final hasInjection = data != null && data['preventiveInjection'] == true;
-                                    final hasReminder = data != null && data['reminder']?['enabled'] == true;
 
                                     final isToday = _isToday(day, year, month);
 
@@ -234,19 +229,6 @@ class _CalendarViewState extends State<CalendarView> {
                                                     fontSize: 15,
                                                     fontWeight: FontWeight.w600,
                                                   ),
-                                                ),
-                                              ),
-                                            // Markers
-                                            if ((pillCount > 0) || hasInjection)
-                                              Positioned(
-                                                top: 6,
-                                                right: 6,
-                                                child: Row(
-                                                  mainAxisSize: MainAxisSize.min,
-                                                  children: [
-                                                    if (pillCount > 0) PillWithCount(count: pillCount),
-                                                    if (hasInjection) InjectionWithClock(hasReminder: hasReminder),
-                                                  ],
                                                 ),
                                               ),
                                           ],

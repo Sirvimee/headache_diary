@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../constants/app_colors.dart';
 import '../../constants/strings.dart';
+import '../../../widgets/svg_icon.dart';
+import 'day_action_items.dart';
 
 class DayView extends StatefulWidget {
   final DateTime date;
   const DayView({super.key, required this.date});
+
+  static final activeDate = ValueNotifier<DateTime>(DateTime.now());
 
   @override
   State<DayView> createState() => _DayViewState();
@@ -15,11 +20,15 @@ class DayView extends StatefulWidget {
 class _DayViewState extends State<DayView> {
   late DateTime _currentDate;
   late final String uid;
+  bool _loading = false;
+
+  final List<ActionItem> items = actionItems;
 
   @override
   void initState() {
     super.initState();
     _currentDate = DateTime(widget.date.year, widget.date.month, widget.date.day);
+    DayView.activeDate.value = _currentDate;
     uid = FirebaseAuth.instance.currentUser?.uid ?? '';
   }
 
@@ -30,12 +39,14 @@ class _DayViewState extends State<DayView> {
   void _goToPreviousDay() {
     setState(() {
       _currentDate = _currentDate.subtract(const Duration(days: 1));
+      DayView.activeDate.value = _currentDate;
     });
   }
 
   void _goToNextDay() {
     setState(() {
       _currentDate = _currentDate.add(const Duration(days: 1));
+      DayView.activeDate.value = _currentDate;
     });
   }
 
@@ -70,6 +81,14 @@ class _DayViewState extends State<DayView> {
     return '$weekday, $day. $month';
   }
 
+  String _fmt(DateTime d) => d.toIso8601String().substring(0, 10);
+
+  Stream<Map<String, dynamic>?> _dayStream() {
+    final dateIso = _fmt(_currentDate);
+    final docRef = FirebaseFirestore.instance.collection('users').doc(uid).collection('days').doc(dateIso);
+    return docRef.snapshots().map((snap) => snap.exists ? snap.data() : null);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -79,10 +98,8 @@ class _DayViewState extends State<DayView> {
           onHorizontalDragEnd: (details) {
             final velocity = details.primaryVelocity ?? 0.0;
             if (velocity > 0) {
-              // swiped right -> previous day
               _goToPreviousDay();
             } else if (velocity < 0) {
-              // swiped left -> next day
               _goToNextDay();
             }
           },
@@ -118,13 +135,136 @@ class _DayViewState extends State<DayView> {
                 ),
               ),
 
-              // Empty content area for future icons and notes from the database
               Expanded(
                 child: Container(
                   width: double.infinity,
                   color: Colors.transparent,
-                  child: const Center(
-                    child: SizedBox.shrink(),
+                  child: StreamBuilder<Map<String, dynamic>?>(
+                    stream: _dayStream(),
+                    builder: (context, snap) {
+                      final data = snap.data;
+                      final icons = data != null ? Map<String, dynamic>.from(data['icons'] ?? {}) : <String, dynamic>{};
+                      final meds = data != null ? Map<String, dynamic>.from(data['medication'] ?? {}) : <String, dynamic>{};
+                      final pillCount = (meds['pill'] ?? 0) as int;
+                      final notes = (data != null ? (data['notes'] ?? '') : '') as String;
+
+                      final visible = <Widget>[];
+
+                      if (pillCount > 0) {
+                        visible.add(
+                          Align(
+                            alignment: Alignment.topCenter,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    SvgIcon(asset: 'assets/icons/tablett.svg', size: 36, color: AppColors.buttonColor),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      '$pillCount',
+                                      style: const TextStyle(color: AppColors.buttonColor, fontWeight: FontWeight.w600, fontSize: 14),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 2),
+                              ],
+                            ),
+                          ),
+                        );
+                      }
+
+                      for (final it in items) {
+                        if (it.key == 'pill_plus' || it.key == 'pill_minus' || it.key == 'notes') continue;
+                        final present = icons.containsKey(it.key) && icons[it.key] == true;
+                        if (!present) continue;
+
+                        visible.add(
+                          Align(
+                            alignment: Alignment.topCenter,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Transform(
+                                  alignment: Alignment.center,
+                                  transform: it.flip ? Matrix4.rotationY(3.14159) : Matrix4.identity(),
+                                  child: SvgIcon(asset: it.asset, size: 36, color: AppColors.buttonColor),
+                                ),
+                                const SizedBox(height: 2),
+                              ],
+                            ),
+                          ),
+                        );
+                      }
+
+                      return SingleChildScrollView(
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (visible.isNotEmpty)
+                              LayoutBuilder(builder: (ctx, constraints) {
+                                const targetCellW = 80.0;
+                                const spacing = 6.0;
+                                final cols = 3;
+                                final maxWidth = constraints.maxWidth;
+                                final totalSpacing = (cols - 1) * spacing;
+                                final availableForCells = maxWidth - totalSpacing;
+                                final cellW = (availableForCells / cols).clamp(48.0, targetCellW);
+                                final cellH = 56.0;
+                                final gridWidth = cellW * cols + totalSpacing;
+
+                                return Center(
+                                  child: SizedBox(
+                                    width: gridWidth,
+                                    child: GridView.count(
+                                      shrinkWrap: true,
+                                      physics: const NeverScrollableScrollPhysics(),
+                                      crossAxisCount: cols,
+                                      mainAxisSpacing: 4,
+                                      crossAxisSpacing: 4,
+                                      childAspectRatio: cellW / cellH,
+                                      children: visible,
+                                    ),
+                                  ),
+                                );
+                              })
+                             else
+                               const SizedBox.shrink(),
+
+                            const SizedBox(height: 12),
+
+                            if (notes.isNotEmpty)
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(Strings.additionalNotes,
+                                        style: TextStyle(
+                                          color: AppColors.buttonColor,
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 22,
+                                        )
+                                    ),
+                                    const SizedBox(height: 6),
+                                    Text(
+                                      notes,
+                                      style: const TextStyle(
+                                        color: AppColors.textColor,
+                                        fontSize: 18,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+
+                            if (_loading) const LinearProgressIndicator(),
+                          ],
+                        ),
+                      );
+                    },
                   ),
                 ),
               ),

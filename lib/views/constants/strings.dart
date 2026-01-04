@@ -57,6 +57,7 @@ class Strings {
   static const logOut = 'Logi välja';
   static const areYouSureYouWantToLogOut = 'Kas oled kindel, et soovid välja logida?';
   static const cancel = 'Tühista';
+  static const save = 'Salvesta';
 
   // Navigation
   static const home = 'Avalehele';
@@ -95,6 +96,24 @@ class Strings {
   static const sunday = 'Pühapäev';
 
   static const today = 'Täna';
+
+  // Notes
+  static const headacheLeftSide = 'Vasakpoolne peavalu';
+  static const headacheRightSide = 'Parempoolne peavalu';
+  static const headacheFull = 'Õle pea peavalu';
+  static const addPill = 'Lisa tablett';
+  static const subtractPill = 'Eemalda tablett';
+  static const injection = 'Süst';
+  static const cardioExercise = 'Kardiotrenn';
+  static const gymWorkout = 'Jõutrenn';
+  static const intercourse = 'Vahekord';
+  static const menstruation = 'Menstruatsioon';
+  static const alcoholConsumption = 'Alkohol';
+  static const additionalNotes = 'Märkmed';
+  static const enterAdditionalNotes = 'Kirjuta siia...';
+
+  static const canAddOnlyToValidDates = 'Märkmeid saab lisada ainult tänasele või varasematele kuupäevadele';
+
 
 
   // Private constructor to prevent instantiation

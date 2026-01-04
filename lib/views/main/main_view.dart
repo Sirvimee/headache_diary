@@ -41,7 +41,7 @@ class _MainViewState extends ConsumerState<MainView> {
     return Scaffold(
       appBar: buildMainAppBar(context, ref),
       body: screens[_currentIndex],
-      bottomNavigationBar: buildMainBottomNavigationBar(navIndex, (index) {
+      bottomNavigationBar: buildMainBottomNavigationBar(context, navIndex, (index) {
         setState(() => _currentIndex = index);
       }),
     );
