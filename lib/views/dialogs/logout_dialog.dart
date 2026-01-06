@@ -13,7 +13,7 @@ class LogoutDialog extends AlertDialogModel<bool> {
       Strings.logOut: true,
     },
     buttonTextStyles: const {
-      Strings.cancel: TextStyle(color: Colors.grey),
+      Strings.cancel: TextStyle(color: AppColors.grey),
       Strings.logOut: TextStyle(color: AppColors.buttonColor),
     },
   );

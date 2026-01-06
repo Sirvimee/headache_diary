@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:headache_diary/state/constants/firebase_field_name.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/strings.dart';
 import '../../main/main_view.dart';
@@ -57,14 +58,14 @@ class _CalendarViewState extends State<CalendarView> {
         .collection('users')
         .doc(uid)
         .collection('days')
-        .where('date', isGreaterThanOrEqualTo: _fmt(start))
-        .where('date', isLessThanOrEqualTo: _fmt(end))
+        .where(FirebaseFieldName.date, isGreaterThanOrEqualTo: _fmt(start))
+        .where(FirebaseFieldName.date, isLessThanOrEqualTo: _fmt(end))
         .snapshots()
         .map((snap) {
       final map = <DateTime, Map<String, dynamic>>{};
       for (var d in snap.docs) {
         final data = d.data();
-        final dt = DateTime.parse(data['date']);
+        final dt = DateTime.parse(data[FirebaseFieldName.date]);
         map[DateTime(dt.year, dt.month, dt.day)] = data;
       }
       return map;
@@ -230,10 +231,10 @@ class _CalendarViewState extends State<CalendarView> {
                                             // Icons area below the day number
                                             Expanded(
                                               child: Builder(builder: (ctx) {
-                                                final iconsMap = data != null ? Map<String, dynamic>.from(data['icons'] ?? {}) : <String, dynamic>{};
-                                                final medsMap = data != null ? Map<String, dynamic>.from(data['medication'] ?? {}) : <String, dynamic>{};
-                                                final pillCount = (medsMap['pill'] ?? 0) as int;
-                                                final notesStr = (data != null ? (data['notes'] ?? '') : '') as String;
+                                                final iconsMap = data != null ? Map<String, dynamic>.from(data[FirebaseFieldName.icons] ?? {}) : <String, dynamic>{};
+                                                final medsMap = data != null ? Map<String, dynamic>.from(data[FirebaseFieldName.medication] ?? {}) : <String, dynamic>{};
+                                                final pillCount = (medsMap[FirebaseFieldName.pill] ?? 0) as int;
+                                                final notesStr = (data != null ? (data[FirebaseFieldName.notes] ?? '') : '') as String;
 
                                                 Widget smallIcon(bool present, String asset, {bool flip = false}) {
                                                   if (!present) return const SizedBox.shrink();
@@ -270,32 +271,34 @@ class _CalendarViewState extends State<CalendarView> {
                                                 // Build 4x4 layout by collecting present icons per row so there are no gaps
                                                 List<Widget> padRow(List<Widget> r) {
                                                   final out = List<Widget>.from(r);
-                                                  while (out.length < 4) out.add(const SizedBox.shrink());
+                                                  while (out.length < 4) {
+                                                    out.add(const SizedBox.shrink());
+                                                  }
                                                   if (out.length > 4) out.removeRange(4, out.length);
                                                   return out;
                                                 }
 
                                                 // Row 1: headache icons (left, full, right)
                                                 final row1 = <Widget>[];
-                                                if (iconsMap['peavalu_left'] == true) row1.add(smallIcon(true, 'assets/icons/peavalu-pool.svg'));
-                                                if (iconsMap['peavalu_full'] == true) row1.add(smallIcon(true, 'assets/icons/peavalu-terve.svg'));
-                                                if (iconsMap['peavalu_right'] == true) row1.add(smallIcon(true, 'assets/icons/peavalu-pool.svg', flip: true));
+                                                if (iconsMap[FirebaseFieldName.peavaluLeft] == true) row1.add(smallIcon(true, 'assets/icons/peavalu-pool.svg'));
+                                                if (iconsMap[FirebaseFieldName.peavaluFull] == true) row1.add(smallIcon(true, 'assets/icons/peavalu-terve.svg'));
+                                                if (iconsMap[FirebaseFieldName.peavaluRight] == true) row1.add(smallIcon(true, 'assets/icons/peavalu-pool.svg', flip: true));
 
                                                 // Row 2: pills (with count) and systal
                                                 final row2 = <Widget>[];
                                                 if (pillCount > 0) row2.add(pillWidget(pillCount));
-                                                if (iconsMap['systal'] == true) row2.add(smallIcon(true, 'assets/icons/systal.svg'));
+                                                if (iconsMap[FirebaseFieldName.systal] == true) row2.add(smallIcon(true, 'assets/icons/systal.svg'));
 
                                                 // Row 3: sex, gym, run, wine
                                                 final row3 = <Widget>[];
-                                                if (iconsMap['sex'] == true) row3.add(smallIcon(true, 'assets/icons/heart.svg'));
-                                                if (iconsMap['gym'] == true) row3.add(smallIcon(true, 'assets/icons/gym.svg'));
-                                                if (iconsMap['run'] == true) row3.add(smallIcon(true, 'assets/icons/jooksmine.svg'));
-                                                if (iconsMap['wine'] == true) row3.add(smallIcon(true, 'assets/icons/wine.svg'));
+                                                if (iconsMap[FirebaseFieldName.sex] == true) row3.add(smallIcon(true, 'assets/icons/heart.svg'));
+                                                if (iconsMap[FirebaseFieldName.gym] == true) row3.add(smallIcon(true, 'assets/icons/gym.svg'));
+                                                if (iconsMap[FirebaseFieldName.run] == true) row3.add(smallIcon(true, 'assets/icons/jooksmine.svg'));
+                                                if (iconsMap[FirebaseFieldName.wine] == true) row3.add(smallIcon(true, 'assets/icons/wine.svg'));
 
                                                 // Row 4: blood, notes
                                                 final row4 = <Widget>[];
-                                                if (iconsMap['blood'] == true) row4.add(smallIcon(true, 'assets/icons/blood.svg'));
+                                                if (iconsMap[FirebaseFieldName.blood] == true) row4.add(smallIcon(true, 'assets/icons/blood.svg'));
                                                 if (notesStr.isNotEmpty) row4.add(smallIcon(true, 'assets/icons/notes.svg'));
 
                                                 final gridItems = <Widget>[...padRow(row1), ...padRow(row2), ...padRow(row3), ...padRow(row4)];

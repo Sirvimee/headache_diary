@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:headache_diary/views/tabs/statistics/statistics_picker_modal.dart';
 
 import '../constants/app_colors.dart';
 import '../constants/strings.dart';
@@ -108,7 +109,7 @@ PreferredSizeWidget buildMainAppBar(BuildContext context, WidgetRef ref) {
   );
 }
 
-Widget buildMainBottomNavigationBar(BuildContext context, int currentIndex, void Function(int) onTap) {
+Widget buildMainBottomNavigationBar(BuildContext context, int currentIndex, void Function(int, [Map<String, dynamic>?]) onTap) {
   return BottomNavigationBar(
     type: BottomNavigationBarType.fixed,
     currentIndex: currentIndex,
@@ -123,6 +124,24 @@ Widget buildMainBottomNavigationBar(BuildContext context, int currentIndex, void
             return SlideTransition(position: anim.drive(tween), child: child);
           },
         ));
+        return;
+      }
+
+      if (index == 2) {
+        final result = await Navigator.of(context).push(PageRouteBuilder(
+          opaque: false,
+          pageBuilder: (ctx, a1, a2) => StatisticsPickerModal(),
+          transitionsBuilder: (ctx, anim, sec, child) {
+            final tween = Tween(begin: const Offset(0, 1), end: Offset.zero).chain(CurveTween(curve: Curves.easeOut));
+            return SlideTransition(position: anim.drive(tween), child: child);
+          },
+        ));
+
+        // If user picked a mode, notify MainView via onTap and pass params
+        if (result is Map<String, dynamic>) {
+          onTap(2, result);
+        }
+
         return;
       }
 

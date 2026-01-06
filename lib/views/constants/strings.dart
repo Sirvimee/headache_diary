@@ -114,7 +114,30 @@ class Strings {
 
   static const canAddOnlyToValidDates = 'Märkmeid saab lisada ainult tänasele või varasematele kuupäevadele';
 
+  // Statistics
+  static const headacheDays = 'Peavalu päevi:';
+  static const rightSideHeadaches = 'Neist parempoolseid:';
+  static const leftSideHeadaches = 'Neist vasakpoolseid:';
+  static const overheadHeadaches = 'Neist üle pea:';
+  static const pillsTaken = 'Tablette võetud, tk:';
+  static const injectionsMade = 'Süste tehtud, tk:';
+  static const cardioDays = 'Kardiotrenne, päevi:';
+  static const strengthDays = 'Jõutrenne, päevi:';
+  static const intercourseDays = 'Vahekordi, päevi:';
+  static const alcoholDays = 'Alkoholi tarvitatud, päevi:';
+  static const menstruationDays = 'Menstruatsioon, päevi:';
+  static const pickCorrectDateRange = 'Palun vali korrektne ajavahemik';
+  static const pickPeriod = 'Vali periood';
+  static const byMonth = 'Kuude kaupa';
+  static const byPeriod = 'Perioodi kaupa';
+  static const from = 'Alates';
+  static const to = 'Kuni';
+  static const pickDate = 'Vali kuupäev';
+  static const confirm = 'Kinnita';
+  static const dataNotFound = 'Andmeid ei leitud';
 
+  // Commons
+  static const error = 'Viga';
 
   // Private constructor to prevent instantiation
   const Strings._();

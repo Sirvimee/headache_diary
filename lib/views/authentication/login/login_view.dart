@@ -56,7 +56,7 @@ class LoginViewState extends ConsumerState<LoginView> {
       final current = ref.read(authenticationProvider);
       if (current.result != AuthResult.success) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text(Strings.invalidEmailOrPassword), backgroundColor: Colors.red),
+          const SnackBar(content: Text(Strings.invalidEmailOrPassword), backgroundColor: AppColors.red),
         );
       }
     } catch (e) {
@@ -76,7 +76,7 @@ class LoginViewState extends ConsumerState<LoginView> {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text(Strings.invalidEmailOrPassword),
-                backgroundColor: Colors.red,
+                backgroundColor: AppColors.red,
               ),
             );
           }

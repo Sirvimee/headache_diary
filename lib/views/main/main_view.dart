@@ -3,7 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:headache_diary/views/tabs/calendar/calendar_view.dart';
 import 'package:headache_diary/views/tabs/calendar/day_view.dart';
 import '../shared/main_layout.dart';
-import '../tabs/statistics/statistics_view.dart';
+import '../tabs/statistics/statistics_monthly_view.dart';
+import '../tabs/statistics/statistics_period_view.dart';
 import '../tabs/profile/profile_view.dart';
 
 class MainView extends ConsumerStatefulWidget {
@@ -18,13 +19,18 @@ class MainView extends ConsumerStatefulWidget {
 
 class _MainViewState extends ConsumerState<MainView> {
   late int _currentIndex;
+  Map<String, dynamic>? _pendingStatsParams;
 
   static DateTime get date => DateTime.now();
 
   List<Widget> get screens => [
         const CalendarView(),
         DayView(date: widget.initialDate ?? date),
-        const StatisticsView(),
+        // Build StatisticsView with any pending params
+        if (_pendingStatsParams != null && _pendingStatsParams!['mode'] == 'period' && _pendingStatsParams!['start'] != null && _pendingStatsParams!['end'] != null)
+          StatisticsPeriodView(start: _pendingStatsParams!['start'], end: _pendingStatsParams!['end'])
+        else
+          const StatisticsView.monthly(),
         const ProfileContent(),
       ];
 
@@ -41,7 +47,13 @@ class _MainViewState extends ConsumerState<MainView> {
     return Scaffold(
       appBar: buildMainAppBar(context, ref),
       body: screens[_currentIndex],
-      bottomNavigationBar: buildMainBottomNavigationBar(context, navIndex, (index) {
+      bottomNavigationBar: buildMainBottomNavigationBar(context, navIndex, (index, [params]) {
+        // If called with params from statistics picker, store them then navigate
+        if (index == 2 && params is Map<String, dynamic>) {
+          _pendingStatsParams = params;
+        } else {
+          _pendingStatsParams = null;
+        }
         setState(() => _currentIndex = index);
       }),
     );

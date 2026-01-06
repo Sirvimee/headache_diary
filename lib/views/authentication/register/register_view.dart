@@ -64,7 +64,7 @@ class RegisterViewState extends ConsumerState<RegisterView> {
       final current = ref.read(authenticationProvider);
       if (current.result != AuthResult.success) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text(Strings.userRegistrationFailed), backgroundColor: Colors.red),
+          const SnackBar(content: Text(Strings.userRegistrationFailed), backgroundColor: AppColors.red),
         );
       }
     } catch (e) {
@@ -87,7 +87,7 @@ class RegisterViewState extends ConsumerState<RegisterView> {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
                 content: Text(Strings.userEmailAlreadyInUse),
-                backgroundColor: Colors.red,
+                backgroundColor: AppColors.red,
               ),
             );
           }

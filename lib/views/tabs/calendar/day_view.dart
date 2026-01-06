@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import '../../../state/constants/firebase_field_name.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/strings.dart';
 import '../../../widgets/svg_icon.dart';
@@ -143,10 +144,10 @@ class _DayViewState extends State<DayView> {
                     stream: _dayStream(),
                     builder: (context, snap) {
                       final data = snap.data;
-                      final icons = data != null ? Map<String, dynamic>.from(data['icons'] ?? {}) : <String, dynamic>{};
-                      final meds = data != null ? Map<String, dynamic>.from(data['medication'] ?? {}) : <String, dynamic>{};
-                      final pillCount = (meds['pill'] ?? 0) as int;
-                      final notes = (data != null ? (data['notes'] ?? '') : '') as String;
+                      final icons = data != null ? Map<String, dynamic>.from(data[FirebaseFieldName.icons] ?? {}) : <String, dynamic>{};
+                      final meds = data != null ? Map<String, dynamic>.from(data[FirebaseFieldName.medication] ?? {}) : <String, dynamic>{};
+                      final pillCount = (meds[FirebaseFieldName.pill] ?? 0) as int;
+                      final notes = (data != null ? (data[FirebaseFieldName.notes] ?? '') : '') as String;
 
                       final visible = <Widget>[];
 
@@ -176,7 +177,7 @@ class _DayViewState extends State<DayView> {
                       }
 
                       for (final it in items) {
-                        if (it.key == 'pill_plus' || it.key == 'pill_minus' || it.key == 'notes') continue;
+                        if (it.key == 'pill_plus' || it.key == 'pill_minus' || it.key == FirebaseFieldName.notes) continue;
                         final present = icons.containsKey(it.key) && icons[it.key] == true;
                         if (!present) continue;
 

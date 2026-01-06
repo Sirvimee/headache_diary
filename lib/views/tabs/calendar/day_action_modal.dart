@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../../../state/constants/firebase_field_name.dart';
 import '../../../widgets/svg_icon.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/strings.dart';
@@ -43,7 +44,7 @@ class _DayActionModalState extends State<DayActionModal> {
     if (docSnap.exists) return docRef;
 
     // Check for legacy doc stored with auto-id but with date field
-    final q = await col.where('date', isEqualTo: dateIso).limit(1).get();
+    final q = await col.where(FirebaseFieldName.date, isEqualTo: dateIso).limit(1).get();
     if (q.docs.isNotEmpty) {
       final old = q.docs.first;
       final data = old.data();
@@ -56,10 +57,10 @@ class _DayActionModalState extends State<DayActionModal> {
     }
 
     final payload = {
-      'date': dateIso,
-      'medication': {},
-      'icons': {},
-      'notes': '',
+      FirebaseFieldName.date: dateIso,
+      FirebaseFieldName.medication: {},
+      FirebaseFieldName.icons: {},
+      FirebaseFieldName.notes: '',
     };
 
     await docRef.set(payload);
@@ -74,20 +75,20 @@ class _DayActionModalState extends State<DayActionModal> {
       final ref = await _getOrCreateDayDocRef();
       final snap = await ref.get();
       final data = snap.data() as Map<String, dynamic>? ?? {};
-      final icons = Map<String, dynamic>.from(data['icons'] ?? {});
+      final icons = Map<String, dynamic>.from(data[FirebaseFieldName.icons] ?? {});
 
       if (icons.containsKey(key) && icons[key] == true) {
         icons.remove(key);
-        await ref.update({'icons': icons});
+        await ref.update({FirebaseFieldName.icons: icons});
 
-        if (key == 'systal') {
+        if (key == FirebaseFieldName.systal) {
           try {
-            await ref.update({'reminder': FieldValue.delete()});
+            await ref.update({FirebaseFieldName.reminder: FieldValue.delete()});
           } catch (_) {}
         }
       } else {
         icons[key] = true;
-        await ref.update({'icons': icons});
+        await ref.update({FirebaseFieldName.icons: icons});
       }
     } catch (e) {
       // ignore
@@ -105,11 +106,11 @@ class _DayActionModalState extends State<DayActionModal> {
       await FirebaseFirestore.instance.runTransaction((tx) async {
         final snap = await tx.get(ref);
         final data = snap.data() as Map<String, dynamic>? ?? {};
-        final meds = Map<String, dynamic>.from(data['medication'] ?? {});
-        final current = (meds['pill'] ?? 0) as int;
+        final meds = Map<String, dynamic>.from(data[FirebaseFieldName.medication] ?? {});
+        final current = (meds[FirebaseFieldName.pill] ?? 0) as int;
         final next = (current + delta).clamp(0, 9999);
-        meds['pill'] = next;
-        tx.update(ref, {'medication': meds});
+        meds[FirebaseFieldName.pill] = next;
+        tx.update(ref, {FirebaseFieldName.medication: meds});
       });
     } catch (e) {
       // ignore
@@ -122,7 +123,7 @@ class _DayActionModalState extends State<DayActionModal> {
     final today = DateTime.now();
     final selected = DateTime(widget.date.year, widget.date.month, widget.date.day);
     final isFuture = selected.isAfter(DateTime(today.year, today.month, today.day));
-    if (isFuture && key != 'systal') {
+    if (isFuture && key != FirebaseFieldName.systal) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text(Strings.canAddOnlyToValidDates)));
       return false;
     }
@@ -130,7 +131,7 @@ class _DayActionModalState extends State<DayActionModal> {
   }
 
   Future<void> _editNotes() async {
-    if (!_canEdit('notes')) return;
+    if (!_canEdit(FirebaseFieldName.notes)) return;
     final controller = TextEditingController();
     final res = await showDialog<String?>(
       context: context,
@@ -142,7 +143,7 @@ class _DayActionModalState extends State<DayActionModal> {
           decoration: const InputDecoration(hintText: Strings.enterAdditionalNotes),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text(Strings.cancel, style: TextStyle(color: Colors.grey))),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text(Strings.cancel, style: TextStyle(color: AppColors.grey))),
           TextButton(onPressed: () => Navigator.pop(ctx, controller.text), child: const Text(Strings.save, style: TextStyle(color: AppColors.buttonColor))),
         ],
       ),
@@ -153,7 +154,7 @@ class _DayActionModalState extends State<DayActionModal> {
     setState(() => _loading = true);
     try {
       final ref = await _getOrCreateDayDocRef();
-      await ref.update({'notes': res});
+      await ref.update({FirebaseFieldName.notes: res});
     } catch (e) {
       // ignore
     } finally {
@@ -166,7 +167,7 @@ class _DayActionModalState extends State<DayActionModal> {
     final today = DateTime.now();
     final selected = DateTime(widget.date.year, widget.date.month, widget.date.day);
     if (!selected.isAfter(DateTime(today.year, today.month, today.day))) {
-      await _toggleIcon('systal');
+      await _toggleIcon(FirebaseFieldName.systal);
       return;
     }
 
@@ -175,13 +176,13 @@ class _DayActionModalState extends State<DayActionModal> {
       final ref = await _getOrCreateDayDocRef();
       final snap = await ref.get();
       final data = snap.data() as Map<String, dynamic>? ?? {};
-      final icons = Map<String, dynamic>.from(data['icons'] ?? {});
-      icons['systal'] = true;
+      final icons = Map<String, dynamic>.from(data[FirebaseFieldName.icons] ?? {});
+      icons[FirebaseFieldName.systal] = true;
 
       final reminderTime = DateTime(widget.date.year, widget.date.month, widget.date.day, 9, 0).toIso8601String();
-      final reminder = {'enabled': true, 'time': reminderTime};
+      final reminder = {FirebaseFieldName.enabled: true, FirebaseFieldName.time: reminderTime};
 
-      await ref.update({'icons': icons, 'reminder': reminder});
+      await ref.update({FirebaseFieldName.icons: icons, FirebaseFieldName.reminder: reminder});
 
     } catch (e) {
       // ignore
@@ -245,9 +246,9 @@ class _DayActionModalState extends State<DayActionModal> {
                                     await _changePillCount(1);
                                   } else if (it.key == 'pill_minus') {
                                     await _changePillCount(-1);
-                                  } else if (it.key == 'notes') {
+                                  } else if (it.key == FirebaseFieldName.notes) {
                                     await _editNotes();
-                                  } else if (it.key == 'systal') {
+                                  } else if (it.key == FirebaseFieldName.systal) {
                                     await _addSystalForFuture();
                                   } else {
                                     await _toggleIcon(it.key);

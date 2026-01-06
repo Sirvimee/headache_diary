@@ -21,10 +21,6 @@ class ProfileContentState extends ConsumerState<ProfileContent> {
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _passwordFormKey = GlobalKey<FormState>();
-  final _currentPasswordForEmailController = TextEditingController();
-  final _newEmailController = TextEditingController();
-  final _confirmNewEmailController = TextEditingController();
-  final _emailFormKey = GlobalKey<FormState>();
   final _nameFormKey = GlobalKey<FormState>();
 
   var _isLoading = false;
@@ -35,9 +31,6 @@ class ProfileContentState extends ConsumerState<ProfileContent> {
     _emailController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
-    _currentPasswordForEmailController.dispose();
-    _newEmailController.dispose();
-    _confirmNewEmailController.dispose();
     super.dispose();
   }
 
@@ -75,58 +68,6 @@ class ProfileContentState extends ConsumerState<ProfileContent> {
     // Try to update the password in Firebase Auth
     try {
       await (user as dynamic).updatePassword(newPassword);
-      if (!mounted) return;
-      if (mounted) context.push('/data-changed');
-    } on FirebaseAuthException catch (e) {
-      if (!mounted) return;
-      final message = e.message ?? e.code;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${Strings.errorMessage} $e')));
-    } finally {
-      if (mounted) setState(() => _isLoading = false);
-    }
-  }
-
-  // TODO fix this, changing email not working properly currently
-  Future<void> _attemptToChangeEmail() async {
-    final form = _emailFormKey.currentState;
-    if (form == null) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text(Strings.formNotAvailable)));
-      return;
-    }
-    if (!form.validate()) return;
-
-    setState(() => _isLoading = true);
-
-    final password = _currentPasswordForEmailController.text;
-    final newEmail = _newEmailController.text.trim();
-
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null || user.email == null) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text(Strings.userNotFound)));
-      if (mounted) setState(() => _isLoading = false);
-      return;
-    }
-
-    try {
-      final credential = EmailAuthProvider.credential(email: user.email!, password: password);
-      final reauthResult = await user.reauthenticateWithCredential(credential);
-
-      final updatedUser = reauthResult.user ?? FirebaseAuth.instance.currentUser;
-
-      if (updatedUser == null) {
-        throw FirebaseAuthException(code: 'user-not-found', message: 'User not found after reauthentication');
-      }
-
-      await (updatedUser as dynamic).updateEmail(newEmail);
-
-      final storage = const UserInfoStorage();
-      await storage.updateUserEmail(userId: updatedUser.uid, email: newEmail);
-
       if (!mounted) return;
       if (mounted) context.push('/data-changed');
     } on FirebaseAuthException catch (e) {
@@ -284,100 +225,6 @@ class ProfileContentState extends ConsumerState<ProfileContent> {
 
                     const SizedBox(height: 24),
 
-                    // Change email section
-                    Text(
-                      Strings.changeEmailAddress,
-                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        color: AppColors.textColor,
-                        fontWeight: FontWeight.w600,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    Form(
-                      key: _emailFormKey,
-                      child: Column(
-                        children: [
-                          // Current password
-                          SizedBox(
-                            height: 60,
-                            child: TextFormField(
-                              controller: _currentPasswordForEmailController,
-                              obscureText: true,
-                              style: TextStyle(fontSize: 20),
-                              decoration: InputDecoration(
-                                hintText: Strings.password,
-                              ),
-                              validator: (value) => validatePassword(value),
-                            ),
-                          ),
-
-                          const SizedBox(height: 16),
-
-                          // New email
-                          SizedBox(
-                            height: 60,
-                            child: TextFormField(
-                              controller: _newEmailController,
-                              style: TextStyle(fontSize: 20),
-                              decoration: InputDecoration(
-                                hintText: Strings.newEmailAddress,
-                              ),
-                              keyboardType: TextInputType.emailAddress,
-                              validator: (value) => validateEmail(value),
-                            ),
-                          ),
-
-                          const SizedBox(height: 16),
-
-                          // Confirm new email
-                          SizedBox(
-                            height: 60,
-                            child: TextFormField(
-                              controller: _confirmNewEmailController,
-                              style: TextStyle(fontSize: 20),
-                              decoration: InputDecoration(
-                                hintText: Strings.repeatEmailAddress,
-                              ),
-                              keyboardType: TextInputType.emailAddress,
-                              validator: (value) => value == _newEmailController.text ? null : Strings.emailAddressesDoNotMatch,
-                            ),
-                          ),
-
-                          const SizedBox(height: 24),
-
-                          SizedBox(
-                            width: double.infinity,
-                            height: 70,
-                            child: ElevatedButton(
-                              onPressed: _isLoading ? null : _attemptToChangeEmail,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.buttonColor,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                                elevation: 0,
-                              ),
-                              child: _isLoading
-                                  ? const SizedBox(
-                                      height: 24,
-                                      width: 24,
-                                      child: CircularProgressIndicator(color: AppColors.textColor, strokeWidth: 2),
-                                    )
-                                  : const Text(
-                                      Strings.change,
-                                      style: TextStyle(color: AppColors.primaryColor, fontSize: 18, fontWeight: FontWeight.w600),
-                                    ),
-                            ),
-                          ),
-
-                          const SizedBox(height: 16),
-                        ],
-                      ),
-                    ),
-
-                    const SizedBox(height: 24),
-
                     // Change name section
                     Text(
                       Strings.changeUsername,
@@ -439,7 +286,6 @@ class ProfileContentState extends ConsumerState<ProfileContent> {
                     ),
 
                     const Spacer(),
-
                   ],
                 ),
               ),
