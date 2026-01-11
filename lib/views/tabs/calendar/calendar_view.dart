@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:headache_diary/state/constants/firebase_field_name.dart';
+import '../../../state/calendar/models/day_entry_model.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/strings.dart';
 import '../../main/main_view.dart';
 import '../../../widgets/svg_icon.dart';
+import '../../../state/calendar/backend/day_entry_storage.dart';
 
 class CalendarView extends StatefulWidget {
   const CalendarView({super.key});
@@ -50,26 +51,11 @@ class _CalendarViewState extends State<CalendarView> {
     _pageController = PageController(initialPage: _basePage);
   }
 
-  Stream<Map<DateTime, Map<String, dynamic>>> monthStream() {
+  Stream<Map<DateTime, DayEntryModel>> monthStream() {
     final start = DateTime(focused.year, focused.month, 1);
     final end = DateTime(focused.year, focused.month + 1, 0);
 
-    return FirebaseFirestore.instance
-        .collection('users')
-        .doc(uid)
-        .collection('days')
-        .where(FirebaseFieldName.date, isGreaterThanOrEqualTo: _fmt(start))
-        .where(FirebaseFieldName.date, isLessThanOrEqualTo: _fmt(end))
-        .snapshots()
-        .map((snap) {
-      final map = <DateTime, Map<String, dynamic>>{};
-      for (var d in snap.docs) {
-        final data = d.data();
-        final dt = DateTime.parse(data[FirebaseFieldName.date]);
-        map[DateTime(dt.year, dt.month, dt.day)] = data;
-      }
-      return map;
-    });
+    return const DayEntryStorage().monthEntries(start, end);
   }
 
   List<int?> _generateMonthGrid(int year, int month) {
@@ -98,7 +84,7 @@ class _CalendarViewState extends State<CalendarView> {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<Map<DateTime, Map<String, dynamic>>>(
+    return StreamBuilder<Map<DateTime, DayEntryModel>>(
       stream: monthStream(),
       builder: (context, snapshot) {
         final entries = snapshot.data ?? {};
@@ -186,7 +172,7 @@ class _CalendarViewState extends State<CalendarView> {
                                   itemBuilder: (ctx, i) {
                                     final day = grid[i];
 
-                                    final Map<String, dynamic>? data = day != null
+                                    final DayEntryModel? data = day != null
                                         ? entries[DateTime(year, month, day)]
                                         : null;
 
@@ -231,10 +217,11 @@ class _CalendarViewState extends State<CalendarView> {
                                             // Icons area below the day number
                                             Expanded(
                                               child: Builder(builder: (ctx) {
-                                                final iconsMap = data != null ? Map<String, dynamic>.from(data[FirebaseFieldName.icons] ?? {}) : <String, dynamic>{};
-                                                final medsMap = data != null ? Map<String, dynamic>.from(data[FirebaseFieldName.medication] ?? {}) : <String, dynamic>{};
-                                                final pillCount = (medsMap[FirebaseFieldName.pill] ?? 0) as int;
-                                                final notesStr = (data != null ? (data[FirebaseFieldName.notes] ?? '') : '') as String;
+                                                final iconsMap = data?.icons ?? <String, dynamic>{};
+                                                final medsMap = data?.medication ?? <String, dynamic>{};
+                                                final pillVal = medsMap[FirebaseFieldName.pill] ?? 0;
+                                                final pillCount = pillVal is int ? pillVal : int.tryParse(pillVal.toString()) ?? 0;
+                                                final notesStr = data?.notes ?? '';
 
                                                 Widget smallIcon(bool present, String asset, {bool flip = false}) {
                                                   if (!present) return const SizedBox.shrink();
@@ -336,5 +323,4 @@ class _CalendarViewState extends State<CalendarView> {
     );
   }
 
-  String _fmt(DateTime d) => d.toIso8601String().substring(0, 10);
 }

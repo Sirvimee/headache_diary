@@ -13,7 +13,13 @@ class Authenticator {
   UserId? get userId => FirebaseAuth.instance.currentUser?.uid;
 
   Future<void> logOut() async {
-    await FirebaseAuth.instance.signOut();
+    try {
+      await FirebaseAuth.instance.signOut();
+    } catch (_) {}
+
+    try {
+      await GoogleSignIn().signOut();
+    } catch (_) {}
   }
 
   Future<AuthResult> loginWithEmailAndPassword(

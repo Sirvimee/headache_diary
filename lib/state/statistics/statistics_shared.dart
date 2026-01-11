@@ -35,7 +35,7 @@ String estMonth(DateTime date) {
 Future<Map<String, String>> aggregateForPeriod(DateTime start, DateTime end) async {
   final uid = FirebaseAuth.instance.currentUser?.uid ?? '';
   if (uid.isEmpty) return {};
-  final col = FirebaseFirestore.instance.collection('users').doc(uid).collection('days');
+  final col = FirebaseFirestore.instance.collection('entries').doc(uid).collection('days');
   final startIso = DateTime(start.year, start.month, start.day).toIso8601String().substring(0, 10);
   final endIso = DateTime(end.year, end.month, end.day).toIso8601String().substring(0, 10);
 

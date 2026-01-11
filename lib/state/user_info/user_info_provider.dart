@@ -18,6 +18,13 @@ Stream<UserInfoModel> userInfoModel(Ref ref, UserId id) {
       .where((snapshot) => snapshot.docs.isNotEmpty)
       .map((snapshot) {
     final doc = snapshot.docs.first;
-    return UserInfoModel.fromJson(doc.data());
+    final data = doc.data();
+    // Map Firestore field names to the model expected keys
+    final mapped = {
+      'userId': data[FirebaseFieldName.userId] as String,
+      'displayName': data[FirebaseFieldName.displayName] as String? ?? '',
+      'email': data[FirebaseFieldName.email] as String?,
+    };
+    return UserInfoModel.fromJson(mapped);
   });
 }

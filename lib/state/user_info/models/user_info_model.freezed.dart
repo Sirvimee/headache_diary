@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$UserInfoModel {
 
-@JsonKey(name: FirebaseFieldName.userId) UserId get userId;@JsonKey(name: FirebaseFieldName.displayName) String get displayName; String? get email;
+ UserId get userId; String get displayName; String? get email;
 /// Create a copy of UserInfoModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -48,7 +48,7 @@ abstract mixin class $UserInfoModelCopyWith<$Res>  {
   factory $UserInfoModelCopyWith(UserInfoModel value, $Res Function(UserInfoModel) _then) = _$UserInfoModelCopyWithImpl;
 @useResult
 $Res call({
-@JsonKey(name: FirebaseFieldName.userId) UserId userId,@JsonKey(name: FirebaseFieldName.displayName) String displayName, String? email
+ UserId userId, String displayName, String? email
 });
 
 
@@ -155,7 +155,7 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function(@JsonKey(name: FirebaseFieldName.userId)  UserId userId, @JsonKey(name: FirebaseFieldName.displayName)  String displayName,  String? email)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( UserId userId,  String displayName,  String? email)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _UserInfoModel() when $default != null:
 return $default(_that.userId,_that.displayName,_that.email);case _:
@@ -176,7 +176,7 @@ return $default(_that.userId,_that.displayName,_that.email);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function(@JsonKey(name: FirebaseFieldName.userId)  UserId userId, @JsonKey(name: FirebaseFieldName.displayName)  String displayName,  String? email)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( UserId userId,  String displayName,  String? email)  $default,) {final _that = this;
 switch (_that) {
 case _UserInfoModel():
 return $default(_that.userId,_that.displayName,_that.email);case _:
@@ -196,7 +196,7 @@ return $default(_that.userId,_that.displayName,_that.email);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function(@JsonKey(name: FirebaseFieldName.userId)  UserId userId, @JsonKey(name: FirebaseFieldName.displayName)  String displayName,  String? email)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( UserId userId,  String displayName,  String? email)?  $default,) {final _that = this;
 switch (_that) {
 case _UserInfoModel() when $default != null:
 return $default(_that.userId,_that.displayName,_that.email);case _:
@@ -211,11 +211,11 @@ return $default(_that.userId,_that.displayName,_that.email);case _:
 @JsonSerializable()
 
 class _UserInfoModel implements UserInfoModel {
-  const _UserInfoModel({@JsonKey(name: FirebaseFieldName.userId) required this.userId, @JsonKey(name: FirebaseFieldName.displayName) required this.displayName, this.email});
+  const _UserInfoModel({required this.userId, required this.displayName, this.email});
   factory _UserInfoModel.fromJson(Map<String, dynamic> json) => _$UserInfoModelFromJson(json);
 
-@override@JsonKey(name: FirebaseFieldName.userId) final  UserId userId;
-@override@JsonKey(name: FirebaseFieldName.displayName) final  String displayName;
+@override final  UserId userId;
+@override final  String displayName;
 @override final  String? email;
 
 /// Create a copy of UserInfoModel
@@ -251,7 +251,7 @@ abstract mixin class _$UserInfoModelCopyWith<$Res> implements $UserInfoModelCopy
   factory _$UserInfoModelCopyWith(_UserInfoModel value, $Res Function(_UserInfoModel) _then) = __$UserInfoModelCopyWithImpl;
 @override @useResult
 $Res call({
-@JsonKey(name: FirebaseFieldName.userId) UserId userId,@JsonKey(name: FirebaseFieldName.displayName) String displayName, String? email
+ UserId userId, String displayName, String? email
 });
 
 

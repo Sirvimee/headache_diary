@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:headache_diary/views/tabs/statistics/statistics_picker_modal.dart';
 
 import '../constants/app_colors.dart';
@@ -42,26 +43,42 @@ PreferredSizeWidget buildMainAppBar(BuildContext context, WidgetRef ref) {
           Builder(builder: (context) {
             final authState = ref.watch(authenticationProvider);
             final userId = authState.userId;
-            final userInfoAsync = ref.watch(userInfoModelProvider(userId!));
+
+            // If there's no userId (user not logged in / logging out), don't try to
+            // watch the userInfo provider with a null id. Show the profile label as fallback.
+            if (userId == null) {
+              final firebaseName = FirebaseAuth.instance.currentUser?.displayName;
+              return Text(
+                firebaseName?.isNotEmpty == true ? firebaseName! : Strings.profile,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(color: AppColors.hintColor, fontSize: 12),
+              );
+            }
+
+            final firebaseName = FirebaseAuth.instance.currentUser?.displayName;
+            final userInfoAsync = ref.watch(userInfoModelProvider(userId));
 
             return userInfoAsync.when(
               data: (userInfo) => Text(
-                (userInfo.displayName.isNotEmpty) ? userInfo.displayName : Strings.profile,
+                (userInfo.displayName.isNotEmpty)
+                    ? userInfo.displayName
+                    : (firebaseName?.isNotEmpty == true ? firebaseName! : Strings.profile),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: const TextStyle(color: AppColors.hintColor, fontSize: 12),
               ),
-              loading: () => const Text(
-                Strings.profile,
+              loading: () => Text(
+                firebaseName?.isNotEmpty == true ? firebaseName! : Strings.profile,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(color: AppColors.hintColor, fontSize: 12),
+                style: const TextStyle(color: AppColors.hintColor, fontSize: 12),
               ),
-              error: (_, _) => const Text(
-                Strings.profile,
+              error: (_, __) => Text(
+                firebaseName?.isNotEmpty == true ? firebaseName! : Strings.profile,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: TextStyle(color: AppColors.hintColor, fontSize: 12),
+                style: const TextStyle(color: AppColors.hintColor, fontSize: 12),
               ),
             );
           }),
@@ -78,6 +95,9 @@ PreferredSizeWidget buildMainAppBar(BuildContext context, WidgetRef ref) {
 
             if (shouldLogOut) {
               await ref.read(authenticationProvider.notifier).logOut();
+              // Ensure navigation returns to root so AuthView (which shows LoginView when
+              // logged out) is visible. Pop all routes until the first.
+              Navigator.of(context).popUntil((route) => route.isFirst);
             }
           },
           style: TextButton.styleFrom(

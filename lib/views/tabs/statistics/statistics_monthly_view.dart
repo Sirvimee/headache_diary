@@ -74,7 +74,7 @@ class _StatisticsViewState extends ConsumerState<StatisticsView> {
           if (monthsList.isEmpty) return const Center(child: Text(Strings.dataNotFound));
 
           final now = DateTime.now();
-          final curIndex = monthsList.indexWhere((m) => m['year'] == now.year.toString() && m['month'] == now.month.toString());
+          final curIndex = monthsList.indexWhere((m) => m.year == now.year && m.month == now.month);
 
           WidgetsBinding.instance.addPostFrameCallback((_) {
             _scrollToIndexIfNeeded(curIndex, monthsList.length);
@@ -86,7 +86,23 @@ class _StatisticsViewState extends ConsumerState<StatisticsView> {
             itemScrollController: _itemScrollController,
             separatorBuilder: (ctx, idx) => const Divider(color: AppColors.textColor, height: 1, indent: 20, endIndent: 20),
             itemBuilder: (ctx, idx) {
-              final b = Map<String, String>.from(monthsList[idx]);
+              final m = monthsList[idx];
+              final b = <String, String>{
+                'title': m.title,
+                'year': m.year.toString(),
+                'month': m.month.toString(),
+                'headacheDays': m.headacheDays,
+                'rightSide': m.rightSide,
+                'leftSide': m.leftSide,
+                'overhead': m.overhead,
+                'pills': m.pills,
+                'systal': m.systal,
+                'run': m.run,
+                'strength': m.strength,
+                'sex': m.sex,
+                'alcohol': m.alcohol,
+                'menstruation': m.menstruation,
+              };
               final isFocused = idx == curIndex;
               return StatisticsBlock(block: b, focused: isFocused);
             },

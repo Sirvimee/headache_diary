@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../../state/constants/firebase_field_name.dart';
 import '../../../widgets/svg_icon.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/strings.dart';
 import 'day_action_items.dart';
+import '../../../state/calendar/backend/day_entry_storage.dart';
 
 class DayActionModal extends StatefulWidget {
   final DateTime date;
@@ -35,61 +35,12 @@ class _DayActionModalState extends State<DayActionModal> {
     return '${date.day}.${date.month}.${date.year}';
   }
 
-  Future<DocumentReference> _getOrCreateDayDocRef() async {
-    final dateIso = widget.date.toIso8601String().substring(0, 10);
-    final col = FirebaseFirestore.instance.collection('users').doc(uid).collection('days');
-
-    final docRef = col.doc(dateIso);
-    final docSnap = await docRef.get();
-    if (docSnap.exists) return docRef;
-
-    // Check for legacy doc stored with auto-id but with date field
-    final q = await col.where(FirebaseFieldName.date, isEqualTo: dateIso).limit(1).get();
-    if (q.docs.isNotEmpty) {
-      final old = q.docs.first;
-      final data = old.data();
-      await docRef.set(data);
-      // delete old doc to keep single source of truth
-      try {
-        await old.reference.delete();
-      } catch (_) {}
-      return docRef;
-    }
-
-    final payload = {
-      FirebaseFieldName.date: dateIso,
-      FirebaseFieldName.medication: {},
-      FirebaseFieldName.icons: {},
-      FirebaseFieldName.notes: '',
-    };
-
-    await docRef.set(payload);
-    return docRef;
-  }
-
   Future<void> _toggleIcon(String key) async {
     if (!_canEdit(key)) return;
 
     setState(() => _loading = true);
     try {
-      final ref = await _getOrCreateDayDocRef();
-      final snap = await ref.get();
-      final data = snap.data() as Map<String, dynamic>? ?? {};
-      final icons = Map<String, dynamic>.from(data[FirebaseFieldName.icons] ?? {});
-
-      if (icons.containsKey(key) && icons[key] == true) {
-        icons.remove(key);
-        await ref.update({FirebaseFieldName.icons: icons});
-
-        if (key == FirebaseFieldName.systal) {
-          try {
-            await ref.update({FirebaseFieldName.reminder: FieldValue.delete()});
-          } catch (_) {}
-        }
-      } else {
-        icons[key] = true;
-        await ref.update({FirebaseFieldName.icons: icons});
-      }
+      await const DayEntryStorage().toggleIcon(widget.date, key);
     } catch (e) {
       // ignore
     } finally {
@@ -101,17 +52,7 @@ class _DayActionModalState extends State<DayActionModal> {
     if (!_canEdit('pill_plus')) return;
     setState(() => _loading = true);
     try {
-      final ref = await _getOrCreateDayDocRef();
-
-      await FirebaseFirestore.instance.runTransaction((tx) async {
-        final snap = await tx.get(ref);
-        final data = snap.data() as Map<String, dynamic>? ?? {};
-        final meds = Map<String, dynamic>.from(data[FirebaseFieldName.medication] ?? {});
-        final current = (meds[FirebaseFieldName.pill] ?? 0) as int;
-        final next = (current + delta).clamp(0, 9999);
-        meds[FirebaseFieldName.pill] = next;
-        tx.update(ref, {FirebaseFieldName.medication: meds});
-      });
+      await const DayEntryStorage().changePillCount(widget.date, delta);
     } catch (e) {
       // ignore
     } finally {
@@ -153,8 +94,7 @@ class _DayActionModalState extends State<DayActionModal> {
 
     setState(() => _loading = true);
     try {
-      final ref = await _getOrCreateDayDocRef();
-      await ref.update({FirebaseFieldName.notes: res});
+      await const DayEntryStorage().editNotes(widget.date, res);
     } catch (e) {
       // ignore
     } finally {
@@ -164,26 +104,9 @@ class _DayActionModalState extends State<DayActionModal> {
 
   // TODO add notification
   Future<void> _addSystalForFuture() async {
-    final today = DateTime.now();
-    final selected = DateTime(widget.date.year, widget.date.month, widget.date.day);
-    if (!selected.isAfter(DateTime(today.year, today.month, today.day))) {
-      await _toggleIcon(FirebaseFieldName.systal);
-      return;
-    }
-
     setState(() => _loading = true);
     try {
-      final ref = await _getOrCreateDayDocRef();
-      final snap = await ref.get();
-      final data = snap.data() as Map<String, dynamic>? ?? {};
-      final icons = Map<String, dynamic>.from(data[FirebaseFieldName.icons] ?? {});
-      icons[FirebaseFieldName.systal] = true;
-
-      final reminderTime = DateTime(widget.date.year, widget.date.month, widget.date.day, 9, 0).toIso8601String();
-      final reminder = {FirebaseFieldName.enabled: true, FirebaseFieldName.time: reminderTime};
-
-      await ref.update({FirebaseFieldName.icons: icons, FirebaseFieldName.reminder: reminder});
-
+      await const DayEntryStorage().addSystalForFuture(widget.date);
     } catch (e) {
       // ignore
     } finally {

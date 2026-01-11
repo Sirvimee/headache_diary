@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../../../state/constants/firebase_field_name.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/strings.dart';
 import '../../../widgets/svg_icon.dart';
 import 'day_action_items.dart';
+import '../../../state/calendar/backend/day_entry_storage.dart';
+import '../../../state/calendar/models/day_entry_model.dart';
 
 class DayView extends StatefulWidget {
   final DateTime date;
@@ -21,7 +22,7 @@ class DayView extends StatefulWidget {
 class _DayViewState extends State<DayView> {
   late DateTime _currentDate;
   late final String uid;
-  bool _loading = false;
+  final bool _loading = false;
 
   final List<ActionItem> items = actionItems;
 
@@ -82,12 +83,8 @@ class _DayViewState extends State<DayView> {
     return '$weekday, $day. $month';
   }
 
-  String _fmt(DateTime d) => d.toIso8601String().substring(0, 10);
-
-  Stream<Map<String, dynamic>?> _dayStream() {
-    final dateIso = _fmt(_currentDate);
-    final docRef = FirebaseFirestore.instance.collection('users').doc(uid).collection('days').doc(dateIso);
-    return docRef.snapshots().map((snap) => snap.exists ? snap.data() : null);
+  Stream<DayEntryModel?> _dayStream() {
+    return const DayEntryStorage().dayEntryStream(_currentDate);
   }
 
   @override
@@ -140,14 +137,15 @@ class _DayViewState extends State<DayView> {
                 child: Container(
                   width: double.infinity,
                   color: Colors.transparent,
-                  child: StreamBuilder<Map<String, dynamic>?>(
+                  child: StreamBuilder<DayEntryModel?>(
                     stream: _dayStream(),
                     builder: (context, snap) {
                       final data = snap.data;
-                      final icons = data != null ? Map<String, dynamic>.from(data[FirebaseFieldName.icons] ?? {}) : <String, dynamic>{};
-                      final meds = data != null ? Map<String, dynamic>.from(data[FirebaseFieldName.medication] ?? {}) : <String, dynamic>{};
-                      final pillCount = (meds[FirebaseFieldName.pill] ?? 0) as int;
-                      final notes = (data != null ? (data[FirebaseFieldName.notes] ?? '') : '') as String;
+                      final icons = data != null ? data.icons : <String, dynamic>{};
+                      final meds = data != null ? data.medication : <String, dynamic>{};
+                      final pillVal = meds[FirebaseFieldName.pill] ?? 0;
+                      final pillCount = pillVal is int ? pillVal : int.tryParse(pillVal.toString()) ?? 0;
+                      final notes = data?.notes ?? '';
 
                       final visible = <Widget>[];
 
