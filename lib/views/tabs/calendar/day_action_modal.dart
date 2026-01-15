@@ -103,10 +103,17 @@ class _DayActionModalState extends State<DayActionModal> {
   }
 
   // TODO add notification
-  Future<void> _addSystalForFuture() async {
+  Future<void> _addInjections() async {
     setState(() => _loading = true);
     try {
-      await const DayEntryStorage().addSystalForFuture(widget.date);
+      final status = await const DayEntryStorage().addInjections(widget.date);
+      if (status == 1) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text(Strings.reminderAddedSnackBar)));
+      } else if (status == 2) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text(Strings.failedToScheduleReminderSnackBar)));
+      } else if (status == 3)  {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text(Strings.reminderDeletedSnackBar)));
+      }
     } catch (e) {
       // ignore
     } finally {
@@ -172,7 +179,7 @@ class _DayActionModalState extends State<DayActionModal> {
                                   } else if (it.key == FirebaseFieldName.notes) {
                                     await _editNotes();
                                   } else if (it.key == FirebaseFieldName.systal) {
-                                    await _addSystalForFuture();
+                                    await _addInjections();
                                   } else {
                                     await _toggleIcon(it.key);
                                   }

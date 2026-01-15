@@ -5,6 +5,8 @@ class Strings {
   // General app information
   static const appName = 'Peavalupäevik';
   static const welcomeToAppName = 'Welcome to ${Strings.appName}';
+  static const channelId = 'systal_channel';
+  static const channelName = 'Süstimise meeldetuletused';
 
   // Third-party integration
   static const google = 'Google';
@@ -135,6 +137,17 @@ class Strings {
   static const pickDate = 'Vali kuupäev';
   static const confirm = 'Kinnita';
   static const dataNotFound = 'Andmeid ei leitud';
+
+  // Notification texts
+  static const String notificationTitle = 'Meeldetuletus';
+  static const String notificationBody = 'Aeg teha süsti';
+
+  // SnackBar sentences
+  static const String permissionDeniedSnackBar = 'Teavituste õigus on keelatud. Palun luba seadetest';
+  static const String reminderAddedSnackBar = 'Meeldetuletus lisatud';
+  static const String reminderRemovedSnackBar = 'Meeldetuletus eemaldatud';
+  static const String failedToScheduleReminderSnackBar = 'Meeldetuletuse lisamine ebaõnnestus, kuna märguannete luba puudub. Palun lubage märguanded seadetes';
+  static const String reminderDeletedSnackBar = 'Süstal eemaldatud, meeldetuletus tühistatud';
 
   // Commons
   static const error = 'Viga';

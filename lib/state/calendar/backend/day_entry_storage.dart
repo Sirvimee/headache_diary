@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../constants/firebase_field_name.dart';
 import '../models/day_entry_model.dart';
+import '../../../services/notifications/notification_service.dart';
 
 class DayEntryStorage {
   const DayEntryStorage();
@@ -73,7 +74,8 @@ class DayEntryStorage {
     return docRef;
   }
 
-  Future<void> toggleIcon(DateTime date, String key) async {
+  /// Toggles an icon for [date]. Returns true if the icon was added, false if removed.
+  Future<bool> toggleIcon(DateTime date, String key) async {
     final ref = await _getOrCreateDayDocRef(date);
     final snap = await ref.get();
     final data = snap.data() as Map<String, dynamic>? ?? {};
@@ -85,12 +87,20 @@ class DayEntryStorage {
 
       if (key == FirebaseFieldName.systal) {
         try {
+          // If a notification was stored for this day's reminder, cancel it
+          final reminder = data[FirebaseFieldName.reminder] as Map<String, dynamic>?;
+          if (reminder != null && reminder.containsKey(FirebaseFieldName.notificationId)) {
+            final id = (reminder[FirebaseFieldName.notificationId] as num).toInt();
+            await NotificationService().cancelNotificationById(id);
+          }
           await ref.update({FirebaseFieldName.reminder: FieldValue.delete()});
         } catch (_) {}
       }
+      return false;
     } else {
       icons[key] = true;
       await ref.update({FirebaseFieldName.icons: icons});
+      return true;
     }
   }
 
@@ -113,23 +123,55 @@ class DayEntryStorage {
     await ref.update({FirebaseFieldName.notes: notes});
   }
 
-  Future<void> addSystalForFuture(DateTime date) async {
+  /// Adds systal for a future date. If the icon already exists it will be removed instead.
+  /// Returns:
+  /// 0 = added or removed for today/past date
+  /// 1 = added and scheduled
+  /// 2 = added but scheduling failed or permission denied
+  /// 3 = removed
+  Future<int> addInjections(DateTime date) async {
     final today = DateTime.now();
     final selected = DateTime(date.year, date.month, date.day);
     if (!selected.isAfter(DateTime(today.year, today.month, today.day))) {
       await toggleIcon(date, FirebaseFieldName.systal);
-      return;
+      return 0;
     }
 
     final ref = await _getOrCreateDayDocRef(date);
     final snap = await ref.get();
     final data = snap.data() as Map<String, dynamic>? ?? {};
     final icons = Map<String, dynamic>.from(data[FirebaseFieldName.icons] ?? {});
+
+    // If icon already exists on that future day, remove it (and cancel reminder)
+    if (icons.containsKey(FirebaseFieldName.systal) && icons[FirebaseFieldName.systal] == true) {
+      icons.remove(FirebaseFieldName.systal);
+      try {
+        final reminder = data[FirebaseFieldName.reminder] as Map<String, dynamic>?;
+        if (reminder != null && reminder.containsKey(FirebaseFieldName.notificationId)) {
+          final id = (reminder[FirebaseFieldName.notificationId] as num).toInt();
+          await NotificationService().cancelNotificationById(id);
+        }
+      } catch (_) {}
+      await ref.update({FirebaseFieldName.icons: icons, FirebaseFieldName.reminder: FieldValue.delete()});
+      return 3;
+    }
+
+    // Otherwise, add icon and schedule notification for 12:00 local time on the selected date
     icons[FirebaseFieldName.systal] = true;
 
-    final reminderTime = DateTime(date.year, date.month, date.day, 9, 0).toIso8601String();
+    final scheduledDate = DateTime(date.year, date.month, date.day, 12, 0);
+    int? scheduledId;
+    try {
+      scheduledId = await NotificationService().scheduleInjectionNotification(scheduledDate);
+    } catch (_) {
+      scheduledId = null;
+    }
+
+    final reminderTime = scheduledDate.toIso8601String();
     final reminder = {FirebaseFieldName.enabled: true, FirebaseFieldName.time: reminderTime};
+    if (scheduledId != null) reminder[FirebaseFieldName.notificationId] = scheduledId;
 
     await ref.update({FirebaseFieldName.icons: icons, FirebaseFieldName.reminder: reminder});
+    return scheduledId != null ? 1 : 2;
   }
 }

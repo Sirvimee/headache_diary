@@ -12,6 +12,7 @@ class FirebaseFieldName {
   static const notes = 'notes';
   static const reminder = 'reminder';
   static const time = 'time';
+  static const notificationId = 'notification_id';
 
   static const enabled = 'enabled';
 

@@ -4,12 +4,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:headache_diary/router/router.dart';
 import 'firebase_options.dart';
 import 'views/constants/app_colors.dart';
+import 'services/notifications/notification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  // Initialize NotificationService (timezones, channels, permissions)
+  await NotificationService().initialize();
   runApp(const ProviderScope(child: MyApp()));
 }
 

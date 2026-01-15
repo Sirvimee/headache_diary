@@ -20,6 +20,9 @@ dependencies {
 
     // Add the dependencies for any other desired Firebase products
     // https://firebase.google.com/docs/android/setup#available-libraries
+
+    // Core library desugaring required by some AARs (e.g. flutter_local_notifications)
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.3")
 }
 
 android {
@@ -30,6 +33,8 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+        // Enable core library desugaring for Java library features used by dependencies
+        isCoreLibraryDesugaringEnabled = true
     }
 
     kotlinOptions {
