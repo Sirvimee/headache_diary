@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest_all.dart' as tzdata;
@@ -88,13 +87,6 @@ class NotificationService {
       uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
       androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
     );
-
-    // DEBUG
-    final pending = await _plugin.pendingNotificationRequests();
-    debugPrint('✅ Pending notifications: ${pending.length}');
-    for (final p in pending) {
-      debugPrint('• id=${p.id}, title=${p.title}');
-    }
 
     return id;
   }

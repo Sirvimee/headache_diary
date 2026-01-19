@@ -102,7 +102,6 @@ class _DayActionModalState extends State<DayActionModal> {
     }
   }
 
-  // TODO add notification
   Future<void> _addInjections() async {
     setState(() => _loading = true);
     try {

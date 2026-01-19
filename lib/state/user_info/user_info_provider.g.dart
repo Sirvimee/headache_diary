@@ -64,7 +64,7 @@ final class UserInfoModelProvider
   }
 }
 
-String _$userInfoModelHash() => r'eb122f20d1990d18f4c435d926f8aa3e746ce95c';
+String _$userInfoModelHash() => r'0a127fdd7c5ad429e7316312d2cf6e1f0169f266';
 
 final class UserInfoModelFamily extends $Family
     with $FunctionalFamilyOverride<Stream<UserInfoModel>, UserId> {

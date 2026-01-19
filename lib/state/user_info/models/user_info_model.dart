@@ -1,5 +1,4 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-
 import '../../../typedef/user_id.dart';
 
 part 'user_info_model.freezed.dart';
