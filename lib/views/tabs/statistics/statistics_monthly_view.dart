@@ -57,7 +57,11 @@ class _StatisticsViewState extends ConsumerState<StatisticsView> {
             return ListView(
               padding: const EdgeInsets.only(bottom: 24, top: 12),
               children: [
-                StatisticsBlock(block: block),
+                StatisticsBlock(
+                  block: block,
+                  periodStart: widget.start,
+                  periodEnd: widget.end,
+                ),
               ],
             );
           },
@@ -103,8 +107,13 @@ class _StatisticsViewState extends ConsumerState<StatisticsView> {
                 'alcohol': m.alcohol,
                 'menstruation': m.menstruation,
               };
-              final isFocused = idx == curIndex;
-              return StatisticsBlock(block: b, focused: isFocused);
+              final periodStart = monthStart(m.year, m.month);
+              final periodEnd = monthEnd(m.year, m.month);
+              return StatisticsBlock(
+                block: b,
+                periodStart: periodStart,
+                periodEnd: periodEnd,
+              );
             },
           );
         },

@@ -5,13 +5,12 @@ import 'package:headache_diary/router/router.dart';
 import 'firebase_options.dart';
 import 'views/constants/app_colors.dart';
 import 'services/notifications/notification_service.dart';
+import 'state/auth/backend/local_storage.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-  // Initialize NotificationService (timezones, channels, permissions)
+  await LocalStorage.initialize();
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await NotificationService().initialize();
   runApp(const ProviderScope(child: MyApp()));
 }
@@ -21,8 +20,9 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = ColorScheme.fromSeed(seedColor: AppColors.primaryColor)
-        .copyWith(surface: AppColors.primaryColor);
+    final colorScheme = ColorScheme.fromSeed(
+      seedColor: AppColors.primaryColor,
+    ).copyWith(surface: AppColors.primaryColor);
 
     return MaterialApp.router(
       routerConfig: router,
@@ -47,7 +47,10 @@ class MyApp extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
             borderSide: BorderSide.none,
           ),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 18,
+            vertical: 12,
+          ),
         ),
         // Cursor and selection colors inside text fields
         textSelectionTheme: const TextSelectionThemeData(
@@ -83,9 +86,7 @@ class MyApp extends StatelessWidget {
           selectedLabelStyle: TextStyle(
             color: AppColors.hintColor.withAlpha(217),
           ),
-          unselectedLabelStyle: TextStyle(
-            color: AppColors.hintColor,
-          ),
+          unselectedLabelStyle: TextStyle(color: AppColors.hintColor),
           showSelectedLabels: true,
           showUnselectedLabels: true,
           selectedItemColor: AppColors.buttonColor,

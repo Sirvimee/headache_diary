@@ -34,9 +34,9 @@ class LoginViewState extends ConsumerState<LoginView> {
     final formState = _formKey.currentState;
     if (formState == null) {
       // Form not mounted yet; show an error and return safely
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text(Strings.formNotAvailable)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text(Strings.formNotAvailable)));
       return;
     }
 
@@ -56,13 +56,16 @@ class LoginViewState extends ConsumerState<LoginView> {
       final current = ref.read(authenticationProvider);
       if (current.result != AuthResult.success) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text(Strings.invalidEmailOrPassword), backgroundColor: AppColors.red),
+          const SnackBar(
+            content: Text(Strings.invalidEmailOrPassword),
+            backgroundColor: AppColors.red,
+          ),
         );
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('${Strings.loginFailed}$e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('${Strings.loginFailed}$e')));
     }
   }
 
@@ -70,17 +73,19 @@ class LoginViewState extends ConsumerState<LoginView> {
   Widget build(BuildContext context) {
     final authProvider = ref.watch(authenticationProvider);
 
-    ref.listen(authenticationProvider,
-            (AuthState? previous, AuthState current) {
-          if (current.result == AuthResult.failure && !current.isLoading) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text(Strings.invalidEmailOrPassword),
-                backgroundColor: AppColors.red,
-              ),
-            );
-          }
-        });
+    ref.listen(authenticationProvider, (
+      AuthState? previous,
+      AuthState current,
+    ) {
+      if (current.result == AuthResult.failure && !current.isLoading) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(Strings.invalidEmailOrPassword),
+            backgroundColor: AppColors.red,
+          ),
+        );
+      }
+    });
 
     return Scaffold(
       body: SafeArea(
@@ -95,7 +100,9 @@ class LoginViewState extends ConsumerState<LoginView> {
               ),
               keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               child: ConstrainedBox(
-                constraints: BoxConstraints(minHeight: constraints.maxHeight - 48),
+                constraints: BoxConstraints(
+                  minHeight: constraints.maxHeight - 48,
+                ),
                 child: IntrinsicHeight(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -104,7 +111,8 @@ class LoginViewState extends ConsumerState<LoginView> {
                       // Title
                       Text(
                         Strings.appName,
-                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                        style: Theme.of(context).textTheme.headlineMedium
+                            ?.copyWith(
                               fontSize: 36,
                               color: AppColors.textColor,
                               fontWeight: FontWeight.w600,
@@ -121,9 +129,11 @@ class LoginViewState extends ConsumerState<LoginView> {
                           onPressed: authProvider.isLoading
                               ? null
                               : () async {
-                            // Call provider's Google sign-in which integrates with Firebase
-                            await ref.read(authenticationProvider.notifier).loginWithGoogle();
-                          },
+                                  // Call provider's Google sign-in which integrates with Firebase
+                                  await ref
+                                      .read(authenticationProvider.notifier)
+                                      .loginWithGoogle();
+                                },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.accentColor,
                             shape: RoundedRectangleBorder(
@@ -134,12 +144,19 @@ class LoginViewState extends ConsumerState<LoginView> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              SvgPicture.asset('assets/icons/google.svg', width: 32, height: 32),
+                              SvgPicture.asset(
+                                'assets/icons/google.svg',
+                                width: 32,
+                                height: 32,
+                              ),
                               const SizedBox(width: 12),
                               Text(
                                 Strings.signInWithGoogle,
                                 style: const TextStyle(
-                                    color: AppColors.textColor, fontSize: 20, fontWeight: FontWeight.w500),
+                                  color: AppColors.textColor,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
                             ],
                           ),
@@ -159,7 +176,10 @@ class LoginViewState extends ConsumerState<LoginView> {
                           ),
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: Text(Strings.or, style: TextStyle(color: AppColors.hintColor)),
+                            child: Text(
+                              Strings.or,
+                              style: TextStyle(color: AppColors.hintColor),
+                            ),
                           ),
                           Expanded(
                             child: Divider(
@@ -177,7 +197,6 @@ class LoginViewState extends ConsumerState<LoginView> {
                         key: _formKey,
                         child: Column(
                           children: [
-
                             // Email input
                             SizedBox(
                               height: 60,
@@ -214,22 +233,33 @@ class LoginViewState extends ConsumerState<LoginView> {
                               width: double.infinity,
                               height: 70,
                               child: ElevatedButton(
-                                onPressed: authProvider.isLoading ? null : _attemptLogin,
+                                onPressed: authProvider.isLoading
+                                    ? null
+                                    : _attemptLogin,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: AppColors.buttonColor,
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
                                   elevation: 0,
                                 ),
                                 child: authProvider.isLoading
                                     ? const SizedBox(
-                                  height: 24,
-                                  width: 24,
-                                  child: CircularProgressIndicator(color: AppColors.textColor, strokeWidth: 2),
-                                )
+                                        height: 24,
+                                        width: 24,
+                                        child: CircularProgressIndicator(
+                                          color: AppColors.textColor,
+                                          strokeWidth: 2,
+                                        ),
+                                      )
                                     : Text(
-                                  Strings.logIntoYourAccount,
-                                  style: TextStyle(color: AppColors.primaryColor, fontSize: 20, fontWeight: FontWeight.w600),
-                                ),
+                                        Strings.logIntoYourAccount,
+                                        style: TextStyle(
+                                          color: AppColors.primaryColor,
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
                               ),
                             ),
                           ],
@@ -249,7 +279,10 @@ class LoginViewState extends ConsumerState<LoginView> {
                               padding: EdgeInsets.zero,
                               minimumSize: const Size(0, 0),
                             ),
-                            child: const Text(Strings.signUp, style: TextStyle(fontSize: 16)),
+                            child: const Text(
+                              Strings.signUp,
+                              style: TextStyle(fontSize: 16),
+                            ),
                           ),
                           TextButton(
                             onPressed: () => context.push('/change-password'),
@@ -258,15 +291,26 @@ class LoginViewState extends ConsumerState<LoginView> {
                               padding: EdgeInsets.zero,
                               minimumSize: const Size(0, 0),
                             ),
-                            child: const Text(Strings.forgotPassword, style: TextStyle(fontSize: 16)),
+                            child: const Text(
+                              Strings.forgotPassword,
+                              style: TextStyle(fontSize: 16),
+                            ),
                           ),
                         ],
                       ),
 
                       const SizedBox(height: 8),
 
-                      const Spacer(),
+                      TextButton(
+                        onPressed: authProvider.isLoading
+                            ? null
+                            : () => ref
+                                  .read(authenticationProvider.notifier)
+                                  .continueWithoutLogin(),
+                        child: const Text(Strings.continueWithoutLogin),
+                      ),
 
+                      const Spacer(),
                     ],
                   ),
                 ),

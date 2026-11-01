@@ -5,6 +5,7 @@ import '../../user_info/backend/user_info_storage.dart';
 import '../backend/authenticator.dart';
 import '../models/auth_result.dart';
 import '../models/auth_state.dart';
+import '../backend/local_storage.dart';
 
 part 'authentication_provider.g.dart';
 
@@ -15,6 +16,13 @@ class Authentication extends _$Authentication {
 
   @override
   AuthState build() {
+    if (LocalStorage.isGuest) {
+      return const AuthState(
+        result: AuthResult.local,
+        isLoading: false,
+        userId: null,
+      );
+    }
     if (_authenticator.isAlreadyLoggedIn) {
       return AuthState(
         result: AuthResult.success,
@@ -28,8 +36,10 @@ class Authentication extends _$Authentication {
   Future<void> loginWithEmailAndPassword(String email, String password) async {
     state = state.copyWith(isLoading: true);
 
-    final result =
-    await _authenticator.loginWithEmailAndPassword(email, password);
+    final result = await _authenticator.loginWithEmailAndPassword(
+      email,
+      password,
+    );
 
     state = AuthState(
       result: result,
@@ -40,17 +50,30 @@ class Authentication extends _$Authentication {
 
   Future<void> logOut() async {
     await _authenticator.logOut();
+    await LocalStorage.setGuest(false);
     state = AuthState.unknown();
   }
 
-  Future<void> registerWithEmailAndPassword(
-      {required String name,
-        required String email,
-        required String password}) async {
+  Future<void> continueWithoutLogin() async {
+    await LocalStorage.setGuest(true);
+    state = const AuthState(
+      result: AuthResult.local,
+      isLoading: false,
+      userId: null,
+    );
+  }
+
+  Future<void> registerWithEmailAndPassword({
+    required String name,
+    required String email,
+    required String password,
+  }) async {
     state = state.copyWith(isLoading: true);
 
-    final result =
-    await _authenticator.registerWithEmailAndPassword(email, password);
+    final result = await _authenticator.registerWithEmailAndPassword(
+      email,
+      password,
+    );
 
     try {
       await FirebaseAuth.instance.currentUser?.reload();
@@ -78,8 +101,11 @@ class Authentication extends _$Authentication {
 
     // If sign in succeeded and we have a userId, try to save user info (email/name may be null)
     if (result == AuthResult.success && userId != null) {
-      await saveUserInfo(userId, FirebaseAuth.instance.currentUser?.email ?? '',
-          FirebaseAuth.instance.currentUser?.displayName ?? '');
+      await saveUserInfo(
+        userId,
+        FirebaseAuth.instance.currentUser?.email ?? '',
+        FirebaseAuth.instance.currentUser?.displayName ?? '',
+      );
     }
 
     state = AuthState(

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:headache_diary/state/constants/firebase_field_name.dart';
 import '../../../state/calendar/models/day_entry_model.dart';
 import '../../constants/app_colors.dart';
@@ -17,8 +16,6 @@ class CalendarView extends StatefulWidget {
 
 class _CalendarViewState extends State<CalendarView> {
   DateTime focused = DateTime.now();
-  final uid = FirebaseAuth.instance.currentUser!.uid;
-
   // Page view setup for vertical month swiping
   late final PageController _pageController;
   final int _basePage = 1200;

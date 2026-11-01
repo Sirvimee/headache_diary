@@ -3,124 +3,151 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../constants/firebase_field_name.dart';
 import '../models/day_entry_model.dart';
+import '../../../services/firestore/day_entry_firestore.dart';
 import '../../../services/notifications/notification_service.dart';
+import '../../auth/backend/local_storage.dart';
+import 'local_day_entry_storage.dart';
 
 class DayEntryStorage {
   const DayEntryStorage();
 
-  String _fmt(DateTime d) => d.toIso8601String().substring(0, 10);
+  String? _uid() => FirebaseAuth.instance.currentUser?.uid;
+  LocalDayEntryStorage get _localStorage => const LocalDayEntryStorage();
 
-  Stream<Map<DateTime, DayEntryModel>> monthEntries(DateTime start, DateTime end) {
-    final uid = FirebaseAuth.instance.currentUser?.uid ?? '';
+  Map<String, dynamic> _toPayload(DayEntryModel entry) => {
+    FirebaseFieldName.date: entry.date,
+    FirebaseFieldName.icons: entry.icons,
+    FirebaseFieldName.medication: entry.medication,
+    FirebaseFieldName.notes: entry.notes,
+    if (entry.reminder != null) FirebaseFieldName.reminder: entry.reminder,
+  };
+
+  DayEntryModel? _fromDoc(DocumentSnapshot<Map<String, dynamic>> doc) {
+    if (!doc.exists || doc.data() == null) return null;
+    return DayEntryModel.fromJson(Map<String, dynamic>.from(doc.data()!));
+  }
+
+  Future<DayEntryModel> _getOrCreate(String uid, DateTime date) async {
+    final dateIso = DayEntryFirestore.formatDate(date);
+    final docRef = DayEntryFirestore.daysCollection(uid).doc(dateIso);
+    final snap = await docRef.get(const GetOptions(source: Source.cache));
+    if (snap.exists && snap.data() != null) {
+      return DayEntryModel.fromJson(Map<String, dynamic>.from(snap.data()!));
+    }
+
+    final serverSnap = await docRef.get();
+    if (serverSnap.exists && serverSnap.data() != null) {
+      return DayEntryModel.fromJson(
+        Map<String, dynamic>.from(serverSnap.data()!),
+      );
+    }
+
+    return DayEntryModel(date: dateIso, icons: {}, medication: {}, notes: '');
+  }
+
+  Future<void> _saveEntry(String uid, DayEntryModel entry) async {
+    final dateIso = DayEntryFirestore.formatDate(DateTime.parse(entry.date));
+    final docRef = DayEntryFirestore.daysCollection(uid).doc(dateIso);
+    await docRef.set(_toPayload(entry), SetOptions(merge: true));
+  }
+
+  Stream<Map<DateTime, DayEntryModel>> monthEntries(
+    DateTime start,
+    DateTime end,
+  ) {
+    if (LocalStorage.isGuest) return _localStorage.monthEntries(start, end);
+    final uid = _uid() ?? '';
     if (uid.isEmpty) return const Stream.empty();
 
-    return FirebaseFirestore.instance
-        .collection('entries')
-        .doc(uid)
-        .collection('days')
-        .where(FirebaseFieldName.date, isGreaterThanOrEqualTo: _fmt(start))
-        .where(FirebaseFieldName.date, isLessThanOrEqualTo: _fmt(end))
+    final startIso = DayEntryFirestore.formatDate(start);
+    final endIso = DayEntryFirestore.formatDate(end);
+
+    return DayEntryFirestore.daysCollection(uid)
+        .where(FirebaseFieldName.date, isGreaterThanOrEqualTo: startIso)
+        .where(FirebaseFieldName.date, isLessThanOrEqualTo: endIso)
         .snapshots()
-        .map((snap) {
-      final map = <DateTime, DayEntryModel>{};
-      for (var d in snap.docs) {
-        final data = d.data();
-        final dt = DateTime.parse(data[FirebaseFieldName.date]);
-        map[DateTime(dt.year, dt.month, dt.day)] = DayEntryModel.fromJson(Map<String, dynamic>.from(data));
-      }
-      return map;
-    });
+        .map((snapshot) {
+          final map = <DateTime, DayEntryModel>{};
+          for (final doc in snapshot.docs) {
+            final entry = _fromDoc(doc);
+            if (entry == null) continue;
+            final dt = DateTime.parse(entry.date);
+            map[DateTime(dt.year, dt.month, dt.day)] = entry;
+          }
+          return map;
+        });
   }
 
   Stream<DayEntryModel?> dayEntryStream(DateTime date) {
-    final uid = FirebaseAuth.instance.currentUser?.uid ?? '';
+    if (LocalStorage.isGuest) return _localStorage.dayEntryStream(date);
+    final uid = _uid() ?? '';
     if (uid.isEmpty) return const Stream.empty();
 
-    final dateIso = _fmt(date);
-    final docRef = FirebaseFirestore.instance.collection('entries').doc(uid).collection('days').doc(dateIso);
-    return docRef.snapshots().map((snap) => snap.exists ? DayEntryModel.fromJson(Map<String, dynamic>.from(snap.data()!)) : null);
-  }
-
-  Future<DocumentReference> _getOrCreateDayDocRef(DateTime date) async {
-    final uid = FirebaseAuth.instance.currentUser?.uid ?? '';
-    final dateIso = _fmt(date);
-    final col = FirebaseFirestore.instance.collection('entries').doc(uid).collection('days');
-
-    final docRef = col.doc(dateIso);
-    final docSnap = await docRef.get();
-    if (docSnap.exists) return docRef;
-
-    // Check for legacy doc stored with auto-id but with date field
-    final q = await col.where(FirebaseFieldName.date, isEqualTo: dateIso).limit(1).get();
-    if (q.docs.isNotEmpty) {
-      final old = q.docs.first;
-      final data = old.data();
-      await docRef.set(data);
-      // delete old doc to keep single source of truth
-      try {
-        await old.reference.delete();
-      } catch (_) {}
-      return docRef;
-    }
-
-    final payload = {
-      FirebaseFieldName.date: dateIso,
-      FirebaseFieldName.medication: {},
-      FirebaseFieldName.icons: {},
-      FirebaseFieldName.notes: '',
-    };
-
-    await docRef.set(payload);
-    return docRef;
+    final dateIso = DayEntryFirestore.formatDate(date);
+    return DayEntryFirestore.daysCollection(
+      uid,
+    ).doc(dateIso).snapshots().map(_fromDoc);
   }
 
   /// Toggles an icon for [date]. Returns true if the icon was added, false if removed.
   Future<bool> toggleIcon(DateTime date, String key) async {
-    final ref = await _getOrCreateDayDocRef(date);
-    final snap = await ref.get();
-    final data = snap.data() as Map<String, dynamic>? ?? {};
-    final icons = Map<String, dynamic>.from(data[FirebaseFieldName.icons] ?? {});
+    if (LocalStorage.isGuest) return _localStorage.toggleIcon(date, key);
+    final uid = _uid() ?? '';
+    if (uid.isEmpty) return false;
+
+    final entry = await _getOrCreate(uid, date);
+    final icons = Map<String, dynamic>.from(entry.icons);
 
     if (icons.containsKey(key) && icons[key] == true) {
       icons.remove(key);
-      await ref.update({FirebaseFieldName.icons: icons});
+      var reminder = entry.reminder;
 
-      if (key == FirebaseFieldName.systal) {
+      if (key == FirebaseFieldName.systal && reminder != null) {
         try {
-          // If a notification was stored for this day's reminder, cancel it
-          final reminder = data[FirebaseFieldName.reminder] as Map<String, dynamic>?;
-          if (reminder != null && reminder.containsKey(FirebaseFieldName.notificationId)) {
-            final id = (reminder[FirebaseFieldName.notificationId] as num).toInt();
-            await NotificationService().cancelNotificationById(id);
+          final notificationId = reminder[FirebaseFieldName.notificationId];
+          if (notificationId != null) {
+            await NotificationService().cancelNotificationById(
+              (notificationId as num).toInt(),
+            );
           }
-          await ref.update({FirebaseFieldName.reminder: FieldValue.delete()});
         } catch (_) {}
+        reminder = null;
       }
+
+      final updated = entry.copyWith(icons: icons, reminder: reminder);
+      await _saveEntry(uid, updated);
       return false;
-    } else {
-      icons[key] = true;
-      await ref.update({FirebaseFieldName.icons: icons});
-      return true;
     }
+
+    icons[key] = true;
+    final updated = entry.copyWith(icons: icons);
+    await _saveEntry(uid, updated);
+    return true;
   }
 
   Future<void> changePillCount(DateTime date, int delta) async {
-    final ref = await _getOrCreateDayDocRef(date);
+    if (LocalStorage.isGuest) return _localStorage.changePillCount(date, delta);
+    final uid = _uid() ?? '';
+    if (uid.isEmpty) return;
 
-    await FirebaseFirestore.instance.runTransaction((tx) async {
-      final snap = await tx.get(ref);
-      final data = snap.data() as Map<String, dynamic>? ?? {};
-      final meds = Map<String, dynamic>.from(data[FirebaseFieldName.medication] ?? {});
-      final current = (meds[FirebaseFieldName.pill] ?? 0) as int;
-      final next = (current + delta).clamp(0, 9999);
-      meds[FirebaseFieldName.pill] = next;
-      tx.update(ref, {FirebaseFieldName.medication: meds});
-    });
+    final entry = await _getOrCreate(uid, date);
+    final meds = Map<String, dynamic>.from(entry.medication);
+    final current = (meds[FirebaseFieldName.pill] ?? 0) as int;
+    final next = (current + delta).clamp(0, 9999);
+    meds[FirebaseFieldName.pill] = next;
+
+    final updated = entry.copyWith(medication: meds);
+    await _saveEntry(uid, updated);
   }
 
   Future<void> editNotes(DateTime date, String notes) async {
-    final ref = await _getOrCreateDayDocRef(date);
-    await ref.update({FirebaseFieldName.notes: notes});
+    if (LocalStorage.isGuest) return _localStorage.editNotes(date, notes);
+    final uid = _uid() ?? '';
+    if (uid.isEmpty) return;
+
+    final entry = await _getOrCreate(uid, date);
+    final updated = entry.copyWith(notes: notes);
+    await _saveEntry(uid, updated);
   }
 
   /// Adds systal for a future date. If the icon already exists it will be removed instead.
@@ -130,6 +157,10 @@ class DayEntryStorage {
   /// 2 = added but scheduling failed or permission denied
   /// 3 = removed
   Future<int> addInjections(DateTime date) async {
+    if (LocalStorage.isGuest) return _localStorage.addInjections(date);
+    final uid = _uid() ?? '';
+    if (uid.isEmpty) return 0;
+
     final today = DateTime.now();
     final selected = DateTime(date.year, date.month, date.day);
     if (!selected.isAfter(DateTime(today.year, today.month, today.day))) {
@@ -137,41 +168,48 @@ class DayEntryStorage {
       return 0;
     }
 
-    final ref = await _getOrCreateDayDocRef(date);
-    final snap = await ref.get();
-    final data = snap.data() as Map<String, dynamic>? ?? {};
-    final icons = Map<String, dynamic>.from(data[FirebaseFieldName.icons] ?? {});
+    final entry = await _getOrCreate(uid, date);
+    final icons = Map<String, dynamic>.from(entry.icons);
 
-    // If icon already exists on that future day, remove it (and cancel reminder)
-    if (icons.containsKey(FirebaseFieldName.systal) && icons[FirebaseFieldName.systal] == true) {
+    if (icons.containsKey(FirebaseFieldName.systal) &&
+        icons[FirebaseFieldName.systal] == true) {
       icons.remove(FirebaseFieldName.systal);
       try {
-        final reminder = data[FirebaseFieldName.reminder] as Map<String, dynamic>?;
-        if (reminder != null && reminder.containsKey(FirebaseFieldName.notificationId)) {
-          final id = (reminder[FirebaseFieldName.notificationId] as num).toInt();
+        final reminder = entry.reminder;
+        if (reminder != null &&
+            reminder.containsKey(FirebaseFieldName.notificationId)) {
+          final id = (reminder[FirebaseFieldName.notificationId] as num)
+              .toInt();
           await NotificationService().cancelNotificationById(id);
         }
       } catch (_) {}
-      await ref.update({FirebaseFieldName.icons: icons, FirebaseFieldName.reminder: FieldValue.delete()});
+
+      final updated = entry.copyWith(icons: icons, reminder: null);
+      await _saveEntry(uid, updated);
       return 3;
     }
 
-    // Otherwise, add icon and schedule notification for 12:00 local time on the selected date
     icons[FirebaseFieldName.systal] = true;
 
     final scheduledDate = DateTime(date.year, date.month, date.day, 12, 0);
     int? scheduledId;
     try {
-      scheduledId = await NotificationService().scheduleInjectionNotification(scheduledDate);
+      scheduledId = await NotificationService().scheduleInjectionNotification(
+        scheduledDate,
+      );
     } catch (_) {
       scheduledId = null;
     }
 
     final reminderTime = scheduledDate.toIso8601String();
-    final reminder = {FirebaseFieldName.enabled: true, FirebaseFieldName.time: reminderTime};
-    if (scheduledId != null) reminder[FirebaseFieldName.notificationId] = scheduledId;
+    final reminder = {
+      FirebaseFieldName.enabled: true,
+      FirebaseFieldName.time: reminderTime,
+      if (scheduledId != null) FirebaseFieldName.notificationId: scheduledId,
+    };
 
-    await ref.update({FirebaseFieldName.icons: icons, FirebaseFieldName.reminder: reminder});
+    final updated = entry.copyWith(icons: icons, reminder: reminder);
+    await _saveEntry(uid, updated);
     return scheduledId != null ? 1 : 2;
   }
 }

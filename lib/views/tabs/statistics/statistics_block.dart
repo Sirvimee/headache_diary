@@ -1,10 +1,29 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+
+import '../../../services/pdf/statistics_pdf_service.dart';
+import '../../../state/statistics/statistics_shared.dart';
 import '../../constants/app_colors.dart';
 import '../../constants/strings.dart';
 
-class StatisticsBlock extends StatelessWidget {
+class StatisticsBlock extends StatefulWidget {
   final Map<String, String> block;
-  const StatisticsBlock({super.key, required this.block, bool focused = false});
+  final DateTime? periodStart;
+  final DateTime? periodEnd;
+
+  const StatisticsBlock({
+    super.key,
+    required this.block,
+    this.periodStart,
+    this.periodEnd,
+  });
+
+  @override
+  State<StatisticsBlock> createState() => _StatisticsBlockState();
+}
+
+class _StatisticsBlockState extends State<StatisticsBlock> {
+  bool _exporting = false;
 
   Widget _row(String label, String value) {
     return Padding(
@@ -31,8 +50,38 @@ class StatisticsBlock extends StatelessWidget {
     );
   }
 
+  Future<void> _exportPdf() async {
+    final start = widget.periodStart;
+    final end = widget.periodEnd;
+    if (start == null || end == null || _exporting) return;
+
+    setState(() => _exporting = true);
+    try {
+      final notes = await fetchNotesForPeriod(start, end);
+      final userName = FirebaseAuth.instance.currentUser?.displayName;
+
+      await StatisticsPdfService.exportAndShare(
+        block: widget.block,
+        start: start,
+        end: end,
+        userName: userName,
+        notes: notes,
+      );
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('${Strings.pdfExportFailed}: $e')),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _exporting = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final canExport = widget.periodStart != null && widget.periodEnd != null;
+
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
       padding: const EdgeInsets.all(12),
@@ -41,34 +90,50 @@ class StatisticsBlock extends StatelessWidget {
         children: [
           Center(
             child: Text(
-              block['title'] ?? '',
+              widget.block['title'] ?? '',
               textAlign: TextAlign.center,
               style: const TextStyle(color: AppColors.textColor, fontSize: 36, fontWeight: FontWeight.w500),
             ),
           ),
           const SizedBox(height: 16),
-
-          _row(Strings.headacheDays, block['headacheDays'] ?? '-'),
-          _row(Strings.rightSideHeadaches, block['rightSide'] ?? '-'),
-          _row(Strings.leftSideHeadaches, block['leftSide'] ?? '-'),
-          _row(Strings.overheadHeadaches, block['overhead'] ?? '-'),
+          _row(Strings.headacheDays, widget.block['headacheDays'] ?? '-'),
+          _row(Strings.rightSideHeadaches, widget.block['rightSide'] ?? '-'),
+          _row(Strings.leftSideHeadaches, widget.block['leftSide'] ?? '-'),
+          _row(Strings.overheadHeadaches, widget.block['overhead'] ?? '-'),
           const SizedBox(height: 16),
-
-          _row(Strings.pillsTaken, block['pills'] ?? '-'),
-          _row(Strings.injectionsMade, block['systal'] ?? '-'),
+          _row(Strings.pillsTaken, widget.block['pills'] ?? '-'),
+          _row(Strings.injectionsMade, widget.block['systal'] ?? '-'),
           const SizedBox(height: 16),
-
-          _row(Strings.cardioDays, block['run'] ?? '-'),
-          _row(Strings.strengthDays, block['strength'] ?? '-'),
-          _row(Strings.intercourseDays, block['sex'] ?? '-'),
+          _row(Strings.cardioDays, widget.block['run'] ?? '-'),
+          _row(Strings.strengthDays, widget.block['strength'] ?? '-'),
+          _row(Strings.intercourseDays, widget.block['sex'] ?? '-'),
           const SizedBox(height: 16),
-
-          _row(Strings.alcoholDays, block['alcohol'] ?? '-'),
+          _row(Strings.alcoholDays, widget.block['alcohol'] ?? '-'),
           const SizedBox(height: 16),
-          _row(Strings.menstruationDays, block['menstruation'] ?? '-'),
+          _row(Strings.menstruationDays, widget.block['menstruation'] ?? '-'),
+          if (canExport) ...[
+            const SizedBox(height: 20),
+            OutlinedButton.icon(
+              onPressed: _exporting ? null : _exportPdf,
+              icon: _exporting
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.buttonColor),
+                    )
+                  : const Icon(Icons.picture_as_pdf_outlined, color: AppColors.buttonColor),
+              label: Text(
+                _exporting ? Strings.pdfExporting : Strings.exportPdf,
+                style: const TextStyle(color: AppColors.buttonColor),
+              ),
+              style: OutlinedButton.styleFrom(
+                side: const BorderSide(color: AppColors.buttonColor),
+                padding: const EdgeInsets.symmetric(vertical: 12),
+              ),
+            ),
+          ],
         ],
       ),
     );
   }
 }
-

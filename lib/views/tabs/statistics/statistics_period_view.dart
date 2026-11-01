@@ -33,7 +33,11 @@ class StatisticsPeriodView extends StatelessWidget {
           return ListView(
             padding: const EdgeInsets.only(bottom: 24, top: 12),
             children: [
-              StatisticsBlock(block: block),
+              StatisticsBlock(
+                block: block,
+                periodStart: start,
+                periodEnd: end,
+              ),
             ],
           );
         },

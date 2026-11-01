@@ -1,6 +1,1 @@
-enum AuthResult {
-  aborted,
-  success,
-  failure,
-  userAlreadyExists,
-}
+enum AuthResult { aborted, success, local, failure, userAlreadyExists }

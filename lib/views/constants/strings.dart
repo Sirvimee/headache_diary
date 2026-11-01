@@ -22,7 +22,8 @@ class Strings {
   static const emailAddress = 'E-posti aadress';
   static const enterYourEmailAddress = 'Palun sisesta oma e-posti aadress';
   static const repeatEmailAddress = 'Korda e-posti aadressi';
-  static const enterCorrectEmailAddress = 'Palun sisesta korrektne e-posti aadress';
+  static const enterCorrectEmailAddress =
+      'Palun sisesta korrektne e-posti aadress';
   static const changeEmailAddress = 'Muuda e-posti aadressi';
   static const newEmailAddress = 'Uus e-posti aadress';
   static const wrongEmailAddress = 'E-posti aadress on vale';
@@ -33,19 +34,24 @@ class Strings {
   static const passwordsDoNotMatch = 'Paroolid ei ühti';
   static const shortPassword = 'Parool peab olema vähemalt 5 tähemärki pikk';
   static const changePassword = 'Muuda parooli';
-  static const passwordMustContainUppercase = 'Parool peab sisaldama vähemalt ühte suurtähte';
+  static const passwordMustContainUppercase =
+      'Parool peab sisaldama vähemalt ühte suurtähte';
   static const logIntoYourAccount = 'Logi sisse';
   static const signUp = 'Registreeru';
   static const forgotPassword = 'Unustasid parooli?';
-  static const userEmailAlreadyInUse = 'Kasutaja e-posti aadress on juba kasutusel';
+  static const continueWithoutLogin = 'Jätka ilma sisse logimata';
+  static const userEmailAlreadyInUse =
+      'Kasutaja e-posti aadress on juba kasutusel';
   static const invalidEmailOrPassword = 'Vale e-posti aadress või parool';
   static const userRegistrationFailed = 'Registreerimine ebaõnnestus';
   static const loginFailed = 'Sisselogimine ebaõnnestus: ';
   static const formNotAvailable = 'Vorm pole saadaval';
-  static const resetPasswordInstruction = 'Sisesta oma e-posti aadress ja me saadame uue parooli e-postile';
+  static const resetPasswordInstruction =
+      'Sisesta oma e-posti aadress ja me saadame uue parooli e-postile';
   static const send = 'Saada';
   static const change = 'Muuda';
-  static const resetEmailSent = 'Saatsime juhised parooli taastamiseks e-postile';
+  static const resetEmailSent =
+      'Saatsime juhised parooli taastamiseks e-postile';
   static const userNotFound = 'Kasutajat ei leitud';
   static const userDataIsChanged = 'Kasutaja andmed on muudetud';
 
@@ -57,7 +63,8 @@ class Strings {
 
   // Dialogs
   static const logOut = 'Logi välja';
-  static const areYouSureYouWantToLogOut = 'Kas oled kindel, et soovid välja logida?';
+  static const areYouSureYouWantToLogOut =
+      'Kas oled kindel, et soovid välja logida?';
   static const cancel = 'Tühista';
   static const save = 'Salvesta';
 
@@ -114,7 +121,8 @@ class Strings {
   static const additionalNotes = 'Märkmed';
   static const enterAdditionalNotes = 'Kirjuta siia...';
 
-  static const canAddOnlyToValidDates = 'Märkmeid saab lisada ainult tänasele või varasematele kuupäevadele';
+  static const canAddOnlyToValidDates =
+      'Märkmeid saab lisada ainult tänasele või varasematele kuupäevadele';
 
   // Statistics
   static const headacheDays = 'Peavalu päevi:';
@@ -137,17 +145,31 @@ class Strings {
   static const pickDate = 'Vali kuupäev';
   static const confirm = 'Kinnita';
   static const dataNotFound = 'Andmeid ei leitud';
+  static const exportPdf = 'Ekspordi PDF';
+  static const pdfExporting = 'Eksporditakse...';
+  static const pdfExportFailed = 'PDF eksport ebaõnnestus';
+  static const pdfReportTitle = 'Peavalupäeviku kokkuvõte';
+  static const pdfUserLabel = 'Kasutaja';
+  static const pdfPeriodLabel = 'Periood';
+  static const pdfGeneratedLabel = 'Genereeritud';
+  static const pdfHeadacheSection = 'Peavalu';
+  static const pdfMedicationSection = 'Ravimid';
+  static const pdfLifestyleSection = 'Elustiilitegurid';
+  static const pdfNotesSection = 'Märkmed';
 
   // Notification texts
   static const String notificationTitle = 'Meeldetuletus';
   static const String notificationBody = 'Aeg teha süsti';
 
   // SnackBar sentences
-  static const String permissionDeniedSnackBar = 'Teavituste õigus on keelatud. Palun luba seadetest';
+  static const String permissionDeniedSnackBar =
+      'Teavituste õigus on keelatud. Palun luba seadetest';
   static const String reminderAddedSnackBar = 'Meeldetuletus lisatud';
   static const String reminderRemovedSnackBar = 'Meeldetuletus eemaldatud';
-  static const String failedToScheduleReminderSnackBar = 'Meeldetuletuse lisamine ebaõnnestus, kuna märguannete luba puudub. Palun lubage märguanded seadetes';
-  static const String reminderDeletedSnackBar = 'Süstal eemaldatud, meeldetuletus tühistatud';
+  static const String failedToScheduleReminderSnackBar =
+      'Meeldetuletuse lisamine ebaõnnestus, kuna märguannete luba puudub. Palun lubage märguanded seadetes';
+  static const String reminderDeletedSnackBar =
+      'Süstal eemaldatud, meeldetuletus tühistatud';
 
   // Commons
   static const error = 'Viga';
