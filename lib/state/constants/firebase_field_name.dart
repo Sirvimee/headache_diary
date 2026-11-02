@@ -26,7 +26,15 @@ class FirebaseFieldName {
   static const sex = 'sex';
   static const blood = 'blood';
   static const wine = 'wine';
-
+  static const chocolate = 'chocolate';
+  static const doctor = 'doctor';
+  static const eyePain = 'eye_pain';
+  static const vomit = 'vomit';
+  static const preventivePill = 'preventive_pill';
+  static const preventivePillName = 'preventive_pill_name';
+  static const preventivePillGrams = 'preventive_pill_grams';
+  static const reminderType = 'type';
+  static const doctorName = 'doctor_name';
 
   const FirebaseFieldName._();
 }

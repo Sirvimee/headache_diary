@@ -29,7 +29,11 @@ class _DayViewState extends State<DayView> {
   @override
   void initState() {
     super.initState();
-    _currentDate = DateTime(widget.date.year, widget.date.month, widget.date.day);
+    _currentDate = DateTime(
+      widget.date.year,
+      widget.date.month,
+      widget.date.day,
+    );
     DayView.activeDate.value = _currentDate;
     uid = FirebaseAuth.instance.currentUser?.uid ?? '';
   }
@@ -57,9 +61,13 @@ class _DayViewState extends State<DayView> {
     if (_isSameDate(date, now)) return Strings.today;
 
     const weekdays = [
-      Strings.monday, Strings.tuesday,
-      Strings.wednesday, Strings.thursday,
-      Strings.friday, Strings.saturday, Strings.sunday,
+      Strings.monday,
+      Strings.tuesday,
+      Strings.wednesday,
+      Strings.thursday,
+      Strings.friday,
+      Strings.saturday,
+      Strings.sunday,
     ];
     const months = [
       Strings.january,
@@ -104,11 +112,17 @@ class _DayViewState extends State<DayView> {
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12.0,
+                  vertical: 8.0,
+                ),
                 child: Row(
                   children: [
                     IconButton(
-                      icon: const Icon(Icons.arrow_left, color: AppColors.buttonColor),
+                      icon: const Icon(
+                        Icons.arrow_left,
+                        color: AppColors.buttonColor,
+                      ),
                       iconSize: 44,
                       onPressed: _goToPreviousDay,
                     ),
@@ -125,7 +139,10 @@ class _DayViewState extends State<DayView> {
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.arrow_right, color: AppColors.buttonColor),
+                      icon: const Icon(
+                        Icons.arrow_right,
+                        color: AppColors.buttonColor,
+                      ),
                       iconSize: 44,
                       onPressed: _goToNextDay,
                     ),
@@ -141,11 +158,23 @@ class _DayViewState extends State<DayView> {
                     stream: _dayStream(),
                     builder: (context, snap) {
                       final data = snap.data;
-                      final icons = data != null ? data.icons : <String, dynamic>{};
-                      final meds = data != null ? data.medication : <String, dynamic>{};
+                      final icons = data != null
+                          ? data.icons
+                          : <String, dynamic>{};
+                      final meds = data != null
+                          ? data.medication
+                          : <String, dynamic>{};
                       final pillVal = meds[FirebaseFieldName.pill] ?? 0;
-                      final pillCount = pillVal is int ? pillVal : int.tryParse(pillVal.toString()) ?? 0;
+                      final pillCount = pillVal is int
+                          ? pillVal
+                          : int.tryParse(pillVal.toString()) ?? 0;
                       final notes = data?.notes ?? '';
+                      final preventivePillName =
+                          meds[FirebaseFieldName.preventivePillName]
+                              ?.toString();
+                      final preventivePillGrams =
+                          meds[FirebaseFieldName.preventivePillGrams]
+                              ?.toString();
 
                       final visible = <Widget>[];
 
@@ -159,11 +188,19 @@ class _DayViewState extends State<DayView> {
                                 Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    SvgIcon(asset: 'assets/icons/tablett.svg', size: 36, color: AppColors.buttonColor),
+                                    SvgIcon(
+                                      asset: 'assets/icons/tablett.svg',
+                                      size: 36,
+                                      color: AppColors.buttonColor,
+                                    ),
                                     const SizedBox(width: 6),
                                     Text(
                                       '$pillCount',
-                                      style: const TextStyle(color: AppColors.buttonColor, fontWeight: FontWeight.w600, fontSize: 14),
+                                      style: const TextStyle(
+                                        color: AppColors.buttonColor,
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 14,
+                                      ),
                                     ),
                                   ],
                                 ),
@@ -175,8 +212,12 @@ class _DayViewState extends State<DayView> {
                       }
 
                       for (final it in items) {
-                        if (it.key == 'pill_plus' || it.key == 'pill_minus' || it.key == FirebaseFieldName.notes) continue;
-                        final present = icons.containsKey(it.key) && icons[it.key] == true;
+                        if (it.key == 'pill_plus' ||
+                            it.key == 'pill_minus' ||
+                            it.key == FirebaseFieldName.notes)
+                          continue;
+                        final present =
+                            icons.containsKey(it.key) && icons[it.key] == true;
                         if (!present) continue;
 
                         visible.add(
@@ -187,8 +228,14 @@ class _DayViewState extends State<DayView> {
                               children: [
                                 Transform(
                                   alignment: Alignment.center,
-                                  transform: it.flip ? Matrix4.rotationY(3.14159) : Matrix4.identity(),
-                                  child: SvgIcon(asset: it.asset, size: 36, color: AppColors.buttonColor),
+                                  transform: it.flip
+                                      ? Matrix4.rotationY(3.14159)
+                                      : Matrix4.identity(),
+                                  child: SvgIcon(
+                                    asset: it.asset,
+                                    size: 36,
+                                    color: AppColors.buttonColor,
+                                  ),
                                 ),
                                 const SizedBox(height: 2),
                               ],
@@ -198,54 +245,82 @@ class _DayViewState extends State<DayView> {
                       }
 
                       return SingleChildScrollView(
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 8,
+                        ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             if (visible.isNotEmpty)
-                              LayoutBuilder(builder: (ctx, constraints) {
-                                const targetCellW = 80.0;
-                                const spacing = 6.0;
-                                final cols = 3;
-                                final maxWidth = constraints.maxWidth;
-                                final totalSpacing = (cols - 1) * spacing;
-                                final availableForCells = maxWidth - totalSpacing;
-                                final cellW = (availableForCells / cols).clamp(48.0, targetCellW);
-                                final cellH = 56.0;
-                                final gridWidth = cellW * cols + totalSpacing;
+                              LayoutBuilder(
+                                builder: (ctx, constraints) {
+                                  const targetCellW = 80.0;
+                                  const spacing = 6.0;
+                                  final cols = 3;
+                                  final maxWidth = constraints.maxWidth;
+                                  final totalSpacing = (cols - 1) * spacing;
+                                  final availableForCells =
+                                      maxWidth - totalSpacing;
+                                  final cellW = (availableForCells / cols)
+                                      .clamp(48.0, targetCellW);
+                                  final cellH = 56.0;
+                                  final gridWidth = cellW * cols + totalSpacing;
 
-                                return Center(
-                                  child: SizedBox(
-                                    width: gridWidth,
-                                    child: GridView.count(
-                                      shrinkWrap: true,
-                                      physics: const NeverScrollableScrollPhysics(),
-                                      crossAxisCount: cols,
-                                      mainAxisSpacing: 4,
-                                      crossAxisSpacing: 4,
-                                      childAspectRatio: cellW / cellH,
-                                      children: visible,
+                                  return Center(
+                                    child: SizedBox(
+                                      width: gridWidth,
+                                      child: GridView.count(
+                                        shrinkWrap: true,
+                                        physics:
+                                            const NeverScrollableScrollPhysics(),
+                                        crossAxisCount: cols,
+                                        mainAxisSpacing: 4,
+                                        crossAxisSpacing: 4,
+                                        childAspectRatio: cellW / cellH,
+                                        children: visible,
+                                      ),
                                     ),
-                                  ),
-                                );
-                              })
-                             else
-                               const SizedBox.shrink(),
+                                  );
+                                },
+                              )
+                            else
+                              const SizedBox.shrink(),
 
                             const SizedBox(height: 12),
 
+                            if (icons[FirebaseFieldName.preventivePill] ==
+                                    true &&
+                                preventivePillName != null &&
+                                preventivePillGrams != null)
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12.0,
+                                ),
+                                child: Text(
+                                  '$preventivePillName, $preventivePillGrams g',
+                                  style: const TextStyle(
+                                    color: AppColors.textColor,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+
                             if (notes.isNotEmpty)
                               Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 12.0,
+                                ),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Text(Strings.additionalNotes,
-                                        style: TextStyle(
-                                          color: AppColors.buttonColor,
-                                          fontWeight: FontWeight.w600,
-                                          fontSize: 22,
-                                        )
+                                    const Text(
+                                      Strings.additionalNotes,
+                                      style: TextStyle(
+                                        color: AppColors.buttonColor,
+                                        fontWeight: FontWeight.w600,
+                                        fontSize: 22,
+                                      ),
                                     ),
                                     const SizedBox(height: 6),
                                     Text(

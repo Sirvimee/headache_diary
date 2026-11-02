@@ -34,7 +34,13 @@ class _StatisticsBlockState extends State<StatisticsBlock> {
             flex: 2,
             child: Align(
               alignment: Alignment.centerRight,
-              child: Text(label, style: const TextStyle(color: AppColors.buttonColor, fontSize: 16)),
+              child: Text(
+                label,
+                style: const TextStyle(
+                  color: AppColors.buttonColor,
+                  fontSize: 16,
+                ),
+              ),
             ),
           ),
           const SizedBox(width: 12),
@@ -42,7 +48,13 @@ class _StatisticsBlockState extends State<StatisticsBlock> {
             flex: 1,
             child: Align(
               alignment: Alignment.centerLeft,
-              child: Text(value, style: const TextStyle(color: AppColors.textColor, fontSize: 16)),
+              child: Text(
+                value,
+                style: const TextStyle(
+                  color: AppColors.textColor,
+                  fontSize: 16,
+                ),
+              ),
             ),
           ),
         ],
@@ -92,7 +104,11 @@ class _StatisticsBlockState extends State<StatisticsBlock> {
             child: Text(
               widget.block['title'] ?? '',
               textAlign: TextAlign.center,
-              style: const TextStyle(color: AppColors.textColor, fontSize: 36, fontWeight: FontWeight.w500),
+              style: const TextStyle(
+                color: AppColors.textColor,
+                fontSize: 36,
+                fontWeight: FontWeight.w500,
+              ),
             ),
           ),
           const SizedBox(height: 16),
@@ -111,6 +127,14 @@ class _StatisticsBlockState extends State<StatisticsBlock> {
           _row(Strings.alcoholDays, widget.block['alcohol'] ?? '-'),
           const SizedBox(height: 16),
           _row(Strings.menstruationDays, widget.block['menstruation'] ?? '-'),
+          _row(Strings.chocolateDays, widget.block['chocolate'] ?? '-'),
+          _row(Strings.doctorVisits, widget.block['doctor'] ?? '-'),
+          _row(Strings.eyePainDays, widget.block['eyePain'] ?? '-'),
+          _row(Strings.vomitingDays, widget.block['vomit'] ?? '-'),
+          _row(
+            Strings.preventivePillDays,
+            widget.block['preventivePill'] ?? '-',
+          ),
           if (canExport) ...[
             const SizedBox(height: 20),
             OutlinedButton.icon(
@@ -119,9 +143,15 @@ class _StatisticsBlockState extends State<StatisticsBlock> {
                   ? const SizedBox(
                       width: 18,
                       height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.buttonColor),
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: AppColors.buttonColor,
+                      ),
                     )
-                  : const Icon(Icons.picture_as_pdf_outlined, color: AppColors.buttonColor),
+                  : const Icon(
+                      Icons.picture_as_pdf_outlined,
+                      color: AppColors.buttonColor,
+                    ),
               label: Text(
                 _exporting ? Strings.pdfExporting : Strings.exportPdf,
                 style: const TextStyle(color: AppColors.buttonColor),

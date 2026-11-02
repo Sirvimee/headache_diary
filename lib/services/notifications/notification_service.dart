@@ -10,7 +10,8 @@ class NotificationService {
   static final NotificationService _instance = NotificationService._private();
   factory NotificationService() => _instance;
 
-  final FlutterLocalNotificationsPlugin _plugin = FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin _plugin =
+      FlutterLocalNotificationsPlugin();
   static const String _channelId = Strings.channelId;
   static const String _channelName = Strings.channelName;
 
@@ -21,10 +22,15 @@ class NotificationService {
     const androidInit = AndroidInitializationSettings('@mipmap/ic_launcher');
     const iosInit = DarwinInitializationSettings();
 
-    await _plugin.initialize(const InitializationSettings(android: androidInit, iOS: iosInit));
+    await _plugin.initialize(
+      const InitializationSettings(android: androidInit, iOS: iosInit),
+    );
 
     // Create Android channel
-    final androidPlugin = _plugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+    final androidPlugin = _plugin
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
 
     if (androidPlugin != null) {
       const channel = AndroidNotificationChannel(
@@ -38,10 +44,17 @@ class NotificationService {
     }
 
     // Request iOS permissions
-    final iosPlugin = _plugin.resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>();
+    final iosPlugin = _plugin
+        .resolvePlatformSpecificImplementation<
+          IOSFlutterLocalNotificationsPlugin
+        >();
 
     try {
-      await iosPlugin?.requestPermissions(alert: true, badge: true, sound: true);
+      await iosPlugin?.requestPermissions(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
     } catch (_) {}
   }
 
@@ -52,8 +65,20 @@ class NotificationService {
   /// Attempts to schedule a notification at [dateAtLocalTime].
   /// Returns the notification id if scheduled, or null if scheduling did not occur (e.g. permission denied).
   Future<int?> scheduleInjectionNotification(DateTime dateAtLocalTime) async {
-    final id = notificationIdForDate(dateAtLocalTime);
+    return scheduleNotification(
+      dateAtLocalTime,
+      Strings.notificationTitle,
+      Strings.notificationBody,
+      notificationIdForDate(dateAtLocalTime),
+    );
+  }
 
+  Future<int?> scheduleNotification(
+    DateTime dateAtLocalTime,
+    String title,
+    String body,
+    int id,
+  ) async {
     final scheduled = tz.TZDateTime.from(dateAtLocalTime, tz.local);
 
     final androidDetails = AndroidNotificationDetails(
@@ -80,11 +105,12 @@ class NotificationService {
 
     await _plugin.zonedSchedule(
       id,
-      Strings.notificationTitle,
-      Strings.notificationBody,
+      title,
+      body,
       scheduled,
       NotificationDetails(android: androidDetails, iOS: iosDetails),
-      uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
       androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
     );
 

@@ -65,6 +65,11 @@ class MonthlyStatisticsStorage {
         'rightSide': 0,
         'leftSide': 0,
         'overhead': 0,
+        'chocolate': 0,
+        'doctor': 0,
+        'eyePain': 0,
+        'vomit': 0,
+        'preventivePill': 0,
       },
     );
 
@@ -100,17 +105,37 @@ class MonthlyStatisticsStorage {
 
       m['pills'] =
           toInt(m['pills']) + toInt(medication[FirebaseFieldName.pill]);
-      if (icons[FirebaseFieldName.systal] == true)
+      if (icons[FirebaseFieldName.systal] == true) {
         m['systal'] = toInt(m['systal']) + 1;
+      }
       if (icons[FirebaseFieldName.run] == true) m['run'] = toInt(m['run']) + 1;
-      if (icons[FirebaseFieldName.gym] == true)
+      if (icons[FirebaseFieldName.gym] == true) {
         m['strength'] = toInt(m['strength']) + 1;
-      if (icons[FirebaseFieldName.sex] == true || icons['sex'] == true)
+      }
+      if (icons[FirebaseFieldName.sex] == true || icons['sex'] == true) {
         m['sex'] = toInt(m['sex']) + 1;
-      if (icons[FirebaseFieldName.wine] == true)
+      }
+      if (icons[FirebaseFieldName.wine] == true) {
         m['alcohol'] = toInt(m['alcohol']) + 1;
-      if (icons[FirebaseFieldName.blood] == true)
+      }
+      if (icons[FirebaseFieldName.blood] == true) {
         m['menstruation'] = toInt(m['menstruation']) + 1;
+      }
+      if (icons[FirebaseFieldName.chocolate] == true) {
+        m['chocolate'] = toInt(m['chocolate']) + 1;
+      }
+      if (icons[FirebaseFieldName.doctor] == true) {
+        m['doctor'] = toInt(m['doctor']) + 1;
+      }
+      if (icons[FirebaseFieldName.eyePain] == true) {
+        m['eyePain'] = toInt(m['eyePain']) + 1;
+      }
+      if (icons[FirebaseFieldName.vomit] == true) {
+        m['vomit'] = toInt(m['vomit']) + 1;
+      }
+      if (icons[FirebaseFieldName.preventivePill] == true) {
+        m['preventivePill'] = toInt(m['preventivePill']) + 1;
+      }
     }
 
     final result = <MonthlyStatisticsModel>[];
@@ -146,6 +171,17 @@ class MonthlyStatisticsStorage {
               : '-',
           menstruation: toInt(m['menstruation']) > 0
               ? toInt(m['menstruation']).toString()
+              : '-',
+          chocolate: toInt(m['chocolate']) > 0
+              ? toInt(m['chocolate']).toString()
+              : '-',
+          doctor: toInt(m['doctor']) > 0 ? toInt(m['doctor']).toString() : '-',
+          eyePain: toInt(m['eyePain']) > 0
+              ? toInt(m['eyePain']).toString()
+              : '-',
+          vomit: toInt(m['vomit']) > 0 ? toInt(m['vomit']).toString() : '-',
+          preventivePill: toInt(m['preventivePill']) > 0
+              ? toInt(m['preventivePill']).toString()
               : '-',
         ),
       );
@@ -187,6 +223,11 @@ class MonthlyStatisticsStorage {
         'rightSide': 0,
         'leftSide': 0,
         'overhead': 0,
+        'chocolate': 0,
+        'doctor': 0,
+        'eyePain': 0,
+        'vomit': 0,
+        'preventivePill': 0,
       },
     );
     for (final pd in parsedDocs) {
@@ -218,18 +259,39 @@ class MonthlyStatisticsStorage {
       month['pills'] =
           month['pills']! +
           ((medication[FirebaseFieldName.pill] as num?)?.toInt() ?? 0);
-      if (icons[FirebaseFieldName.systal] == true)
+      if (icons[FirebaseFieldName.systal] == true) {
         month['systal'] = month['systal']! + 1;
-      if (icons[FirebaseFieldName.run] == true)
+      }
+      if (icons[FirebaseFieldName.run] == true) {
         month['run'] = month['run']! + 1;
-      if (icons[FirebaseFieldName.gym] == true)
+      }
+      if (icons[FirebaseFieldName.gym] == true) {
         month['strength'] = month['strength']! + 1;
-      if (icons[FirebaseFieldName.sex] == true)
+      }
+      if (icons[FirebaseFieldName.sex] == true) {
         month['sex'] = month['sex']! + 1;
-      if (icons[FirebaseFieldName.wine] == true)
+      }
+      if (icons[FirebaseFieldName.wine] == true) {
         month['alcohol'] = month['alcohol']! + 1;
-      if (icons[FirebaseFieldName.blood] == true)
+      }
+      if (icons[FirebaseFieldName.blood] == true) {
         month['menstruation'] = month['menstruation']! + 1;
+      }
+      if (icons[FirebaseFieldName.chocolate] == true) {
+        month['chocolate'] = month['chocolate']! + 1;
+      }
+      if (icons[FirebaseFieldName.doctor] == true) {
+        month['doctor'] = month['doctor']! + 1;
+      }
+      if (icons[FirebaseFieldName.eyePain] == true) {
+        month['eyePain'] = month['eyePain']! + 1;
+      }
+      if (icons[FirebaseFieldName.vomit] == true) {
+        month['vomit'] = month['vomit']! + 1;
+      }
+      if (icons[FirebaseFieldName.preventivePill] == true) {
+        month['preventivePill'] = month['preventivePill']! + 1;
+      }
     }
     String value(int number) => number > 0 ? number.toString() : '-';
     return List.generate(monthsCount, (index) {
@@ -250,6 +312,11 @@ class MonthlyStatisticsStorage {
         sex: value(month['sex']!),
         alcohol: value(month['alcohol']!),
         menstruation: value(month['menstruation']!),
+        chocolate: value(month['chocolate']!),
+        doctor: value(month['doctor']!),
+        eyePain: value(month['eyePain']!),
+        vomit: value(month['vomit']!),
+        preventivePill: value(month['preventivePill']!),
       );
     });
   }

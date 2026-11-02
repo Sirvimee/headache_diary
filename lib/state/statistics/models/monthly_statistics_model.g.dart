@@ -23,6 +23,11 @@ _MonthlyStatisticsModel _$MonthlyStatisticsModelFromJson(
   sex: json['sex'] as String,
   alcohol: json['alcohol'] as String,
   menstruation: json['menstruation'] as String,
+  chocolate: json['chocolate'] as String,
+  doctor: json['doctor'] as String,
+  eyePain: json['eyePain'] as String,
+  vomit: json['vomit'] as String,
+  preventivePill: json['preventivePill'] as String,
 );
 
 Map<String, dynamic> _$MonthlyStatisticsModelToJson(
@@ -42,4 +47,9 @@ Map<String, dynamic> _$MonthlyStatisticsModelToJson(
   'sex': instance.sex,
   'alcohol': instance.alcohol,
   'menstruation': instance.menstruation,
+  'chocolate': instance.chocolate,
+  'doctor': instance.doctor,
+  'eyePain': instance.eyePain,
+  'vomit': instance.vomit,
+  'preventivePill': instance.preventivePill,
 };

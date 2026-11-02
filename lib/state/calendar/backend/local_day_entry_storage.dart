@@ -46,8 +46,9 @@ class LocalDayEntryStorage {
       icons.remove(key);
       if (key == FirebaseFieldName.systal && reminder != null) {
         final id = reminder[FirebaseFieldName.notificationId];
-        if (id is num)
+        if (id is num) {
           await NotificationService().cancelNotificationById(id.toInt());
+        }
         reminder = null;
       }
       await _save(entry.copyWith(icons: icons, reminder: reminder));
@@ -82,8 +83,9 @@ class LocalDayEntryStorage {
     if (icons[FirebaseFieldName.systal] == true) {
       icons.remove(FirebaseFieldName.systal);
       final id = entry.reminder?[FirebaseFieldName.notificationId];
-      if (id is num)
+      if (id is num) {
         await NotificationService().cancelNotificationById(id.toInt());
+      }
       await _save(entry.copyWith(icons: icons, reminder: null));
       return 3;
     }
@@ -106,5 +108,63 @@ class LocalDayEntryStorage {
       ),
     );
     return id == null ? 2 : 1;
+  }
+
+  Future<int> addFutureReminder({
+    required DateTime date,
+    required String iconKey,
+    required DateTime reminderDate,
+    required String title,
+    required String body,
+    Map<String, dynamic> details = const {},
+  }) async {
+    final entry = _getOrCreate(date);
+    final icons = Map<String, dynamic>.from(entry.icons);
+    if (icons[iconKey] == true) {
+      icons.remove(iconKey);
+      final id = entry.reminder?[FirebaseFieldName.notificationId];
+      if (id is num) {
+        await NotificationService().cancelNotificationById(id.toInt());
+      }
+      await _save(entry.copyWith(icons: icons, reminder: null));
+      return 3;
+    }
+    icons[iconKey] = true;
+    final medication = Map<String, dynamic>.from(entry.medication);
+    if (iconKey == FirebaseFieldName.preventivePill) {
+      medication.addAll({
+        FirebaseFieldName.preventivePillName:
+            details[FirebaseFieldName.preventivePillName],
+        FirebaseFieldName.preventivePillGrams:
+            details[FirebaseFieldName.preventivePillGrams],
+      });
+    }
+    final id =
+        NotificationService().notificationIdForDate(reminderDate) +
+        (iconKey == FirebaseFieldName.doctor ? 10000000 : 20000000);
+    int? scheduledId;
+    try {
+      scheduledId = await NotificationService().scheduleNotification(
+        reminderDate,
+        title,
+        body,
+        id,
+      );
+    } catch (_) {}
+    await _save(
+      entry.copyWith(
+        icons: icons,
+        medication: medication,
+        reminder: {
+          FirebaseFieldName.enabled: true,
+          FirebaseFieldName.reminderType: iconKey,
+          FirebaseFieldName.time: reminderDate.toIso8601String(),
+          ...details,
+          if (scheduledId != null)
+            FirebaseFieldName.notificationId: scheduledId,
+        },
+      ),
+    );
+    return scheduledId == null ? 2 : 1;
   }
 }

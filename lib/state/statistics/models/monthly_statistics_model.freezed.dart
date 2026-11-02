@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$MonthlyStatisticsModel {
 
- String get title; int get year; int get month; String get headacheDays; String get rightSide; String get leftSide; String get overhead; String get pills; String get systal; String get run; String get strength; String get sex; String get alcohol; String get menstruation;
+ String get title; int get year; int get month; String get headacheDays; String get rightSide; String get leftSide; String get overhead; String get pills; String get systal; String get run; String get strength; String get sex; String get alcohol; String get menstruation; String get chocolate; String get doctor; String get eyePain; String get vomit; String get preventivePill;
 /// Create a copy of MonthlyStatisticsModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $MonthlyStatisticsModelCopyWith<MonthlyStatisticsModel> get copyWith => _$Monthl
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is MonthlyStatisticsModel&&(identical(other.title, title) || other.title == title)&&(identical(other.year, year) || other.year == year)&&(identical(other.month, month) || other.month == month)&&(identical(other.headacheDays, headacheDays) || other.headacheDays == headacheDays)&&(identical(other.rightSide, rightSide) || other.rightSide == rightSide)&&(identical(other.leftSide, leftSide) || other.leftSide == leftSide)&&(identical(other.overhead, overhead) || other.overhead == overhead)&&(identical(other.pills, pills) || other.pills == pills)&&(identical(other.systal, systal) || other.systal == systal)&&(identical(other.run, run) || other.run == run)&&(identical(other.strength, strength) || other.strength == strength)&&(identical(other.sex, sex) || other.sex == sex)&&(identical(other.alcohol, alcohol) || other.alcohol == alcohol)&&(identical(other.menstruation, menstruation) || other.menstruation == menstruation));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is MonthlyStatisticsModel&&(identical(other.title, title) || other.title == title)&&(identical(other.year, year) || other.year == year)&&(identical(other.month, month) || other.month == month)&&(identical(other.headacheDays, headacheDays) || other.headacheDays == headacheDays)&&(identical(other.rightSide, rightSide) || other.rightSide == rightSide)&&(identical(other.leftSide, leftSide) || other.leftSide == leftSide)&&(identical(other.overhead, overhead) || other.overhead == overhead)&&(identical(other.pills, pills) || other.pills == pills)&&(identical(other.systal, systal) || other.systal == systal)&&(identical(other.run, run) || other.run == run)&&(identical(other.strength, strength) || other.strength == strength)&&(identical(other.sex, sex) || other.sex == sex)&&(identical(other.alcohol, alcohol) || other.alcohol == alcohol)&&(identical(other.menstruation, menstruation) || other.menstruation == menstruation)&&(identical(other.chocolate, chocolate) || other.chocolate == chocolate)&&(identical(other.doctor, doctor) || other.doctor == doctor)&&(identical(other.eyePain, eyePain) || other.eyePain == eyePain)&&(identical(other.vomit, vomit) || other.vomit == vomit)&&(identical(other.preventivePill, preventivePill) || other.preventivePill == preventivePill));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,title,year,month,headacheDays,rightSide,leftSide,overhead,pills,systal,run,strength,sex,alcohol,menstruation);
+int get hashCode => Object.hashAll([runtimeType,title,year,month,headacheDays,rightSide,leftSide,overhead,pills,systal,run,strength,sex,alcohol,menstruation,chocolate,doctor,eyePain,vomit,preventivePill]);
 
 @override
 String toString() {
-  return 'MonthlyStatisticsModel(title: $title, year: $year, month: $month, headacheDays: $headacheDays, rightSide: $rightSide, leftSide: $leftSide, overhead: $overhead, pills: $pills, systal: $systal, run: $run, strength: $strength, sex: $sex, alcohol: $alcohol, menstruation: $menstruation)';
+  return 'MonthlyStatisticsModel(title: $title, year: $year, month: $month, headacheDays: $headacheDays, rightSide: $rightSide, leftSide: $leftSide, overhead: $overhead, pills: $pills, systal: $systal, run: $run, strength: $strength, sex: $sex, alcohol: $alcohol, menstruation: $menstruation, chocolate: $chocolate, doctor: $doctor, eyePain: $eyePain, vomit: $vomit, preventivePill: $preventivePill)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $MonthlyStatisticsModelCopyWith<$Res>  {
   factory $MonthlyStatisticsModelCopyWith(MonthlyStatisticsModel value, $Res Function(MonthlyStatisticsModel) _then) = _$MonthlyStatisticsModelCopyWithImpl;
 @useResult
 $Res call({
- String title, int year, int month, String headacheDays, String rightSide, String leftSide, String overhead, String pills, String systal, String run, String strength, String sex, String alcohol, String menstruation
+ String title, int year, int month, String headacheDays, String rightSide, String leftSide, String overhead, String pills, String systal, String run, String strength, String sex, String alcohol, String menstruation, String chocolate, String doctor, String eyePain, String vomit, String preventivePill
 });
 
 
@@ -65,7 +65,7 @@ class _$MonthlyStatisticsModelCopyWithImpl<$Res>
 
 /// Create a copy of MonthlyStatisticsModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? title = null,Object? year = null,Object? month = null,Object? headacheDays = null,Object? rightSide = null,Object? leftSide = null,Object? overhead = null,Object? pills = null,Object? systal = null,Object? run = null,Object? strength = null,Object? sex = null,Object? alcohol = null,Object? menstruation = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? title = null,Object? year = null,Object? month = null,Object? headacheDays = null,Object? rightSide = null,Object? leftSide = null,Object? overhead = null,Object? pills = null,Object? systal = null,Object? run = null,Object? strength = null,Object? sex = null,Object? alcohol = null,Object? menstruation = null,Object? chocolate = null,Object? doctor = null,Object? eyePain = null,Object? vomit = null,Object? preventivePill = null,}) {
   return _then(_self.copyWith(
 title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String,year: null == year ? _self.year : year // ignore: cast_nullable_to_non_nullable
@@ -81,6 +81,11 @@ as String,strength: null == strength ? _self.strength : strength // ignore: cast
 as String,sex: null == sex ? _self.sex : sex // ignore: cast_nullable_to_non_nullable
 as String,alcohol: null == alcohol ? _self.alcohol : alcohol // ignore: cast_nullable_to_non_nullable
 as String,menstruation: null == menstruation ? _self.menstruation : menstruation // ignore: cast_nullable_to_non_nullable
+as String,chocolate: null == chocolate ? _self.chocolate : chocolate // ignore: cast_nullable_to_non_nullable
+as String,doctor: null == doctor ? _self.doctor : doctor // ignore: cast_nullable_to_non_nullable
+as String,eyePain: null == eyePain ? _self.eyePain : eyePain // ignore: cast_nullable_to_non_nullable
+as String,vomit: null == vomit ? _self.vomit : vomit // ignore: cast_nullable_to_non_nullable
+as String,preventivePill: null == preventivePill ? _self.preventivePill : preventivePill // ignore: cast_nullable_to_non_nullable
 as String,
   ));
 }
@@ -166,10 +171,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String title,  int year,  int month,  String headacheDays,  String rightSide,  String leftSide,  String overhead,  String pills,  String systal,  String run,  String strength,  String sex,  String alcohol,  String menstruation)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String title,  int year,  int month,  String headacheDays,  String rightSide,  String leftSide,  String overhead,  String pills,  String systal,  String run,  String strength,  String sex,  String alcohol,  String menstruation,  String chocolate,  String doctor,  String eyePain,  String vomit,  String preventivePill)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _MonthlyStatisticsModel() when $default != null:
-return $default(_that.title,_that.year,_that.month,_that.headacheDays,_that.rightSide,_that.leftSide,_that.overhead,_that.pills,_that.systal,_that.run,_that.strength,_that.sex,_that.alcohol,_that.menstruation);case _:
+return $default(_that.title,_that.year,_that.month,_that.headacheDays,_that.rightSide,_that.leftSide,_that.overhead,_that.pills,_that.systal,_that.run,_that.strength,_that.sex,_that.alcohol,_that.menstruation,_that.chocolate,_that.doctor,_that.eyePain,_that.vomit,_that.preventivePill);case _:
   return orElse();
 
 }
@@ -187,10 +192,10 @@ return $default(_that.title,_that.year,_that.month,_that.headacheDays,_that.righ
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String title,  int year,  int month,  String headacheDays,  String rightSide,  String leftSide,  String overhead,  String pills,  String systal,  String run,  String strength,  String sex,  String alcohol,  String menstruation)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String title,  int year,  int month,  String headacheDays,  String rightSide,  String leftSide,  String overhead,  String pills,  String systal,  String run,  String strength,  String sex,  String alcohol,  String menstruation,  String chocolate,  String doctor,  String eyePain,  String vomit,  String preventivePill)  $default,) {final _that = this;
 switch (_that) {
 case _MonthlyStatisticsModel():
-return $default(_that.title,_that.year,_that.month,_that.headacheDays,_that.rightSide,_that.leftSide,_that.overhead,_that.pills,_that.systal,_that.run,_that.strength,_that.sex,_that.alcohol,_that.menstruation);case _:
+return $default(_that.title,_that.year,_that.month,_that.headacheDays,_that.rightSide,_that.leftSide,_that.overhead,_that.pills,_that.systal,_that.run,_that.strength,_that.sex,_that.alcohol,_that.menstruation,_that.chocolate,_that.doctor,_that.eyePain,_that.vomit,_that.preventivePill);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -207,10 +212,10 @@ return $default(_that.title,_that.year,_that.month,_that.headacheDays,_that.righ
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String title,  int year,  int month,  String headacheDays,  String rightSide,  String leftSide,  String overhead,  String pills,  String systal,  String run,  String strength,  String sex,  String alcohol,  String menstruation)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String title,  int year,  int month,  String headacheDays,  String rightSide,  String leftSide,  String overhead,  String pills,  String systal,  String run,  String strength,  String sex,  String alcohol,  String menstruation,  String chocolate,  String doctor,  String eyePain,  String vomit,  String preventivePill)?  $default,) {final _that = this;
 switch (_that) {
 case _MonthlyStatisticsModel() when $default != null:
-return $default(_that.title,_that.year,_that.month,_that.headacheDays,_that.rightSide,_that.leftSide,_that.overhead,_that.pills,_that.systal,_that.run,_that.strength,_that.sex,_that.alcohol,_that.menstruation);case _:
+return $default(_that.title,_that.year,_that.month,_that.headacheDays,_that.rightSide,_that.leftSide,_that.overhead,_that.pills,_that.systal,_that.run,_that.strength,_that.sex,_that.alcohol,_that.menstruation,_that.chocolate,_that.doctor,_that.eyePain,_that.vomit,_that.preventivePill);case _:
   return null;
 
 }
@@ -222,7 +227,7 @@ return $default(_that.title,_that.year,_that.month,_that.headacheDays,_that.righ
 @JsonSerializable()
 
 class _MonthlyStatisticsModel implements MonthlyStatisticsModel {
-  const _MonthlyStatisticsModel({required this.title, required this.year, required this.month, required this.headacheDays, required this.rightSide, required this.leftSide, required this.overhead, required this.pills, required this.systal, required this.run, required this.strength, required this.sex, required this.alcohol, required this.menstruation});
+  const _MonthlyStatisticsModel({required this.title, required this.year, required this.month, required this.headacheDays, required this.rightSide, required this.leftSide, required this.overhead, required this.pills, required this.systal, required this.run, required this.strength, required this.sex, required this.alcohol, required this.menstruation, required this.chocolate, required this.doctor, required this.eyePain, required this.vomit, required this.preventivePill});
   factory _MonthlyStatisticsModel.fromJson(Map<String, dynamic> json) => _$MonthlyStatisticsModelFromJson(json);
 
 @override final  String title;
@@ -239,6 +244,11 @@ class _MonthlyStatisticsModel implements MonthlyStatisticsModel {
 @override final  String sex;
 @override final  String alcohol;
 @override final  String menstruation;
+@override final  String chocolate;
+@override final  String doctor;
+@override final  String eyePain;
+@override final  String vomit;
+@override final  String preventivePill;
 
 /// Create a copy of MonthlyStatisticsModel
 /// with the given fields replaced by the non-null parameter values.
@@ -253,16 +263,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _MonthlyStatisticsModel&&(identical(other.title, title) || other.title == title)&&(identical(other.year, year) || other.year == year)&&(identical(other.month, month) || other.month == month)&&(identical(other.headacheDays, headacheDays) || other.headacheDays == headacheDays)&&(identical(other.rightSide, rightSide) || other.rightSide == rightSide)&&(identical(other.leftSide, leftSide) || other.leftSide == leftSide)&&(identical(other.overhead, overhead) || other.overhead == overhead)&&(identical(other.pills, pills) || other.pills == pills)&&(identical(other.systal, systal) || other.systal == systal)&&(identical(other.run, run) || other.run == run)&&(identical(other.strength, strength) || other.strength == strength)&&(identical(other.sex, sex) || other.sex == sex)&&(identical(other.alcohol, alcohol) || other.alcohol == alcohol)&&(identical(other.menstruation, menstruation) || other.menstruation == menstruation));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _MonthlyStatisticsModel&&(identical(other.title, title) || other.title == title)&&(identical(other.year, year) || other.year == year)&&(identical(other.month, month) || other.month == month)&&(identical(other.headacheDays, headacheDays) || other.headacheDays == headacheDays)&&(identical(other.rightSide, rightSide) || other.rightSide == rightSide)&&(identical(other.leftSide, leftSide) || other.leftSide == leftSide)&&(identical(other.overhead, overhead) || other.overhead == overhead)&&(identical(other.pills, pills) || other.pills == pills)&&(identical(other.systal, systal) || other.systal == systal)&&(identical(other.run, run) || other.run == run)&&(identical(other.strength, strength) || other.strength == strength)&&(identical(other.sex, sex) || other.sex == sex)&&(identical(other.alcohol, alcohol) || other.alcohol == alcohol)&&(identical(other.menstruation, menstruation) || other.menstruation == menstruation)&&(identical(other.chocolate, chocolate) || other.chocolate == chocolate)&&(identical(other.doctor, doctor) || other.doctor == doctor)&&(identical(other.eyePain, eyePain) || other.eyePain == eyePain)&&(identical(other.vomit, vomit) || other.vomit == vomit)&&(identical(other.preventivePill, preventivePill) || other.preventivePill == preventivePill));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,title,year,month,headacheDays,rightSide,leftSide,overhead,pills,systal,run,strength,sex,alcohol,menstruation);
+int get hashCode => Object.hashAll([runtimeType,title,year,month,headacheDays,rightSide,leftSide,overhead,pills,systal,run,strength,sex,alcohol,menstruation,chocolate,doctor,eyePain,vomit,preventivePill]);
 
 @override
 String toString() {
-  return 'MonthlyStatisticsModel(title: $title, year: $year, month: $month, headacheDays: $headacheDays, rightSide: $rightSide, leftSide: $leftSide, overhead: $overhead, pills: $pills, systal: $systal, run: $run, strength: $strength, sex: $sex, alcohol: $alcohol, menstruation: $menstruation)';
+  return 'MonthlyStatisticsModel(title: $title, year: $year, month: $month, headacheDays: $headacheDays, rightSide: $rightSide, leftSide: $leftSide, overhead: $overhead, pills: $pills, systal: $systal, run: $run, strength: $strength, sex: $sex, alcohol: $alcohol, menstruation: $menstruation, chocolate: $chocolate, doctor: $doctor, eyePain: $eyePain, vomit: $vomit, preventivePill: $preventivePill)';
 }
 
 
@@ -273,7 +283,7 @@ abstract mixin class _$MonthlyStatisticsModelCopyWith<$Res> implements $MonthlyS
   factory _$MonthlyStatisticsModelCopyWith(_MonthlyStatisticsModel value, $Res Function(_MonthlyStatisticsModel) _then) = __$MonthlyStatisticsModelCopyWithImpl;
 @override @useResult
 $Res call({
- String title, int year, int month, String headacheDays, String rightSide, String leftSide, String overhead, String pills, String systal, String run, String strength, String sex, String alcohol, String menstruation
+ String title, int year, int month, String headacheDays, String rightSide, String leftSide, String overhead, String pills, String systal, String run, String strength, String sex, String alcohol, String menstruation, String chocolate, String doctor, String eyePain, String vomit, String preventivePill
 });
 
 
@@ -290,7 +300,7 @@ class __$MonthlyStatisticsModelCopyWithImpl<$Res>
 
 /// Create a copy of MonthlyStatisticsModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? title = null,Object? year = null,Object? month = null,Object? headacheDays = null,Object? rightSide = null,Object? leftSide = null,Object? overhead = null,Object? pills = null,Object? systal = null,Object? run = null,Object? strength = null,Object? sex = null,Object? alcohol = null,Object? menstruation = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? title = null,Object? year = null,Object? month = null,Object? headacheDays = null,Object? rightSide = null,Object? leftSide = null,Object? overhead = null,Object? pills = null,Object? systal = null,Object? run = null,Object? strength = null,Object? sex = null,Object? alcohol = null,Object? menstruation = null,Object? chocolate = null,Object? doctor = null,Object? eyePain = null,Object? vomit = null,Object? preventivePill = null,}) {
   return _then(_MonthlyStatisticsModel(
 title: null == title ? _self.title : title // ignore: cast_nullable_to_non_nullable
 as String,year: null == year ? _self.year : year // ignore: cast_nullable_to_non_nullable
@@ -306,6 +316,11 @@ as String,strength: null == strength ? _self.strength : strength // ignore: cast
 as String,sex: null == sex ? _self.sex : sex // ignore: cast_nullable_to_non_nullable
 as String,alcohol: null == alcohol ? _self.alcohol : alcohol // ignore: cast_nullable_to_non_nullable
 as String,menstruation: null == menstruation ? _self.menstruation : menstruation // ignore: cast_nullable_to_non_nullable
+as String,chocolate: null == chocolate ? _self.chocolate : chocolate // ignore: cast_nullable_to_non_nullable
+as String,doctor: null == doctor ? _self.doctor : doctor // ignore: cast_nullable_to_non_nullable
+as String,eyePain: null == eyePain ? _self.eyePain : eyePain // ignore: cast_nullable_to_non_nullable
+as String,vomit: null == vomit ? _self.vomit : vomit // ignore: cast_nullable_to_non_nullable
+as String,preventivePill: null == preventivePill ? _self.preventivePill : preventivePill // ignore: cast_nullable_to_non_nullable
 as String,
   ));
 }

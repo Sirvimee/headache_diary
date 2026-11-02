@@ -50,6 +50,11 @@ Map<String, String> _aggregateDocs(
   int sex = 0;
   int alcohol = 0;
   int menstruation = 0;
+  int chocolate = 0;
+  int doctor = 0;
+  int eyePain = 0;
+  int vomit = 0;
+  int preventivePill = 0;
   int rightSide = 0;
   int leftSide = 0;
   int overhead = 0;
@@ -70,6 +75,11 @@ Map<String, String> _aggregateDocs(
     if (icons[FirebaseFieldName.sex] == true) sex++;
     if (icons[FirebaseFieldName.wine] == true) alcohol++;
     if (icons[FirebaseFieldName.blood] == true) menstruation++;
+    if (icons[FirebaseFieldName.chocolate] == true) chocolate++;
+    if (icons[FirebaseFieldName.doctor] == true) doctor++;
+    if (icons[FirebaseFieldName.eyePain] == true) eyePain++;
+    if (icons[FirebaseFieldName.vomit] == true) vomit++;
+    if (icons[FirebaseFieldName.preventivePill] == true) preventivePill++;
 
     for (final key in icons.keys) {
       final k = key.toString().toLowerCase();
@@ -105,6 +115,11 @@ Map<String, String> _aggregateDocs(
     'sex': sex > 0 ? sex.toString() : '-',
     'alcohol': alcohol > 0 ? alcohol.toString() : '-',
     'menstruation': menstruation > 0 ? menstruation.toString() : '-',
+    'chocolate': chocolate > 0 ? chocolate.toString() : '-',
+    'doctor': doctor > 0 ? doctor.toString() : '-',
+    'eyePain': eyePain > 0 ? eyePain.toString() : '-',
+    'vomit': vomit > 0 ? vomit.toString() : '-',
+    'preventivePill': preventivePill > 0 ? preventivePill.toString() : '-',
   };
 }
 

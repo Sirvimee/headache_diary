@@ -89,6 +89,16 @@ class DayEntryStorage {
     ).doc(dateIso).snapshots().map(_fromDoc);
   }
 
+  Future<List<DayEntryModel>> allEntries() async {
+    if (LocalStorage.isGuest) {
+      return LocalStorage.entries.map(DayEntryModel.fromJson).toList();
+    }
+    final uid = _uid() ?? '';
+    if (uid.isEmpty) return [];
+    final snapshot = await DayEntryFirestore.daysCollection(uid).get();
+    return snapshot.docs.map(_fromDoc).whereType<DayEntryModel>().toList();
+  }
+
   /// Toggles an icon for [date]. Returns true if the icon was added, false if removed.
   Future<bool> toggleIcon(DateTime date, String key) async {
     if (LocalStorage.isGuest) return _localStorage.toggleIcon(date, key);
@@ -211,5 +221,72 @@ class DayEntryStorage {
     final updated = entry.copyWith(icons: icons, reminder: reminder);
     await _saveEntry(uid, updated);
     return scheduledId != null ? 1 : 2;
+  }
+
+  Future<int> addFutureReminder({
+    required DateTime date,
+    required String iconKey,
+    required DateTime reminderDate,
+    required String title,
+    required String body,
+    Map<String, dynamic> details = const {},
+  }) async {
+    if (LocalStorage.isGuest) {
+      return _localStorage.addFutureReminder(
+        date: date,
+        iconKey: iconKey,
+        reminderDate: reminderDate,
+        title: title,
+        body: body,
+        details: details,
+      );
+    }
+    final uid = _uid() ?? '';
+    if (uid.isEmpty) return 0;
+    final entry = await _getOrCreate(uid, date);
+    final icons = Map<String, dynamic>.from(entry.icons);
+    if (icons[iconKey] == true) {
+      icons.remove(iconKey);
+      final id = entry.reminder?[FirebaseFieldName.notificationId];
+      if (id is num) {
+        await NotificationService().cancelNotificationById(id.toInt());
+      }
+      await _saveEntry(uid, entry.copyWith(icons: icons, reminder: null));
+      return 3;
+    }
+    icons[iconKey] = true;
+    final medication = Map<String, dynamic>.from(entry.medication);
+    if (iconKey == FirebaseFieldName.preventivePill) {
+      medication.addAll({
+        FirebaseFieldName.preventivePillName:
+            details[FirebaseFieldName.preventivePillName],
+        FirebaseFieldName.preventivePillGrams:
+            details[FirebaseFieldName.preventivePillGrams],
+      });
+    }
+    final id =
+        NotificationService().notificationIdForDate(reminderDate) +
+        (iconKey == FirebaseFieldName.doctor ? 10000000 : 20000000);
+    int? scheduledId;
+    try {
+      scheduledId = await NotificationService().scheduleNotification(
+        reminderDate,
+        title,
+        body,
+        id,
+      );
+    } catch (_) {}
+    final reminder = {
+      FirebaseFieldName.enabled: true,
+      FirebaseFieldName.reminderType: iconKey,
+      FirebaseFieldName.time: reminderDate.toIso8601String(),
+      ...details,
+      if (scheduledId != null) FirebaseFieldName.notificationId: scheduledId,
+    };
+    await _saveEntry(
+      uid,
+      entry.copyWith(icons: icons, medication: medication, reminder: reminder),
+    );
+    return scheduledId == null ? 2 : 1;
   }
 }

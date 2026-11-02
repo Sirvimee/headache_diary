@@ -47,4 +47,4 @@ final class IsLoggedInProvider extends $FunctionalProvider<bool, bool, bool>
   }
 }
 
-String _$isLoggedInHash() => r'b3be64684349b98cf523be3aa6a5af1363c3e849';
+String _$isLoggedInHash() => r'61265b9f20288bafbf8434863ce84f1d30ba8cc5';

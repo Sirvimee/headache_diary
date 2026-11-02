@@ -40,6 +40,8 @@ class Strings {
   static const signUp = 'Registreeru';
   static const forgotPassword = 'Unustasid parooli?';
   static const continueWithoutLogin = 'Jätka ilma sisse logimata';
+  static const guestLoginWarning =
+      'Kasutaja andmed salvestatakse ainult seadmesse. Kui kustutad rakenduse või vahetad seadet, kaotad kõik andmed.';
   static const userEmailAlreadyInUse =
       'Kasutaja e-posti aadress on juba kasutusel';
   static const invalidEmailOrPassword = 'Vale e-posti aadress või parool';
@@ -67,6 +69,7 @@ class Strings {
       'Kas oled kindel, et soovid välja logida?';
   static const cancel = 'Tühista';
   static const save = 'Salvesta';
+  static const next = 'Edasi';
 
   // Navigation
   static const home = 'Avalehele';
@@ -118,6 +121,19 @@ class Strings {
   static const intercourse = 'Vahekord';
   static const menstruation = 'Menstruatsioon';
   static const alcoholConsumption = 'Alkohol';
+  static const chocolate = 'Šokolaad';
+  static const doctor = 'Arst';
+  static const eyePain = 'Silmavalu';
+  static const vomit = 'Oksendamine';
+  static const preventivePill = 'Profülaktiline tablett';
+  static const doctorName = 'Arsti nimi';
+  static const enterDoctorName = 'Sisesta arsti nimi';
+  static const pillName = 'Tableti nimetus';
+  static const enterPillName = 'Sisesta tableti nimetus';
+  static const pillGrams = 'Tableti kogus grammides';
+  static const enterPillGrams = 'Sisesta grammid';
+  static const reminderTime = 'Meeldetuletuse kellaaeg';
+  static const invalidPillGrams = 'Sisesta korrektne grammide arv';
   static const additionalNotes = 'Märkmed';
   static const enterAdditionalNotes = 'Kirjuta siia...';
 
@@ -130,12 +146,26 @@ class Strings {
   static const leftSideHeadaches = 'Neist vasakpoolseid:';
   static const overheadHeadaches = 'Neist üle pea:';
   static const pillsTaken = 'Tablette võetud, tk:';
+  static const preventiveMedication = 'Profülaktilised ravimid';
+  static const preventiveMedicationSummary =
+      'Profülaktiliste ravimite kokkuvõte';
+  static const medicationName = 'Ravim';
+  static const dose = 'Annus';
+  static const takenDays = 'Võetud päevadel';
+  static const duration = 'Kestus';
+  static const noPreventiveMedicationData =
+      'Profülaktiliste ravimite andmeid ei ole';
   static const injectionsMade = 'Süste tehtud, tk:';
   static const cardioDays = 'Kardiotrenne, päevi:';
   static const strengthDays = 'Jõutrenne, päevi:';
   static const intercourseDays = 'Vahekordi, päevi:';
   static const alcoholDays = 'Alkoholi tarvitatud, päevi:';
   static const menstruationDays = 'Menstruatsioon, päevi:';
+  static const chocolateDays = 'Šokolaadi tarvitatud, päevi:';
+  static const doctorVisits = 'Arsti külastusi:';
+  static const eyePainDays = 'Silmavalu päevi:';
+  static const vomitingDays = 'Oksendamise päevi:';
+  static const preventivePillDays = 'Profülaktilise tableti päevi:';
   static const pickCorrectDateRange = 'Palun vali korrektne ajavahemik';
   static const pickPeriod = 'Vali periood';
   static const byMonth = 'Kuude kaupa';
@@ -160,6 +190,8 @@ class Strings {
   // Notification texts
   static const String notificationTitle = 'Meeldetuletus';
   static const String notificationBody = 'Aeg teha süsti';
+  static const String doctorNotificationBody = 'Aeg minna arsti juurde';
+  static const String pillNotificationBody = 'Aeg võtta profülaktiline tablett';
 
   // SnackBar sentences
   static const String permissionDeniedSnackBar =

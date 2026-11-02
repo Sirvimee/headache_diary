@@ -29,7 +29,9 @@ class _DayActionModalState extends State<DayActionModal> {
 
   String _fmtTitle(DateTime date) {
     final now = DateTime.now();
-    if (date.year == now.year && date.month == now.month && date.day == now.day) {
+    if (date.year == now.year &&
+        date.month == now.month &&
+        date.day == now.day) {
       return Strings.today;
     }
     return '${date.day}.${date.month}.${date.year}';
@@ -62,13 +64,164 @@ class _DayActionModalState extends State<DayActionModal> {
 
   bool _canEdit(String key) {
     final today = DateTime.now();
-    final selected = DateTime(widget.date.year, widget.date.month, widget.date.day);
-    final isFuture = selected.isAfter(DateTime(today.year, today.month, today.day));
-    if (isFuture && key != FirebaseFieldName.systal) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text(Strings.canAddOnlyToValidDates)));
+    final selected = DateTime(
+      widget.date.year,
+      widget.date.month,
+      widget.date.day,
+    );
+    final isFuture = selected.isAfter(
+      DateTime(today.year, today.month, today.day),
+    );
+    if (isFuture &&
+        key != FirebaseFieldName.systal &&
+        key != FirebaseFieldName.doctor &&
+        key != FirebaseFieldName.preventivePill) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text(Strings.canAddOnlyToValidDates)),
+      );
       return false;
     }
     return true;
+  }
+
+  bool _isFutureDate() {
+    final today = DateTime.now();
+    final selected = DateTime(
+      widget.date.year,
+      widget.date.month,
+      widget.date.day,
+    );
+    return selected.isAfter(DateTime(today.year, today.month, today.day));
+  }
+
+  Future<TimeOfDay?> _pickReminderTime() {
+    return showTimePicker(
+      context: context,
+      initialTime: const TimeOfDay(hour: 12, minute: 0),
+    );
+  }
+
+  Future<void> _addScheduledIcon(String key) async {
+    if (!_canEdit(key)) return;
+    final current = await const DayEntryStorage()
+        .dayEntryStream(widget.date)
+        .first;
+    if (current?.icons[key] == true) {
+      setState(() => _loading = true);
+      try {
+        await const DayEntryStorage().addFutureReminder(
+          date: widget.date,
+          iconKey: key,
+          reminderDate: widget.date,
+          title: '',
+          body: '',
+        );
+      } finally {
+        if (mounted) setState(() => _loading = false);
+      }
+      return;
+    }
+    if (!mounted) return;
+    final controller = TextEditingController();
+    final isDoctor = key == FirebaseFieldName.doctor;
+    final name = await showDialog<String?>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(isDoctor ? Strings.doctorName : Strings.pillName),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          decoration: InputDecoration(
+            hintText: isDoctor
+                ? Strings.enterDoctorName
+                : Strings.enterPillName,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text(Strings.cancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, controller.text.trim()),
+            child: const Text(Strings.next),
+          ),
+        ],
+      ),
+    );
+    if (!mounted) return;
+    if (name == null || name.isEmpty) return;
+
+    String? grams;
+    if (!isDoctor) {
+      final gramsController = TextEditingController();
+      grams = await showDialog<String?>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text(Strings.pillGrams),
+          content: TextField(
+            controller: gramsController,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            decoration: const InputDecoration(hintText: Strings.enterPillGrams),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text(Strings.cancel),
+            ),
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, gramsController.text.trim()),
+              child: const Text(Strings.save),
+            ),
+          ],
+        ),
+      );
+      if (!mounted) return;
+      if (grams == null || double.tryParse(grams) == null) {
+        if (grams != null && mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text(Strings.invalidPillGrams)),
+          );
+        }
+        return;
+      }
+    }
+
+    final time = await _pickReminderTime();
+    if (!mounted) return;
+    if (time == null) return;
+    final reminderDate = DateTime(
+      widget.date.year,
+      widget.date.month,
+      widget.date.day,
+      time.hour,
+      time.minute,
+    );
+    setState(() => _loading = true);
+    try {
+      final status = await const DayEntryStorage().addFutureReminder(
+        date: widget.date,
+        iconKey: key,
+        reminderDate: reminderDate,
+        title: isDoctor ? Strings.doctor : Strings.preventivePill,
+        body: isDoctor
+            ? '${Strings.doctorNotificationBody}: $name'
+            : '${Strings.pillNotificationBody}: $name',
+        details: isDoctor
+            ? {FirebaseFieldName.doctorName: name}
+            : {
+                FirebaseFieldName.preventivePillName: name,
+                FirebaseFieldName.preventivePillGrams: double.parse(grams!),
+              },
+      );
+      if (mounted && status == 1) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text(Strings.reminderAddedSnackBar)),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
   }
 
   Future<void> _editNotes() async {
@@ -81,16 +234,31 @@ class _DayActionModalState extends State<DayActionModal> {
         content: TextField(
           controller: controller,
           maxLines: 6,
-          decoration: const InputDecoration(hintText: Strings.enterAdditionalNotes),
+          decoration: const InputDecoration(
+            hintText: Strings.enterAdditionalNotes,
+          ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text(Strings.cancel, style: TextStyle(color: AppColors.grey))),
-          TextButton(onPressed: () => Navigator.pop(ctx, controller.text), child: const Text(Strings.save, style: TextStyle(color: AppColors.buttonColor))),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text(
+              Strings.cancel,
+              style: TextStyle(color: AppColors.grey),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, controller.text),
+            child: const Text(
+              Strings.save,
+              style: TextStyle(color: AppColors.buttonColor),
+            ),
+          ),
         ],
       ),
     );
 
     if (res == null) return;
+    if (!mounted) return;
 
     setState(() => _loading = true);
     try {
@@ -98,7 +266,7 @@ class _DayActionModalState extends State<DayActionModal> {
     } catch (e) {
       // ignore
     } finally {
-      setState(() => _loading = false);
+      if (mounted) setState(() => _loading = false);
     }
   }
 
@@ -106,17 +274,26 @@ class _DayActionModalState extends State<DayActionModal> {
     setState(() => _loading = true);
     try {
       final status = await const DayEntryStorage().addInjections(widget.date);
+      if (!mounted) return;
       if (status == 1) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text(Strings.reminderAddedSnackBar)));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text(Strings.reminderAddedSnackBar)),
+        );
       } else if (status == 2) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text(Strings.failedToScheduleReminderSnackBar)));
-      } else if (status == 3)  {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text(Strings.reminderDeletedSnackBar)));
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(Strings.failedToScheduleReminderSnackBar),
+          ),
+        );
+      } else if (status == 3) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text(Strings.reminderDeletedSnackBar)),
+        );
       }
     } catch (e) {
       // ignore
     } finally {
-      setState(() => _loading = false);
+      if (mounted) setState(() => _loading = false);
     }
   }
 
@@ -138,10 +315,15 @@ class _DayActionModalState extends State<DayActionModal> {
                 heightFactor: 0.6,
                 widthFactor: 1,
                 child: ClipRRect(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(30)),
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(30),
+                  ),
                   child: Container(
                     color: AppColors.black,
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
@@ -150,13 +332,19 @@ class _DayActionModalState extends State<DayActionModal> {
                           children: [
                             Text(
                               _fmtTitle(widget.date),
-                              style: const TextStyle(color: AppColors.textColor, fontSize: 20),
+                              style: const TextStyle(
+                                color: AppColors.textColor,
+                                fontSize: 20,
+                              ),
                             ),
                             Align(
                               alignment: Alignment.centerRight,
                               child: IconButton(
                                 onPressed: () => Navigator.pop(context),
-                                icon: const Icon(Icons.close, color: AppColors.buttonColor),
+                                icon: const Icon(
+                                  Icons.close,
+                                  color: AppColors.buttonColor,
+                                ),
                               ),
                             ),
                           ],
@@ -175,10 +363,19 @@ class _DayActionModalState extends State<DayActionModal> {
                                     await _changePillCount(1);
                                   } else if (it.key == 'pill_minus') {
                                     await _changePillCount(-1);
-                                  } else if (it.key == FirebaseFieldName.notes) {
+                                  } else if (it.key ==
+                                      FirebaseFieldName.notes) {
                                     await _editNotes();
-                                  } else if (it.key == FirebaseFieldName.systal) {
+                                  } else if (it.key ==
+                                      FirebaseFieldName.systal) {
                                     await _addInjections();
+                                  } else if ((it.key ==
+                                              FirebaseFieldName.doctor ||
+                                          it.key ==
+                                              FirebaseFieldName
+                                                  .preventivePill) &&
+                                      _isFutureDate()) {
+                                    await _addScheduledIcon(it.key);
                                   } else {
                                     await _toggleIcon(it.key);
                                   }
@@ -190,14 +387,23 @@ class _DayActionModalState extends State<DayActionModal> {
                                   children: [
                                     Transform(
                                       alignment: Alignment.center,
-                                      transform: it.flip ? Matrix4.rotationY(3.14159) : Matrix4.identity(),
-                                      child: SvgIcon(asset: it.asset, size: 44, color: AppColors.buttonColor),
+                                      transform: it.flip
+                                          ? Matrix4.rotationY(3.14159)
+                                          : Matrix4.identity(),
+                                      child: SvgIcon(
+                                        asset: it.asset,
+                                        size: 44,
+                                        color: AppColors.buttonColor,
+                                      ),
                                     ),
                                     const SizedBox(height: 6),
                                     Text(
                                       it.label,
                                       textAlign: TextAlign.center,
-                                      style: const TextStyle(color: AppColors.textColor, fontSize: 12),
+                                      style: const TextStyle(
+                                        color: AppColors.textColor,
+                                        fontSize: 12,
+                                      ),
                                       maxLines: 2,
                                       overflow: TextOverflow.ellipsis,
                                     ),

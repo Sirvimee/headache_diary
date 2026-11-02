@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 800 800">
+    <!-- Tableti põhikuju -->
+    <circle cx="400" cy="400" r="340" fill="#33FF57" />
+    <!-- Keskelt poolitav valge joon -->
+    <line x1="100" y1="400" x2="700" y2="400" stroke="#FFFFFF" stroke-width="28" stroke-linecap="round" />
+    <!-- Läikiv valge kaarjas esiletõste servas (stiiliühtsus kapsliga) -->
+    <path d="M180,180 A300,300 0 0,1 620,180" fill="none" stroke="#FFFFFF" stroke-width="24" stroke-linecap="round" opacity="0.9" />
+</svg>

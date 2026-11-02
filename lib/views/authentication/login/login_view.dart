@@ -301,13 +301,43 @@ class LoginViewState extends ConsumerState<LoginView> {
 
                       const SizedBox(height: 8),
 
-                      TextButton(
-                        onPressed: authProvider.isLoading
-                            ? null
-                            : () => ref
-                                  .read(authenticationProvider.notifier)
-                                  .continueWithoutLogin(),
-                        child: const Text(Strings.continueWithoutLogin),
+                      // Login as guest button
+                      SizedBox(
+                        width: double.infinity,
+                        height: 60,
+                        child: ElevatedButton(
+                          onPressed: authProvider.isLoading
+                              ? null
+                              : () => ref
+                              .read(authenticationProvider.notifier)
+                              .continueWithoutLogin(),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.buttonColor,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            elevation: 0,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                Strings.continueWithoutLogin,
+                                style: const TextStyle(
+                                  color: AppColors.primaryColor,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                      Text(
+                        Strings.guestLoginWarning,
+                        style: TextStyle(color: AppColors.hintColor),
+                        textAlign: TextAlign.center,
                       ),
 
                       const Spacer(),

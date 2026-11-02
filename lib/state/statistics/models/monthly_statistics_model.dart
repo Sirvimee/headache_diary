@@ -20,7 +20,13 @@ abstract class MonthlyStatisticsModel with _$MonthlyStatisticsModel {
     required String sex,
     required String alcohol,
     required String menstruation,
+    required String chocolate,
+    required String doctor,
+    required String eyePain,
+    required String vomit,
+    required String preventivePill,
   }) = _MonthlyStatisticsModel;
 
-  factory MonthlyStatisticsModel.fromJson(Map<String, dynamic> json) => _$MonthlyStatisticsModelFromJson(json);
+  factory MonthlyStatisticsModel.fromJson(Map<String, dynamic> json) =>
+      _$MonthlyStatisticsModelFromJson(json);
 }
