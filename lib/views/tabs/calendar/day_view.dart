@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:speech_to_text/speech_to_text.dart';
 
 import '../../../state/constants/firebase_field_name.dart';
 import '../../constants/app_colors.dart';
@@ -16,13 +17,15 @@ class DayView extends StatefulWidget {
   static final activeDate = ValueNotifier<DateTime>(DateTime.now());
 
   @override
-  State<DayView> createState() => _DayViewState();
+  State<DayView> createState() => DayViewState();
 }
 
-class _DayViewState extends State<DayView> {
+class DayViewState extends State<DayView> {
   late DateTime _currentDate;
   late final String uid;
   final bool _loading = false;
+  final SpeechToText _speech = SpeechToText();
+  bool _isListening = false;
 
   final List<ActionItem> items = actionItems;
 
@@ -93,6 +96,117 @@ class _DayViewState extends State<DayView> {
 
   Stream<DayEntryModel?> _dayStream() {
     return DayEntryStorage().dayEntryStream(_currentDate);
+  }
+
+  bool get _isToday => _isSameDate(_currentDate, DateTime.now());
+
+  Future<void> toggleVoiceEntry() async {
+    if (!_isToday) {
+      _currentDate = DateTime.now();
+      DayView.activeDate.value = _currentDate;
+      if (mounted) setState(() {});
+    }
+    if (_isListening) {
+      await _speech.stop();
+      if (mounted) setState(() => _isListening = false);
+      return;
+    }
+
+    final available = await _speech.initialize(
+      onError: (_) {
+        if (mounted) setState(() => _isListening = false);
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(Strings.voicePermissionDenied)),
+          );
+        }
+      },
+      onStatus: (status) {
+        if ((status == 'done' || status == 'notListening') && mounted) {
+          setState(() => _isListening = false);
+        }
+      },
+    );
+    if (!available) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(Strings.voiceRecognitionUnavailable)),
+        );
+      }
+      return;
+    }
+
+    if (mounted) setState(() => _isListening = true);
+    await _speech.listen(
+      listenOptions: SpeechListenOptions(
+        localeId: 'et_EE',
+        listenFor: Duration(seconds: 15),
+        pauseFor: Duration(seconds: 3),
+        partialResults: false,
+      ),
+      onResult: (result) async {
+        if (!result.finalResult || !mounted) return;
+        await _saveVoiceMatches(result.recognizedWords);
+      },
+    );
+  }
+
+  Future<void> _saveVoiceMatches(String spokenText) async {
+    final text = spokenText.toLowerCase();
+    final matches = <String>{};
+    if (text.contains(Strings.voiceKeywordHeadache) &&
+        text.contains(Strings.voiceKeywordLeft)) {
+      matches.add(FirebaseFieldName.peavaluLeft);
+    } else if (text.contains(Strings.voiceKeywordHeadache) &&
+        text.contains(Strings.voiceKeywordRight)) {
+      matches.add(FirebaseFieldName.peavaluRight);
+    } else if (text.contains(Strings.voiceKeywordHeadache) &&
+        (text.contains(Strings.voiceKeywordWholeHead) ||
+            text.contains(Strings.voiceKeywordEntireHead))) {
+      matches.add(FirebaseFieldName.peavaluFull);
+    } else if (text.contains(Strings.voiceKeywordHeadache)) {
+      matches.add(FirebaseFieldName.peavaluFull);
+    }
+    if (text.contains(Strings.voiceKeywordEyePain)) {
+      matches.add(FirebaseFieldName.eyePain);
+    }
+    if (text.contains(Strings.voiceKeywordVomiting) ||
+        text.contains(Strings.voiceKeywordNausea)) {
+      matches.add(FirebaseFieldName.vomit);
+    }
+    if (text.contains(Strings.voiceKeywordPill) ||
+        text.contains(Strings.voiceKeywordPillShort)) {
+      matches.add(FirebaseFieldName.pill);
+    }
+    if (matches.isEmpty) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(Strings.voiceNothingRecognized)),
+        );
+      }
+      return;
+    }
+    final current = await const DayEntryStorage()
+        .dayEntryStream(_currentDate)
+        .first;
+    for (final key in matches) {
+      if (key == FirebaseFieldName.pill) {
+        await const DayEntryStorage().changePillCount(_currentDate, 1);
+      } else if (current?.icons[key] != true) {
+        await const DayEntryStorage().toggleIcon(_currentDate, key);
+      }
+    }
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(Strings.voiceSaved)),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _speech.cancel();
+    super.dispose();
   }
 
   @override

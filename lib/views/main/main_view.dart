@@ -20,12 +20,16 @@ class MainView extends ConsumerStatefulWidget {
 class _MainViewState extends ConsumerState<MainView> {
   late int _currentIndex;
   Map<String, dynamic>? _pendingStatsParams;
+  final _dayViewKey = GlobalKey<DayViewState>();
 
   static DateTime get date => DateTime.now();
 
   List<Widget> get screens => [
         const CalendarView(),
-        DayView(date: widget.initialDate ?? date),
+        DayView(
+          key: _dayViewKey,
+          date: widget.initialDate ?? date,
+        ),
         // Build StatisticsView with any pending params
         if (_pendingStatsParams != null && _pendingStatsParams!['mode'] == 'period' && _pendingStatsParams!['start'] != null && _pendingStatsParams!['end'] != null)
           StatisticsPeriodView(start: _pendingStatsParams!['start'], end: _pendingStatsParams!['end'])
@@ -40,12 +44,28 @@ class _MainViewState extends ConsumerState<MainView> {
     _currentIndex = widget.initialIndex ?? 0;
   }
 
+  void _startVoiceEntry() {
+    if (_currentIndex != 1) {
+      setState(() => _currentIndex = 1);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _dayViewKey.currentState?.toggleVoiceEntry();
+      });
+      return;
+    }
+
+    _dayViewKey.currentState?.toggleVoiceEntry();
+  }
+
   @override
   Widget build(BuildContext context) {
     final navIndex = (_currentIndex >= 0 && _currentIndex <= 2) ? _currentIndex : 0;
 
     return Scaffold(
-      appBar: buildMainAppBar(context, ref),
+      appBar: buildMainAppBar(
+        context,
+        ref,
+        onVoiceEntry: _startVoiceEntry,
+      ),
       body: screens[_currentIndex],
       bottomNavigationBar: buildMainBottomNavigationBar(context, navIndex, (index, [params]) {
         // If called with params from statistics picker, store them then navigate

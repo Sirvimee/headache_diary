@@ -86,6 +86,26 @@ class Strings {
   static const greenColorTheme = 'Roheline';
   static const burgundyColorTheme = 'Burgundia';
 
+  // Voice recognition
+  static const voiceEntry = 'Lisa häälega';
+  static const voiceListening = 'Kuulan...';
+  static const voiceRecognitionUnavailable =
+      'Kõnetuvastus pole selles seadmes saadaval';
+  static const voiceNothingRecognized = 'Sümptomeid ei tuvastatud';
+  static const voicePermissionDenied =
+      'Mikrofoni või kõnetuvastuse luba on keelatud';
+  static const voiceSaved = 'Häälega kirjeldatud sümptomid lisati';
+  static const voiceKeywordHeadache = 'peavalu';
+  static const voiceKeywordLeft = 'vasak';
+  static const voiceKeywordRight = 'parem';
+  static const voiceKeywordWholeHead = 'üle pea';
+  static const voiceKeywordEntireHead = 'terve pea';
+  static const voiceKeywordEyePain = 'silmavalu';
+  static const voiceKeywordVomiting = 'okse';
+  static const voiceKeywordNausea = 'iiveldus';
+  static const voiceKeywordPill = 'tablett';
+  static const voiceKeywordPillShort = 'tabla';
+
   // Navigation
   static const home = 'Avalehele';
   static const notes = 'Lisa märkmeid';

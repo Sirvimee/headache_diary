@@ -14,11 +14,16 @@ import '../../state/user_info/user_info_provider.dart';
 import '../tabs/calendar/day_action_modal.dart';
 import '../tabs/calendar/day_view.dart';
 
-PreferredSizeWidget buildMainAppBar(BuildContext context, WidgetRef ref) {
+PreferredSizeWidget buildMainAppBar(
+  BuildContext context,
+  WidgetRef ref, {
+  required VoidCallback onVoiceEntry,
+}) {
   final isGuest = ref.watch(authenticationProvider).result == AuthResult.local;
 
   return AppBar(
     toolbarHeight: 96,
+    centerTitle: true,
     leadingWidth: 120,
     leading: TextButton(
             onPressed: () {
@@ -126,6 +131,11 @@ PreferredSizeWidget buildMainAppBar(BuildContext context, WidgetRef ref) {
               ],
             ),
           ),
+    title: IconButton(
+      tooltip: Strings.voiceEntry,
+      icon: Icon(Icons.mic_none, color: AppColors.buttonColor, size: 36),
+      onPressed: onVoiceEntry,
+    ),
     actions: [
       Padding(
         padding: EdgeInsets.only(right: 20.0),
