@@ -36,7 +36,7 @@ class LoginViewState extends ConsumerState<LoginView> {
       // Form not mounted yet; show an error and return safely
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text(Strings.formNotAvailable)));
+      ).showSnackBar(SnackBar(content: Text(Strings.formNotAvailable)));
       return;
     }
 
@@ -56,7 +56,7 @@ class LoginViewState extends ConsumerState<LoginView> {
       final current = ref.read(authenticationProvider);
       if (current.result != AuthResult.success) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Text(Strings.invalidEmailOrPassword),
             backgroundColor: AppColors.red,
           ),
@@ -79,7 +79,7 @@ class LoginViewState extends ConsumerState<LoginView> {
     ) {
       if (current.result == AuthResult.failure && !current.isLoading) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Text(Strings.invalidEmailOrPassword),
             backgroundColor: AppColors.red,
           ),
@@ -107,7 +107,7 @@ class LoginViewState extends ConsumerState<LoginView> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      const SizedBox(height: 36),
+                      SizedBox(height: 36),
                       // Title
                       Text(
                         Strings.appName,
@@ -119,7 +119,7 @@ class LoginViewState extends ConsumerState<LoginView> {
                             ),
                         textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: 32),
+                      SizedBox(height: 32),
 
                       // Google sign-in button
                       SizedBox(
@@ -149,10 +149,10 @@ class LoginViewState extends ConsumerState<LoginView> {
                                 width: 32,
                                 height: 32,
                               ),
-                              const SizedBox(width: 12),
+                              SizedBox(width: 12),
                               Text(
                                 Strings.signInWithGoogle,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: AppColors.textColor,
                                   fontSize: 20,
                                   fontWeight: FontWeight.w500,
@@ -163,7 +163,7 @@ class LoginViewState extends ConsumerState<LoginView> {
                         ),
                       ),
 
-                      const SizedBox(height: 30),
+                      SizedBox(height: 30),
 
                       // Divider with "või"
                       Row(
@@ -175,7 +175,7 @@ class LoginViewState extends ConsumerState<LoginView> {
                             ),
                           ),
                           Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            padding: EdgeInsets.symmetric(horizontal: 20),
                             child: Text(
                               Strings.or,
                               style: TextStyle(color: AppColors.hintColor),
@@ -190,7 +190,7 @@ class LoginViewState extends ConsumerState<LoginView> {
                         ],
                       ),
 
-                      const SizedBox(height: 30),
+                      SizedBox(height: 30),
 
                       // Form with Email, Password and Login button
                       Form(
@@ -210,7 +210,7 @@ class LoginViewState extends ConsumerState<LoginView> {
                               ),
                             ),
 
-                            const SizedBox(height: 16),
+                            SizedBox(height: 16),
 
                             // Password input
                             SizedBox(
@@ -226,7 +226,7 @@ class LoginViewState extends ConsumerState<LoginView> {
                               ),
                             ),
 
-                            const SizedBox(height: 28),
+                            SizedBox(height: 28),
 
                             // Login button
                             SizedBox(
@@ -244,7 +244,7 @@ class LoginViewState extends ConsumerState<LoginView> {
                                   elevation: 0,
                                 ),
                                 child: authProvider.isLoading
-                                    ? const SizedBox(
+                                    ? SizedBox(
                                         height: 24,
                                         width: 24,
                                         child: CircularProgressIndicator(
@@ -266,7 +266,7 @@ class LoginViewState extends ConsumerState<LoginView> {
                         ),
                       ),
 
-                      const SizedBox(height: 20),
+                      SizedBox(height: 20),
 
                       // Register and Forgot password links
                       Row(
@@ -277,9 +277,9 @@ class LoginViewState extends ConsumerState<LoginView> {
                             style: TextButton.styleFrom(
                               foregroundColor: AppColors.hintColor,
                               padding: EdgeInsets.zero,
-                              minimumSize: const Size(0, 0),
+                              minimumSize: Size(0, 0),
                             ),
-                            child: const Text(
+                            child: Text(
                               Strings.signUp,
                               style: TextStyle(fontSize: 16),
                             ),
@@ -289,9 +289,9 @@ class LoginViewState extends ConsumerState<LoginView> {
                             style: TextButton.styleFrom(
                               foregroundColor: AppColors.hintColor,
                               padding: EdgeInsets.zero,
-                              minimumSize: const Size(0, 0),
+                              minimumSize: Size(0, 0),
                             ),
-                            child: const Text(
+                            child: Text(
                               Strings.forgotPassword,
                               style: TextStyle(fontSize: 16),
                             ),
@@ -299,7 +299,7 @@ class LoginViewState extends ConsumerState<LoginView> {
                         ],
                       ),
 
-                      const SizedBox(height: 8),
+                      SizedBox(height: 8),
 
                       // Login as guest button
                       SizedBox(
@@ -323,7 +323,7 @@ class LoginViewState extends ConsumerState<LoginView> {
                             children: [
                               Text(
                                 Strings.continueWithoutLogin,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: AppColors.primaryColor,
                                   fontSize: 20,
                                   fontWeight: FontWeight.w500,
@@ -340,7 +340,7 @@ class LoginViewState extends ConsumerState<LoginView> {
                         textAlign: TextAlign.center,
                       ),
 
-                      const Spacer(),
+                      Spacer(),
                     ],
                   ),
                 ),

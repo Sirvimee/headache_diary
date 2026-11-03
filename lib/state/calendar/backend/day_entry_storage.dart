@@ -202,14 +202,8 @@ class DayEntryStorage {
     icons[FirebaseFieldName.systal] = true;
 
     final scheduledDate = DateTime(date.year, date.month, date.day, 12, 0);
-    int? scheduledId;
-    try {
-      scheduledId = await NotificationService().scheduleInjectionNotification(
-        scheduledDate,
-      );
-    } catch (_) {
-      scheduledId = null;
-    }
+    final scheduledId = await NotificationService()
+        .scheduleInjectionNotification(scheduledDate);
 
     final reminderTime = scheduledDate.toIso8601String();
     final reminder = {
@@ -267,15 +261,12 @@ class DayEntryStorage {
     final id =
         NotificationService().notificationIdForDate(reminderDate) +
         (iconKey == FirebaseFieldName.doctor ? 10000000 : 20000000);
-    int? scheduledId;
-    try {
-      scheduledId = await NotificationService().scheduleNotification(
-        reminderDate,
-        title,
-        body,
-        id,
-      );
-    } catch (_) {}
+    final scheduledId = await NotificationService().scheduleNotification(
+      reminderDate,
+      title,
+      body,
+      id,
+    );
     final reminder = {
       FirebaseFieldName.enabled: true,
       FirebaseFieldName.reminderType: iconKey,

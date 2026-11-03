@@ -23,7 +23,7 @@ class ProfileDataChangedView extends StatelessWidget {
               child: ConstrainedBox(
                 constraints: BoxConstraints(minHeight: constraints.maxHeight - 48),
                 child: Align(
-                  alignment: const Alignment(0, 0.2),
+                  alignment: Alignment(0, 0.2),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -37,7 +37,7 @@ class ProfileDataChangedView extends StatelessWidget {
                         textAlign: TextAlign.center,
                       ),
 
-                      const SizedBox(height: 40),
+                      SizedBox(height: 40),
 
                       SizedBox(
                         width: double.infinity,
@@ -45,7 +45,7 @@ class ProfileDataChangedView extends StatelessWidget {
                         child: ElevatedButton(
                           onPressed: () {
                             Navigator.of(context).pushReplacement(
-                              MaterialPageRoute(builder: (_) => const MainView(initialIndex: 0)),
+                              MaterialPageRoute(builder: (_) => MainView(initialIndex: 0)),
                             );
                           },
                           style: ElevatedButton.styleFrom(
@@ -53,7 +53,7 @@ class ProfileDataChangedView extends StatelessWidget {
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                             elevation: 0,
                           ),
-                          child: const Text(
+                          child: Text(
                             Strings.toFrontPage,
                             style: TextStyle(color: AppColors.primaryColor, fontSize: 18, fontWeight: FontWeight.w600),
                           ),

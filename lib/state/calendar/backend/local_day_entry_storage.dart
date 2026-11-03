@@ -142,15 +142,12 @@ class LocalDayEntryStorage {
     final id =
         NotificationService().notificationIdForDate(reminderDate) +
         (iconKey == FirebaseFieldName.doctor ? 10000000 : 20000000);
-    int? scheduledId;
-    try {
-      scheduledId = await NotificationService().scheduleNotification(
-        reminderDate,
-        title,
-        body,
-        id,
-      );
-    } catch (_) {}
+    final scheduledId = await NotificationService().scheduleNotification(
+      reminderDate,
+      title,
+      body,
+      id,
+    );
     await _save(
       entry.copyWith(
         icons: icons,

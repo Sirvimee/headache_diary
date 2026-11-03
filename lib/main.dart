@@ -10,9 +10,10 @@ import 'state/auth/backend/local_storage.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await LocalStorage.initialize();
+  AppColors.theme.value = LocalStorage.colorTheme;
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await NotificationService().initialize();
-  runApp(const ProviderScope(child: MyApp()));
+  runApp(ProviderScope(child: MyApp()));
 }
 
 class MyApp extends StatelessWidget {
@@ -24,10 +25,12 @@ class MyApp extends StatelessWidget {
       seedColor: AppColors.primaryColor,
     ).copyWith(surface: AppColors.primaryColor);
 
-    return MaterialApp.router(
-      routerConfig: router,
-      title: 'Flutter Demo',
-      theme: ThemeData(
+    return ValueListenableBuilder<int>(
+      valueListenable: AppColors.theme,
+      builder: (context, _, child) => MaterialApp.router(
+        routerConfig: router,
+        title: 'Flutter Demo',
+        theme: ThemeData(
         colorScheme: colorScheme,
         useMaterial3: true,
         scaffoldBackgroundColor: AppColors.primaryColor,
@@ -47,13 +50,13 @@ class MyApp extends StatelessWidget {
             borderRadius: BorderRadius.circular(16),
             borderSide: BorderSide.none,
           ),
-          contentPadding: const EdgeInsets.symmetric(
+          contentPadding: EdgeInsets.symmetric(
             horizontal: 18,
             vertical: 12,
           ),
         ),
         // Cursor and selection colors inside text fields
-        textSelectionTheme: const TextSelectionThemeData(
+        textSelectionTheme: TextSelectionThemeData(
           cursorColor: AppColors.textColor,
           selectionColor: Colors.white24,
           selectionHandleColor: AppColors.textColor,
@@ -62,11 +65,11 @@ class MyApp extends StatelessWidget {
           backgroundColor: AppColors.primaryColor,
           foregroundColor: AppColors.hintColor,
         ),
-        cardTheme: const CardThemeData(
+        cardTheme: CardThemeData(
           color: AppColors.primaryColor,
           elevation: 0,
         ),
-        dialogTheme: const DialogThemeData(
+        dialogTheme: DialogThemeData(
           backgroundColor: AppColors.primaryColor,
         ),
         // Global BottomNavigationBar theme: controls icon colors and label colors centrally
@@ -91,6 +94,7 @@ class MyApp extends StatelessWidget {
           showUnselectedLabels: true,
           selectedItemColor: AppColors.buttonColor,
           unselectedItemColor: AppColors.hintColor,
+        ),
         ),
       ),
     );

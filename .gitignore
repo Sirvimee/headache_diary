@@ -44,3 +44,10 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 /android/app/google-services.json
+
+# Generated Android reports and task logs
+/android/build/reports/
+/android/gradle_tasks_full.txt
+
+# Thesis working files
+/thesis/

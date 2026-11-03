@@ -19,36 +19,46 @@ PreferredSizeWidget buildMainAppBar(BuildContext context, WidgetRef ref) {
 
   return AppBar(
     toolbarHeight: 96,
-    leadingWidth: isGuest ? 0 : 120,
-    leading: isGuest
-        ? null
-        : TextButton(
+    leadingWidth: 120,
+    leading: TextButton(
             onPressed: () {
               Navigator.of(context).push(
                 MaterialPageRoute(
-                  builder: (context) => const MainView(initialIndex: 3),
+                  builder: (context) => MainView(initialIndex: 3),
                 ),
               );
             },
             style: TextButton.styleFrom(
               padding: EdgeInsets.zero,
-              minimumSize: const Size(56, 56),
+              minimumSize: Size(56, 56),
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(
+                Icon(
                   Icons.account_circle,
                   color: AppColors.buttonColor,
                   size: 36,
                 ),
-                const SizedBox(height: 4),
+                SizedBox(height: 4),
                 Builder(
                   builder: (context) {
                     final authState = ref.watch(authenticationProvider);
                     final userId = authState.userId;
+
+                    if (isGuest) {
+                      return Text(
+                        Strings.profile,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: AppColors.hintColor,
+                          fontSize: 12,
+                        ),
+                      );
+                    }
 
                     // If there's no userId (user not logged in / logging out), don't try to
                     // watch the userInfo provider with a null id. Show the profile label as fallback.
@@ -61,7 +71,7 @@ PreferredSizeWidget buildMainAppBar(BuildContext context, WidgetRef ref) {
                             : Strings.profile,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: AppColors.hintColor,
                           fontSize: 12,
                         ),
@@ -83,7 +93,7 @@ PreferredSizeWidget buildMainAppBar(BuildContext context, WidgetRef ref) {
                                   : Strings.profile),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: AppColors.hintColor,
                           fontSize: 12,
                         ),
@@ -94,7 +104,7 @@ PreferredSizeWidget buildMainAppBar(BuildContext context, WidgetRef ref) {
                             : Strings.profile,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: AppColors.hintColor,
                           fontSize: 12,
                         ),
@@ -105,7 +115,7 @@ PreferredSizeWidget buildMainAppBar(BuildContext context, WidgetRef ref) {
                             : Strings.profile,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: AppColors.hintColor,
                           fontSize: 12,
                         ),
@@ -118,10 +128,10 @@ PreferredSizeWidget buildMainAppBar(BuildContext context, WidgetRef ref) {
           ),
     actions: [
       Padding(
-        padding: const EdgeInsets.only(right: 20.0),
+        padding: EdgeInsets.only(right: 20.0),
         child: TextButton(
           onPressed: () async {
-            final shouldLogOut = await const LogoutDialog()
+            final shouldLogOut = await LogoutDialog()
                 .present(context)
                 .then((value) => value ?? false);
 
@@ -134,13 +144,13 @@ PreferredSizeWidget buildMainAppBar(BuildContext context, WidgetRef ref) {
           },
           style: TextButton.styleFrom(
             padding: EdgeInsets.zero,
-            minimumSize: const Size(56, 56),
+            minimumSize: Size(56, 56),
             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
+            children: [
               Icon(Icons.logout, color: AppColors.buttonColor, size: 36),
               SizedBox(height: 4),
               Text(
@@ -176,7 +186,7 @@ Widget buildMainBottomNavigationBar(
             pageBuilder: (ctx, a1, a2) => DayActionModal(date: date),
             transitionsBuilder: (ctx, anim, sec, child) {
               final tween = Tween(
-                begin: const Offset(0, 1),
+                begin: Offset(0, 1),
                 end: Offset.zero,
               ).chain(CurveTween(curve: Curves.easeOut));
               return SlideTransition(position: anim.drive(tween), child: child);
@@ -193,7 +203,7 @@ Widget buildMainBottomNavigationBar(
             pageBuilder: (ctx, a1, a2) => StatisticsPickerModal(),
             transitionsBuilder: (ctx, anim, sec, child) {
               final tween = Tween(
-                begin: const Offset(0, 1),
+                begin: Offset(0, 1),
                 end: Offset.zero,
               ).chain(CurveTween(curve: Curves.easeOut));
               return SlideTransition(position: anim.drive(tween), child: child);
@@ -211,7 +221,7 @@ Widget buildMainBottomNavigationBar(
 
       onTap(index);
     },
-    items: const [
+    items: [
       BottomNavigationBarItem(icon: Icon(Icons.home), label: Strings.home),
       BottomNavigationBarItem(
         icon: Icon(Icons.add_to_photos),

@@ -47,7 +47,7 @@ class _StatisticsViewState extends ConsumerState<StatisticsView> {
     if (index >= 0 && index < itemCount && _itemScrollController.isAttached) {
       _itemScrollController.scrollTo(
         index: index,
-        duration: const Duration(milliseconds: 300),
+        duration: Duration(milliseconds: 300),
         alignment: 0.0,
       );
     }
@@ -55,21 +55,21 @@ class _StatisticsViewState extends ConsumerState<StatisticsView> {
 
   Widget _preventiveMedicationButton(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
+      padding: EdgeInsets.fromLTRB(12, 8, 12, 0),
       child: OutlinedButton.icon(
         onPressed: () => Navigator.of(context).push(
           MaterialPageRoute(
-            builder: (_) => const PreventiveMedicationStatisticsView(),
+            builder: (_) => PreventiveMedicationStatisticsView(),
           ),
         ),
-        icon: const Icon(
+        icon: Icon(
           Icons.medication_outlined,
           color: AppColors.buttonColor,
         ),
-        label: const Text(Strings.preventiveMedication),
+        label: Text(Strings.preventiveMedication),
         style: OutlinedButton.styleFrom(
           foregroundColor: AppColors.buttonColor,
-          side: const BorderSide(color: AppColors.buttonColor),
+          side: BorderSide(color: AppColors.buttonColor),
         ),
       ),
     );
@@ -86,13 +86,13 @@ class _StatisticsViewState extends ConsumerState<StatisticsView> {
           future: _aggregateForPeriod(widget.start!, widget.end!),
           builder: (ctx, snap) {
             if (snap.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
+              return Center(child: CircularProgressIndicator());
             }
             if (snap.hasError) {
               return Center(child: Text('${Strings.error}: ${snap.error}'));
             }
             return ListView(
-              padding: const EdgeInsets.only(bottom: 24, top: 12),
+              padding: EdgeInsets.only(bottom: 24, top: 12),
               children: [
                 _preventiveMedicationButton(context),
                 StatisticsBlock(
@@ -116,7 +116,7 @@ class _StatisticsViewState extends ConsumerState<StatisticsView> {
             return Column(
               children: [
                 _preventiveMedicationButton(context),
-                const Expanded(
+                Expanded(
                   child: Center(child: Text(Strings.dataNotFound)),
                 ),
               ],
@@ -135,10 +135,10 @@ class _StatisticsViewState extends ConsumerState<StatisticsView> {
               _preventiveMedicationButton(context),
               Expanded(
                 child: ScrollablePositionedList.separated(
-                  padding: const EdgeInsets.only(bottom: 24, top: 12),
+                  padding: EdgeInsets.only(bottom: 24, top: 12),
                   itemCount: monthsList.length,
                   itemScrollController: _itemScrollController,
-                  separatorBuilder: (ctx, idx) => const Divider(
+                  separatorBuilder: (ctx, idx) => Divider(
                     color: AppColors.textColor,
                     height: 1,
                     indent: 20,
@@ -178,7 +178,7 @@ class _StatisticsViewState extends ConsumerState<StatisticsView> {
             ],
           );
         },
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => Center(child: CircularProgressIndicator()),
         error: (e, st) => Center(child: Text('${Strings.error}: $e')),
       ),
     );

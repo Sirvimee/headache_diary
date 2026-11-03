@@ -44,7 +44,8 @@ class StatisticsPdfService {
       notes: notes,
     );
 
-    final filename = 'peavalupaevik_${_dateFormat.format(start)}_${_dateFormat.format(end)}.pdf';
+    final filename =
+        '${Strings.pdfFilenamePrefix}_${_dateFormat.format(start)}_${_dateFormat.format(end)}.pdf';
     await Printing.sharePdf(bytes: await pdf.save(), filename: filename);
   }
 
@@ -84,25 +85,52 @@ class StatisticsPdfService {
             style: pw.TextStyle(font: regular, fontSize: 12),
           ),
           pw.SizedBox(height: 20),
-          pw.Text(Strings.pdfHeadacheSection, style: pw.TextStyle(font: bold, fontSize: 14)),
+          pw.Text(
+            Strings.pdfSymptomsSection,
+            style: pw.TextStyle(font: bold, fontSize: 14),
+          ),
           pw.SizedBox(height: 8),
           _row(regular, Strings.headacheDays, block['headacheDays'] ?? '-'),
-          _row(regular, Strings.rightSideHeadaches, block['rightSide'] ?? '-'),
-          _row(regular, Strings.leftSideHeadaches, block['leftSide'] ?? '-'),
-          _row(regular, Strings.overheadHeadaches, block['overhead'] ?? '-'),
+          _row(regular, Strings.rightSideHeadaches, block['rightSide'] ?? '-', indent: 12),
+          _row(regular, Strings.leftSideHeadaches, block['leftSide'] ?? '-', indent: 12),
+          _row(regular, Strings.overheadHeadaches, block['overhead'] ?? '-', indent: 12),
+          _row(regular, Strings.eyePainDays, block['eyePain'] ?? '-'),
+          _row(regular, Strings.vomitingDays, block['vomit'] ?? '-'),
           pw.SizedBox(height: 16),
-          pw.Text(Strings.pdfMedicationSection, style: pw.TextStyle(font: bold, fontSize: 14)),
+          pw.Text(
+            Strings.pdfMedicationMonitoringSection,
+            style: pw.TextStyle(font: bold, fontSize: 14),
+          ),
           pw.SizedBox(height: 8),
           _row(regular, Strings.pillsTaken, block['pills'] ?? '-'),
           _row(regular, Strings.injectionsMade, block['systal'] ?? '-'),
+          _row(
+            regular,
+            Strings.preventivePillDays,
+            block['preventivePill'] ?? '-',
+          ),
+          _row(regular, Strings.doctorVisits, block['doctor'] ?? '-'),
           pw.SizedBox(height: 16),
-          pw.Text(Strings.pdfLifestyleSection, style: pw.TextStyle(font: bold, fontSize: 14)),
+          pw.Text(
+            Strings.pdfBiologySection,
+            style: pw.TextStyle(font: bold, fontSize: 14),
+          ),
           pw.SizedBox(height: 8),
-          _row(regular, Strings.cardioDays, block['run'] ?? '-'),
-          _row(regular, Strings.strengthDays, block['strength'] ?? '-'),
-          _row(regular, Strings.intercourseDays, block['sex'] ?? '-'),
-          _row(regular, Strings.alcoholDays, block['alcohol'] ?? '-'),
           _row(regular, Strings.menstruationDays, block['menstruation'] ?? '-'),
+          pw.SizedBox(height: 16),
+          pw.Text(
+            Strings.pdfTriggersSection,
+            style: pw.TextStyle(font: bold, fontSize: 14),
+          ),
+          pw.SizedBox(height: 8),
+          _subsection(bold, Strings.pdfPhysicalActivitySubsection),
+          _row(regular, Strings.cardioDays, block['run'] ?? '-', indent: 12),
+          _row(regular, Strings.strengthDays, block['strength'] ?? '-', indent: 12),
+          _subsection(bold, Strings.pdfNutritionHabitsSubsection),
+          _row(regular, Strings.alcoholDays, block['alcohol'] ?? '-', indent: 12),
+          _row(regular, Strings.chocolateDays, block['chocolate'] ?? '-', indent: 12),
+          _subsection(bold, Strings.pdfOtherActivitySubsection),
+          _row(regular, Strings.intercourseDays, block['sex'] ?? '-', indent: 12),
           if (notes.isNotEmpty) ...[
             pw.SizedBox(height: 16),
             pw.Text(Strings.pdfNotesSection, style: pw.TextStyle(font: bold, fontSize: 14)),
@@ -127,15 +155,30 @@ class StatisticsPdfService {
     return doc;
   }
 
-  static pw.Widget _row(pw.Font font, String label, String value) {
+  static pw.Widget _subsection(pw.Font font, String title) {
     return pw.Padding(
-      padding: const pw.EdgeInsets.only(bottom: 6),
+      padding: const pw.EdgeInsets.only(top: 4, bottom: 4),
+      child: pw.Text(title, style: pw.TextStyle(font: font, fontSize: 11)),
+    );
+  }
+
+  static pw.Widget _row(
+    pw.Font font,
+    String label,
+    String value, {
+    double indent = 0,
+  }) {
+    return pw.Padding(
+      padding: pw.EdgeInsets.only(left: indent, bottom: 6),
       child: pw.Row(
         crossAxisAlignment: pw.CrossAxisAlignment.start,
         children: [
           pw.Expanded(
             flex: 3,
-            child: pw.Text(label, style: pw.TextStyle(font: font, fontSize: 11)),
+            child: pw.Text(
+              '• $label',
+              style: pw.TextStyle(font: font, fontSize: 11),
+            ),
           ),
           pw.Expanded(
             flex: 1,

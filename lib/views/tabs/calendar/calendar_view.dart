@@ -57,7 +57,7 @@ class _CalendarViewState extends State<CalendarView> {
     final start = DateTime(focused.year, focused.month, 1);
     final end = DateTime(focused.year, focused.month + 1, 0);
 
-    return const DayEntryStorage().monthEntries(start, end);
+    return DayEntryStorage().monthEntries(start, end);
   }
 
   List<int?> _generateMonthGrid(int year, int month) {
@@ -100,7 +100,7 @@ class _CalendarViewState extends State<CalendarView> {
                 Container(
                   height: 36,
                   color: AppColors.accentColor,
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  padding: EdgeInsets.symmetric(horizontal: 4),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: _weekDays
@@ -109,7 +109,7 @@ class _CalendarViewState extends State<CalendarView> {
                             child: Center(
                               child: Text(
                                 d,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: AppColors.textColor,
                                   fontSize: 20,
                                   fontWeight: FontWeight.w600,
@@ -148,7 +148,7 @@ class _CalendarViewState extends State<CalendarView> {
                       final grid = _generateMonthGrid(year, month);
 
                       return Padding(
-                        padding: const EdgeInsets.symmetric(
+                        padding: EdgeInsets.symmetric(
                           horizontal: 12,
                           vertical: 12,
                         ),
@@ -156,14 +156,14 @@ class _CalendarViewState extends State<CalendarView> {
                           children: [
                             Text(
                               '${_monthsEst[month - 1]} $year',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: AppColors.textColor,
                                 fontSize: 20,
                                 fontWeight: FontWeight.w600,
                               ),
                               textAlign: TextAlign.center,
                             ),
-                            const SizedBox(height: 20),
+                            SizedBox(height: 20),
 
                             // The month grid fills the remaining space
                             Expanded(
@@ -177,7 +177,7 @@ class _CalendarViewState extends State<CalendarView> {
 
                                   return GridView.builder(
                                     physics:
-                                        const NeverScrollableScrollPhysics(),
+                                        NeverScrollableScrollPhysics(),
                                     gridDelegate:
                                         SliverGridDelegateWithFixedCrossAxisCount(
                                           crossAxisCount: 7,
@@ -218,8 +218,8 @@ class _CalendarViewState extends State<CalendarView> {
                                                 );
                                               },
                                         child: Container(
-                                          margin: const EdgeInsets.all(2.0),
-                                          padding: const EdgeInsets.all(4.0),
+                                          margin: EdgeInsets.all(2.0),
+                                          padding: EdgeInsets.all(4.0),
                                           decoration: BoxDecoration(
                                             color: day != null
                                                 ? AppColors.accentColor
@@ -242,7 +242,7 @@ class _CalendarViewState extends State<CalendarView> {
                                                       Alignment.topCenter,
                                                   child: Text(
                                                     '$day',
-                                                    style: const TextStyle(
+                                                    style: TextStyle(
                                                       color:
                                                           AppColors.textColor,
                                                       fontSize: 15,
@@ -252,7 +252,7 @@ class _CalendarViewState extends State<CalendarView> {
                                                   ),
                                                 ),
 
-                                              const SizedBox(height: 8),
+                                              SizedBox(height: 8),
 
                                               // Icons area below the day number
                                               Expanded(
@@ -285,7 +285,7 @@ class _CalendarViewState extends State<CalendarView> {
                                                       bool flip = false,
                                                     }) {
                                                       if (!present) {
-                                                        return const SizedBox.shrink();
+                                                        return SizedBox.shrink();
                                                       }
                                                       return Center(
                                                         child: Transform(
@@ -310,7 +310,7 @@ class _CalendarViewState extends State<CalendarView> {
                                                       int count,
                                                     ) {
                                                       if (count <= 0) {
-                                                        return const SizedBox.shrink();
+                                                        return SizedBox.shrink();
                                                       }
                                                       return Center(
                                                         child: SizedBox(
@@ -332,12 +332,12 @@ class _CalendarViewState extends State<CalendarView> {
                                                                   color: AppColors
                                                                       .buttonColor,
                                                                 ),
-                                                                const SizedBox(
+                                                                SizedBox(
                                                                   width: 2,
                                                                 ),
                                                                 Text(
                                                                   '$count',
-                                                                  style: const TextStyle(
+                                                                  style: TextStyle(
                                                                     color: AppColors
                                                                         .buttonColor,
                                                                     fontSize: 9,
@@ -361,7 +361,7 @@ class _CalendarViewState extends State<CalendarView> {
                                                           List<Widget>.from(r);
                                                       while (out.length < 4) {
                                                         out.add(
-                                                          const SizedBox.shrink(),
+                                                          SizedBox.shrink(),
                                                         );
                                                       }
                                                       if (out.length > 4) {
@@ -555,7 +555,7 @@ class _CalendarViewState extends State<CalendarView> {
                                                       mainAxisSpacing: 2,
                                                       crossAxisSpacing: 2,
                                                       physics:
-                                                          const NeverScrollableScrollPhysics(),
+                                                          NeverScrollableScrollPhysics(),
                                                       padding: EdgeInsets.zero,
                                                       children: gridItems,
                                                     );

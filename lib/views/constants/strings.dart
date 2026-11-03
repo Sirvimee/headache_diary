@@ -71,6 +71,21 @@ class Strings {
   static const save = 'Salvesta';
   static const next = 'Edasi';
 
+  // App customization
+  static const reorderIcons = 'Muuda ikoonide järjekorda';
+  static const finishReorderingIcons = 'Valmis';
+  static const configureSummary = 'Seadista kokkuvõtet';
+  static const visibleInSummary = 'Näita kokkuvõttes';
+  static const saveSummarySettings = 'Salvesta';
+  static const resetSummarySettings = 'Taasta vaikeseaded';
+  static const appColors = 'Rakenduse värvid';
+  static const chooseColorTheme = 'Vali värviteema';
+  static const resetColorTheme = 'Taasta vaikevärvid';
+  static const purpleColorTheme = 'Lilla';
+  static const blueColorTheme = 'Sinine';
+  static const greenColorTheme = 'Roheline';
+  static const burgundyColorTheme = 'Burgundia';
+
   // Navigation
   static const home = 'Avalehele';
   static const notes = 'Lisa märkmeid';
@@ -187,6 +202,19 @@ class Strings {
   static const pdfLifestyleSection = 'Elustiilitegurid';
   static const pdfNotesSection = 'Märkmed';
 
+  // Pdf sections and subsections
+  static const pdfSymptomsSection =
+      '1. Sümptomid (Peavalu ja kaasnevad nähud)';
+  static const pdfMedicationMonitoringSection =
+      '2. Ravimid ja meditsiiniline jälgimine';
+  static const pdfBiologySection = '3. Keha bioloogia ja hormoonid';
+  static const pdfTriggersSection =
+      '4. Elustiil ja võimalikud päästikud (Trigerid)';
+  static const pdfPhysicalActivitySubsection = 'Füüsiline aktiivsus:';
+  static const pdfNutritionHabitsSubsection = 'Toitumine ja harjumused:';
+  static const pdfOtherActivitySubsection = 'Muu aktiivsus:';
+  static const pdfFilenamePrefix = 'peavalupaevik';
+
   // Notification texts
   static const String notificationTitle = 'Meeldetuletus';
   static const String notificationBody = 'Aeg teha süsti';
@@ -200,6 +228,8 @@ class Strings {
   static const String reminderRemovedSnackBar = 'Meeldetuletus eemaldatud';
   static const String failedToScheduleReminderSnackBar =
       'Meeldetuletuse lisamine ebaõnnestus, kuna märguannete luba puudub. Palun lubage märguanded seadetes';
+  static const String reminderScheduleFailedSnackBar =
+      'Meeldetuletuse lisamine ebaõnnestus. Kontrolli teavituste luba ja proovi uuesti.';
   static const String reminderDeletedSnackBar =
       'Süstal eemaldatud, meeldetuletus tühistatud';
 

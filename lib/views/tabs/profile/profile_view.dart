@@ -4,9 +4,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../authentication/validators/validators.dart';
-import '../../constants/app_colors.dart';
 import '../../constants/strings.dart';
 import '../../../state/user_info/backend/user_info_storage.dart';
+import '../../constants/app_colors.dart';
+import '../../../state/auth/models/auth_result.dart';
+import '../../../state/auth/providers/authentication_provider.dart';
 
 class ProfileContent extends ConsumerStatefulWidget {
   const ProfileContent({super.key});
@@ -25,6 +27,36 @@ class ProfileContentState extends ConsumerState<ProfileContent> {
 
   var _isLoading = false;
 
+  Future<void> _chooseColorTheme() async {
+    final selected = await showDialog<int>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(Strings.chooseColorTheme),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            for (var i = 0; i < AppColors.themes.length; i++)
+              ListTile(
+                leading: CircleAvatar(
+                  backgroundColor: AppColors.themes[i].button,
+                ),
+                title: Text(AppColors.themes[i].name),
+                selected: AppColors.theme.value == i,
+                onTap: () => Navigator.pop(context, i),
+              ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, 0),
+            child: Text(Strings.resetColorTheme),
+          ),
+        ],
+      ),
+    );
+    if (selected != null) await AppColors.setTheme(selected);
+  }
+
   @override
   void dispose() {
     _nameController.dispose();
@@ -38,7 +70,7 @@ class ProfileContentState extends ConsumerState<ProfileContent> {
     final form = _passwordFormKey.currentState;
     if (form == null) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text(Strings.formNotAvailable)));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(Strings.formNotAvailable)));
       return;
     }
     if (!form.validate()) return;
@@ -51,7 +83,7 @@ class ProfileContentState extends ConsumerState<ProfileContent> {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text(Strings.userNotFound)));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(Strings.userNotFound)));
       if (mounted) setState(() => _isLoading = false);
       return;
     }
@@ -60,7 +92,7 @@ class ProfileContentState extends ConsumerState<ProfileContent> {
 
     if (enteredEmail != currentEmail) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text(Strings.wrongEmailAddress)));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(Strings.wrongEmailAddress)));
       if (mounted) setState(() => _isLoading = false);
       return;
     }
@@ -90,13 +122,13 @@ class ProfileContentState extends ConsumerState<ProfileContent> {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text(Strings.userNotFound)));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(Strings.userNotFound)));
       if (mounted) setState(() => _isLoading = false);
       return;
     }
 
     try {
-      final storage = const UserInfoStorage();
+      final storage = UserInfoStorage();
       await storage.saveUserInfo(
         userId: user.uid,
         displayName: newName,
@@ -114,6 +146,9 @@ class ProfileContentState extends ConsumerState<ProfileContent> {
 
   @override
   Widget build(BuildContext context) {
+    final isGuest =
+        ref.watch(authenticationProvider).result == AuthResult.local;
+
     return SafeArea(
       child: LayoutBuilder(
         builder: (context, constraints) {
@@ -131,8 +166,15 @@ class ProfileContentState extends ConsumerState<ProfileContent> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    const SizedBox(height: 8),
-                    Text(
+                    SizedBox(height: 8),
+                    OutlinedButton.icon(
+                      onPressed: _chooseColorTheme,
+                      icon: Icon(Icons.palette_outlined),
+                      label: Text(Strings.appColors),
+                    ),
+                    SizedBox(height: 20),
+                    if (!isGuest) ...[
+                      Text(
                       Strings.changePassword,
                       style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                         color: AppColors.textColor,
@@ -140,7 +182,7 @@ class ProfileContentState extends ConsumerState<ProfileContent> {
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 20),
+                    SizedBox(height: 20),
 
                     Form(
                       key: _passwordFormKey,
@@ -161,7 +203,7 @@ class ProfileContentState extends ConsumerState<ProfileContent> {
                             ),
                           ),
 
-                          const SizedBox(height: 16),
+                          SizedBox(height: 16),
 
                           // Password
                           SizedBox(
@@ -177,7 +219,7 @@ class ProfileContentState extends ConsumerState<ProfileContent> {
                             ),
                           ),
 
-                          const SizedBox(height: 16),
+                          SizedBox(height: 16),
 
                           // Confirm password
                           SizedBox(
@@ -193,7 +235,7 @@ class ProfileContentState extends ConsumerState<ProfileContent> {
                             ),
                           ),
 
-                          const SizedBox(height: 24),
+                          SizedBox(height: 24),
 
                           SizedBox(
                             width: double.infinity,
@@ -206,24 +248,24 @@ class ProfileContentState extends ConsumerState<ProfileContent> {
                                 elevation: 0,
                               ),
                               child: _isLoading
-                                  ? const SizedBox(
+                                  ? SizedBox(
                                       height: 24,
                                       width: 24,
                                       child: CircularProgressIndicator(color: AppColors.textColor, strokeWidth: 2),
                                     )
-                                  : const Text(
+                                  : Text(
                                       Strings.change,
                                       style: TextStyle(color: AppColors.primaryColor, fontSize: 18, fontWeight: FontWeight.w600),
                                     ),
                             ),
                           ),
 
-                          const SizedBox(height: 16),
+                          SizedBox(height: 16),
                         ],
                       ),
                     ),
 
-                    const SizedBox(height: 24),
+                    SizedBox(height: 24),
 
                     // Change name section
                     Text(
@@ -235,7 +277,7 @@ class ProfileContentState extends ConsumerState<ProfileContent> {
                       textAlign: TextAlign.center,
                     ),
 
-                    const SizedBox(height: 20),
+                    SizedBox(height: 20),
 
                     Form(
                       key: _nameFormKey,
@@ -255,7 +297,7 @@ class ProfileContentState extends ConsumerState<ProfileContent> {
                             ),
                           ),
 
-                          const SizedBox(height: 16),
+                          SizedBox(height: 16),
 
                           SizedBox(
                             width: double.infinity,
@@ -268,24 +310,25 @@ class ProfileContentState extends ConsumerState<ProfileContent> {
                                 elevation: 0,
                               ),
                               child: _isLoading
-                                  ? const SizedBox(
+                                  ? SizedBox(
                                 height: 24,
                                 width: 24,
                                 child: CircularProgressIndicator(color: AppColors.textColor, strokeWidth: 2),
                               )
-                                  : const Text(
+                                  : Text(
                                 Strings.change,
                                 style: TextStyle(color: AppColors.primaryColor, fontSize: 18, fontWeight: FontWeight.w600),
                               ),
                             ),
                           ),
 
-                          const SizedBox(height: 16),
+                          SizedBox(height: 16),
                         ],
                       ),
                     ),
 
-                    const Spacer(),
+                    ],
+                    Spacer(),
                   ],
                 ),
               ),

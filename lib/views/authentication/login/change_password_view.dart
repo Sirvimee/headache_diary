@@ -28,7 +28,7 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
     final form = _formKey.currentState;
     if (form == null) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text(Strings.formNotAvailable)));
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(Strings.formNotAvailable)));
       return;
     }
     if (!form.validate()) return;
@@ -56,10 +56,10 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: Icon(Icons.arrow_back),
           onPressed: () => context.pop(),
         ),
-        title: const Text(Strings.back),
+        title: Text(Strings.back),
       ),
       body: SafeArea(
         child: LayoutBuilder(
@@ -78,7 +78,7 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      const SizedBox(height: 8),
+                      SizedBox(height: 8),
                       Text(
                         Strings.resetPasswordInstruction,
                         style: Theme.of(context).textTheme.headlineSmall?.copyWith(
@@ -88,7 +88,7 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
                         textAlign: TextAlign.center,
                       ),
 
-                      const SizedBox(height: 24),
+                      SizedBox(height: 24),
 
                       Form(
                         key: _formKey,
@@ -107,7 +107,7 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
                               ),
                             ),
 
-                            const SizedBox(height: 24),
+                            SizedBox(height: 24),
 
                             SizedBox(
                               width: double.infinity,
@@ -120,21 +120,21 @@ class _ChangePasswordViewState extends State<ChangePasswordView> {
                                   elevation: 0,
                                 ),
                                 child: _isLoading
-                                    ? const SizedBox(
+                                    ? SizedBox(
                                         height: 24,
                                         width: 24,
                                         child: CircularProgressIndicator(color: AppColors.textColor, strokeWidth: 2),
                                       )
-                                    : const Text(Strings.send, style: TextStyle(color: AppColors.primaryColor, fontSize: 18, fontWeight: FontWeight.w600)),
+                                    : Text(Strings.send, style: TextStyle(color: AppColors.primaryColor, fontSize: 18, fontWeight: FontWeight.w600)),
                               ),
                             ),
 
-                            const SizedBox(height: 16),
+                            SizedBox(height: 16),
                           ],
                         ),
                       ),
 
-                      const Spacer(),
+                      Spacer(),
                     ],
                   ),
                 ),

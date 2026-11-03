@@ -68,26 +68,26 @@ class PreventiveMedicationStatisticsView extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.accentColor,
       appBar: AppBar(
-        title: const Text(Strings.preventiveMedicationSummary),
+        title: Text(Strings.preventiveMedicationSummary),
         backgroundColor: AppColors.accentColor,
       ),
       body: FutureBuilder<List<DayEntryModel>>(
-        future: const DayEntryStorage().allEntries(),
+        future: DayEntryStorage().allEntries(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return Center(child: CircularProgressIndicator());
           }
           if (snapshot.hasError) {
             return Center(child: Text('${Strings.error}: ${snapshot.error}'));
           }
           final courses = _courses(snapshot.data ?? []);
           if (courses.isEmpty) {
-            return const Center(
+            return Center(
               child: Text(Strings.noPreventiveMedicationData),
             );
           }
           return ListView.builder(
-            padding: const EdgeInsets.all(12),
+            padding: EdgeInsets.all(12),
             itemCount: courses.length,
             itemBuilder: (context, index) {
               final course = courses[index];
@@ -95,35 +95,35 @@ class PreventiveMedicationStatisticsView extends StatelessWidget {
               return Card(
                 color: AppColors.black,
                 child: Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: EdgeInsets.all(16),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         parts.first,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: AppColors.textColor,
                           fontSize: 20,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      SizedBox(height: 4),
                       Text(
                         '${Strings.dose}: ${parts.last} g',
-                        style: const TextStyle(color: AppColors.textColor),
+                        style: TextStyle(color: AppColors.textColor),
                       ),
-                      const SizedBox(height: 12),
+                      SizedBox(height: 12),
                       Text(
                         '${_date(course.start)} - ${_date(course.end)}',
-                        style: const TextStyle(color: AppColors.textColor),
+                        style: TextStyle(color: AppColors.textColor),
                       ),
                       Text(
                         '${Strings.takenDays}: ${course.taken}',
-                        style: const TextStyle(color: AppColors.textColor),
+                        style: TextStyle(color: AppColors.textColor),
                       ),
                       Text(
                         '${Strings.duration}: ${_duration(course.end.difference(course.start).inDays + 1)}',
-                        style: const TextStyle(color: AppColors.textColor),
+                        style: TextStyle(color: AppColors.textColor),
                       ),
                     ],
                   ),
@@ -143,5 +143,5 @@ class _Course {
   final DateTime end;
   final int taken;
 
-  const _Course(this.key, this.start, this.end, this.taken);
+  _Course(this.key, this.start, this.end, this.taken);
 }

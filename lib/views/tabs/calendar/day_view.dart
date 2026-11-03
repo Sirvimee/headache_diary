@@ -44,14 +44,14 @@ class _DayViewState extends State<DayView> {
 
   void _goToPreviousDay() {
     setState(() {
-      _currentDate = _currentDate.subtract(const Duration(days: 1));
+      _currentDate = _currentDate.subtract(Duration(days: 1));
       DayView.activeDate.value = _currentDate;
     });
   }
 
   void _goToNextDay() {
     setState(() {
-      _currentDate = _currentDate.add(const Duration(days: 1));
+      _currentDate = _currentDate.add(Duration(days: 1));
       DayView.activeDate.value = _currentDate;
     });
   }
@@ -60,7 +60,7 @@ class _DayViewState extends State<DayView> {
     final now = DateTime.now();
     if (_isSameDate(date, now)) return Strings.today;
 
-    const weekdays = [
+    final weekdays = [
       Strings.monday,
       Strings.tuesday,
       Strings.wednesday,
@@ -69,7 +69,7 @@ class _DayViewState extends State<DayView> {
       Strings.saturday,
       Strings.sunday,
     ];
-    const months = [
+    final months = [
       Strings.january,
       Strings.february,
       Strings.march,
@@ -92,7 +92,7 @@ class _DayViewState extends State<DayView> {
   }
 
   Stream<DayEntryModel?> _dayStream() {
-    return const DayEntryStorage().dayEntryStream(_currentDate);
+    return DayEntryStorage().dayEntryStream(_currentDate);
   }
 
   @override
@@ -112,14 +112,14 @@ class _DayViewState extends State<DayView> {
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(
+                padding: EdgeInsets.symmetric(
                   horizontal: 12.0,
                   vertical: 8.0,
                 ),
                 child: Row(
                   children: [
                     IconButton(
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.arrow_left,
                         color: AppColors.buttonColor,
                       ),
@@ -130,7 +130,7 @@ class _DayViewState extends State<DayView> {
                       child: Center(
                         child: Text(
                           _formattedTitle(_currentDate),
-                          style: const TextStyle(
+                          style: TextStyle(
                             color: AppColors.textColor,
                             fontSize: 20,
                             fontWeight: FontWeight.w600,
@@ -139,7 +139,7 @@ class _DayViewState extends State<DayView> {
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(
+                      icon: Icon(
                         Icons.arrow_right,
                         color: AppColors.buttonColor,
                       ),
@@ -193,10 +193,10 @@ class _DayViewState extends State<DayView> {
                                       size: 36,
                                       color: AppColors.buttonColor,
                                     ),
-                                    const SizedBox(width: 6),
+                                    SizedBox(width: 6),
                                     Text(
                                       '$pillCount',
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         color: AppColors.buttonColor,
                                         fontWeight: FontWeight.w600,
                                         fontSize: 14,
@@ -204,7 +204,7 @@ class _DayViewState extends State<DayView> {
                                     ),
                                   ],
                                 ),
-                                const SizedBox(height: 2),
+                                SizedBox(height: 2),
                               ],
                             ),
                           ),
@@ -214,8 +214,9 @@ class _DayViewState extends State<DayView> {
                       for (final it in items) {
                         if (it.key == 'pill_plus' ||
                             it.key == 'pill_minus' ||
-                            it.key == FirebaseFieldName.notes)
+                            it.key == FirebaseFieldName.notes) {
                           continue;
+                        }
                         final present =
                             icons.containsKey(it.key) && icons[it.key] == true;
                         if (!present) continue;
@@ -237,7 +238,7 @@ class _DayViewState extends State<DayView> {
                                     color: AppColors.buttonColor,
                                   ),
                                 ),
-                                const SizedBox(height: 2),
+                                SizedBox(height: 2),
                               ],
                             ),
                           ),
@@ -245,7 +246,7 @@ class _DayViewState extends State<DayView> {
                       }
 
                       return SingleChildScrollView(
-                        padding: const EdgeInsets.symmetric(
+                        padding: EdgeInsets.symmetric(
                           horizontal: 24,
                           vertical: 8,
                         ),
@@ -255,8 +256,8 @@ class _DayViewState extends State<DayView> {
                             if (visible.isNotEmpty)
                               LayoutBuilder(
                                 builder: (ctx, constraints) {
-                                  const targetCellW = 80.0;
-                                  const spacing = 6.0;
+                                  final targetCellW = 80.0;
+                                  final spacing = 6.0;
                                   final cols = 3;
                                   final maxWidth = constraints.maxWidth;
                                   final totalSpacing = (cols - 1) * spacing;
@@ -273,7 +274,7 @@ class _DayViewState extends State<DayView> {
                                       child: GridView.count(
                                         shrinkWrap: true,
                                         physics:
-                                            const NeverScrollableScrollPhysics(),
+                                            NeverScrollableScrollPhysics(),
                                         crossAxisCount: cols,
                                         mainAxisSpacing: 4,
                                         crossAxisSpacing: 4,
@@ -285,21 +286,21 @@ class _DayViewState extends State<DayView> {
                                 },
                               )
                             else
-                              const SizedBox.shrink(),
+                              SizedBox.shrink(),
 
-                            const SizedBox(height: 12),
+                            SizedBox(height: 12),
 
                             if (icons[FirebaseFieldName.preventivePill] ==
                                     true &&
                                 preventivePillName != null &&
                                 preventivePillGrams != null)
                               Padding(
-                                padding: const EdgeInsets.symmetric(
+                                padding: EdgeInsets.symmetric(
                                   horizontal: 12.0,
                                 ),
                                 child: Text(
                                   '$preventivePillName, $preventivePillGrams g',
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     color: AppColors.textColor,
                                     fontSize: 16,
                                   ),
@@ -308,13 +309,13 @@ class _DayViewState extends State<DayView> {
 
                             if (notes.isNotEmpty)
                               Padding(
-                                padding: const EdgeInsets.symmetric(
+                                padding: EdgeInsets.symmetric(
                                   horizontal: 12.0,
                                 ),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const Text(
+                                    Text(
                                       Strings.additionalNotes,
                                       style: TextStyle(
                                         color: AppColors.buttonColor,
@@ -322,10 +323,10 @@ class _DayViewState extends State<DayView> {
                                         fontSize: 22,
                                       ),
                                     ),
-                                    const SizedBox(height: 6),
+                                    SizedBox(height: 6),
                                     Text(
                                       notes,
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         color: AppColors.textColor,
                                         fontSize: 18,
                                       ),
@@ -334,7 +335,7 @@ class _DayViewState extends State<DayView> {
                                 ),
                               ),
 
-                            if (_loading) const LinearProgressIndicator(),
+                            if (_loading) LinearProgressIndicator(),
                           ],
                         ),
                       );

@@ -27,7 +27,7 @@ class PasswordSentView extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      const SizedBox(height: 24),
+                      SizedBox(height: 24),
                       Text(
                         Strings.resetEmailSent,
                         style: Theme.of(context).textTheme.headlineSmall?.copyWith(
@@ -37,7 +37,7 @@ class PasswordSentView extends StatelessWidget {
                         textAlign: TextAlign.center,
                       ),
 
-                      const SizedBox(height: 40),
+                      SizedBox(height: 40),
 
                       SizedBox(
                         width: double.infinity,
@@ -51,14 +51,14 @@ class PasswordSentView extends StatelessWidget {
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                             elevation: 0,
                           ),
-                          child: const Text(
+                          child: Text(
                             Strings.toFrontPage,
                             style: TextStyle(color: AppColors.primaryColor, fontSize: 18, fontWeight: FontWeight.w600),
                           ),
                         ),
                       ),
 
-                      const Spacer(),
+                      Spacer(),
                     ],
                   ),
                 ),

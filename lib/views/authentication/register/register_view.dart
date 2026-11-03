@@ -37,7 +37,7 @@ class RegisterViewState extends ConsumerState<RegisterView> {
     final formState = _formKey.currentState;
     if (formState == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text(Strings.formNotAvailable)),
+        SnackBar(content: Text(Strings.formNotAvailable)),
       );
       return;
     }
@@ -53,7 +53,7 @@ class RegisterViewState extends ConsumerState<RegisterView> {
 
     if (password != confirm) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text(Strings.passwordsDoNotMatch)),
+        SnackBar(content: Text(Strings.passwordsDoNotMatch)),
       );
       return;
     }
@@ -64,7 +64,7 @@ class RegisterViewState extends ConsumerState<RegisterView> {
       final current = ref.read(authenticationProvider);
       if (current.result != AuthResult.success) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text(Strings.userRegistrationFailed), backgroundColor: AppColors.red),
+          SnackBar(content: Text(Strings.userRegistrationFailed), backgroundColor: AppColors.red),
         );
       }
     } catch (e) {
@@ -85,7 +85,7 @@ class RegisterViewState extends ConsumerState<RegisterView> {
           if (current.result == AuthResult.userAlreadyExists &&
               !current.isLoading) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
+              SnackBar(
                 content: Text(Strings.userEmailAlreadyInUse),
                 backgroundColor: AppColors.red,
               ),
@@ -96,10 +96,10 @@ class RegisterViewState extends ConsumerState<RegisterView> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
+          icon: Icon(Icons.arrow_back),
           onPressed: () => context.pop(),
         ),
-        title: const Text(Strings.back)
+        title: Text(Strings.back)
       ),
       body: SafeArea(
         child: LayoutBuilder(
@@ -118,7 +118,7 @@ class RegisterViewState extends ConsumerState<RegisterView> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      const SizedBox(height: 8),
+                      SizedBox(height: 8),
                       Text(
                         Strings.signUp,
                         style: Theme.of(context).textTheme.headlineMedium?.copyWith(
@@ -127,7 +127,7 @@ class RegisterViewState extends ConsumerState<RegisterView> {
                             ),
                         textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: 20),
+                      SizedBox(height: 20),
 
                       Form(
                         key: _formKey,
@@ -147,7 +147,7 @@ class RegisterViewState extends ConsumerState<RegisterView> {
                               ),
                             ),
 
-                            const SizedBox(height: 16),
+                            SizedBox(height: 16),
 
                             // Email
                             SizedBox(
@@ -163,7 +163,7 @@ class RegisterViewState extends ConsumerState<RegisterView> {
                               ),
                             ),
 
-                            const SizedBox(height: 16),
+                            SizedBox(height: 16),
 
                             // Password
                             SizedBox(
@@ -179,7 +179,7 @@ class RegisterViewState extends ConsumerState<RegisterView> {
                               ),
                             ),
 
-                            const SizedBox(height: 16),
+                            SizedBox(height: 16),
 
                             // Confirm password
                             SizedBox(
@@ -195,7 +195,7 @@ class RegisterViewState extends ConsumerState<RegisterView> {
                               ),
                             ),
 
-                            const SizedBox(height: 24),
+                            SizedBox(height: 24),
 
                             SizedBox(
                               width: double.infinity,
@@ -207,20 +207,20 @@ class RegisterViewState extends ConsumerState<RegisterView> {
                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
                                   elevation: 0,
                                 ),
-                                child: const Text(
+                                child: Text(
                                   Strings.signUp,
                                   style: TextStyle(color: AppColors.primaryColor, fontSize: 18, fontWeight: FontWeight.w600),
                                 ),
                               ),
                             ),
 
-                            const SizedBox(height: 16),
+                            SizedBox(height: 16),
                           ],
                         ),
                       ),
 
                       // Push remaining space to avoid tight bottom
-                      const Spacer(),
+                      Spacer(),
 
                     ],
                   ),

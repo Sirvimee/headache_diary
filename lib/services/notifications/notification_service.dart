@@ -33,6 +33,7 @@ class NotificationService {
         >();
 
     if (androidPlugin != null) {
+      await androidPlugin.requestNotificationsPermission();
       const channel = AndroidNotificationChannel(
         _channelId,
         _channelName,

@@ -6,6 +6,7 @@ import '../../constants/app_colors.dart';
 import '../../constants/strings.dart';
 import 'day_action_items.dart';
 import '../../../state/calendar/backend/day_entry_storage.dart';
+import '../../../state/auth/backend/local_storage.dart';
 
 class DayActionModal extends StatefulWidget {
   final DateTime date;
@@ -18,13 +19,43 @@ class DayActionModal extends StatefulWidget {
 class _DayActionModalState extends State<DayActionModal> {
   late final String uid;
   bool _loading = false;
+  bool _reorderMode = false;
 
-  final List<ActionItem> items = actionItems;
+  List<ActionItem> items = List<ActionItem>.of(actionItems);
 
   @override
   void initState() {
     super.initState();
     uid = FirebaseAuth.instance.currentUser?.uid ?? '';
+    _loadActionOrder();
+  }
+
+  Future<void> _loadActionOrder() async {
+    final savedKeys = LocalStorage.actionOrder;
+    if (savedKeys.isEmpty || !mounted) return;
+    final byKey = {for (final item in actionItems) item.key: item};
+    final ordered = <ActionItem>[
+      for (final key in savedKeys)
+        if (byKey[key] != null) byKey[key]!,
+    ];
+    ordered.addAll(
+      actionItems.where((item) => !savedKeys.contains(item.key)),
+    );
+    if (mounted) setState(() => items = ordered);
+  }
+
+  Future<void> _saveActionOrder() {
+    return LocalStorage.saveActionOrder(items.map((item) => item.key).toList());
+  }
+
+  Future<void> _moveItem(String draggedKey, int targetIndex) async {
+    final oldIndex = items.indexWhere((item) => item.key == draggedKey);
+    if (oldIndex < 0 || oldIndex == targetIndex) return;
+    final updated = List<ActionItem>.of(items);
+    final item = updated.removeAt(oldIndex);
+    updated.insert(targetIndex > oldIndex ? targetIndex - 1 : targetIndex, item);
+    setState(() => items = updated);
+    await _saveActionOrder();
   }
 
   String _fmtTitle(DateTime date) {
@@ -42,7 +73,7 @@ class _DayActionModalState extends State<DayActionModal> {
 
     setState(() => _loading = true);
     try {
-      await const DayEntryStorage().toggleIcon(widget.date, key);
+      await DayEntryStorage().toggleIcon(widget.date, key);
     } catch (e) {
       // ignore
     } finally {
@@ -54,7 +85,7 @@ class _DayActionModalState extends State<DayActionModal> {
     if (!_canEdit('pill_plus')) return;
     setState(() => _loading = true);
     try {
-      await const DayEntryStorage().changePillCount(widget.date, delta);
+      await DayEntryStorage().changePillCount(widget.date, delta);
     } catch (e) {
       // ignore
     } finally {
@@ -77,7 +108,7 @@ class _DayActionModalState extends State<DayActionModal> {
         key != FirebaseFieldName.doctor &&
         key != FirebaseFieldName.preventivePill) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text(Strings.canAddOnlyToValidDates)),
+        SnackBar(content: Text(Strings.canAddOnlyToValidDates)),
       );
       return false;
     }
@@ -97,25 +128,31 @@ class _DayActionModalState extends State<DayActionModal> {
   Future<TimeOfDay?> _pickReminderTime() {
     return showTimePicker(
       context: context,
-      initialTime: const TimeOfDay(hour: 12, minute: 0),
+      initialTime: TimeOfDay(hour: 12, minute: 0),
     );
   }
 
   Future<void> _addScheduledIcon(String key) async {
     if (!_canEdit(key)) return;
-    final current = await const DayEntryStorage()
+    final current = await DayEntryStorage()
         .dayEntryStream(widget.date)
         .first;
     if (current?.icons[key] == true) {
       setState(() => _loading = true);
       try {
-        await const DayEntryStorage().addFutureReminder(
+        await DayEntryStorage().addFutureReminder(
           date: widget.date,
           iconKey: key,
           reminderDate: widget.date,
           title: '',
           body: '',
         );
+      } catch (_) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(Strings.reminderScheduleFailedSnackBar)),
+          );
+        }
       } finally {
         if (mounted) setState(() => _loading = false);
       }
@@ -140,11 +177,11 @@ class _DayActionModalState extends State<DayActionModal> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text(Strings.cancel),
+            child: Text(Strings.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, controller.text.trim()),
-            child: const Text(Strings.next),
+            child: Text(Strings.next),
           ),
         ],
       ),
@@ -158,20 +195,20 @@ class _DayActionModalState extends State<DayActionModal> {
       grams = await showDialog<String?>(
         context: context,
         builder: (ctx) => AlertDialog(
-          title: const Text(Strings.pillGrams),
+          title: Text(Strings.pillGrams),
           content: TextField(
             controller: gramsController,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: const InputDecoration(hintText: Strings.enterPillGrams),
+            keyboardType: TextInputType.numberWithOptions(decimal: true),
+            decoration: InputDecoration(hintText: Strings.enterPillGrams),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: const Text(Strings.cancel),
+              child: Text(Strings.cancel),
             ),
             TextButton(
               onPressed: () => Navigator.pop(ctx, gramsController.text.trim()),
-              child: const Text(Strings.save),
+              child: Text(Strings.save),
             ),
           ],
         ),
@@ -180,7 +217,7 @@ class _DayActionModalState extends State<DayActionModal> {
       if (grams == null || double.tryParse(grams) == null) {
         if (grams != null && mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text(Strings.invalidPillGrams)),
+            SnackBar(content: Text(Strings.invalidPillGrams)),
           );
         }
         return;
@@ -199,7 +236,7 @@ class _DayActionModalState extends State<DayActionModal> {
     );
     setState(() => _loading = true);
     try {
-      final status = await const DayEntryStorage().addFutureReminder(
+      final status = await DayEntryStorage().addFutureReminder(
         date: widget.date,
         iconKey: key,
         reminderDate: reminderDate,
@@ -216,7 +253,13 @@ class _DayActionModalState extends State<DayActionModal> {
       );
       if (mounted && status == 1) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text(Strings.reminderAddedSnackBar)),
+          SnackBar(content: Text(Strings.reminderAddedSnackBar)),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(Strings.reminderScheduleFailedSnackBar)),
         );
       }
     } finally {
@@ -230,25 +273,25 @@ class _DayActionModalState extends State<DayActionModal> {
     final res = await showDialog<String?>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text(Strings.additionalNotes),
+        title: Text(Strings.additionalNotes),
         content: TextField(
           controller: controller,
           maxLines: 6,
-          decoration: const InputDecoration(
+          decoration: InputDecoration(
             hintText: Strings.enterAdditionalNotes,
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text(
+            child: Text(
               Strings.cancel,
               style: TextStyle(color: AppColors.grey),
             ),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, controller.text),
-            child: const Text(
+            child: Text(
               Strings.save,
               style: TextStyle(color: AppColors.buttonColor),
             ),
@@ -262,7 +305,7 @@ class _DayActionModalState extends State<DayActionModal> {
 
     setState(() => _loading = true);
     try {
-      await const DayEntryStorage().editNotes(widget.date, res);
+      await DayEntryStorage().editNotes(widget.date, res);
     } catch (e) {
       // ignore
     } finally {
@@ -273,25 +316,29 @@ class _DayActionModalState extends State<DayActionModal> {
   Future<void> _addInjections() async {
     setState(() => _loading = true);
     try {
-      final status = await const DayEntryStorage().addInjections(widget.date);
+      final status = await DayEntryStorage().addInjections(widget.date);
       if (!mounted) return;
       if (status == 1) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text(Strings.reminderAddedSnackBar)),
+          SnackBar(content: Text(Strings.reminderAddedSnackBar)),
         );
       } else if (status == 2) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
+          SnackBar(
             content: Text(Strings.failedToScheduleReminderSnackBar),
           ),
         );
       } else if (status == 3) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text(Strings.reminderDeletedSnackBar)),
+          SnackBar(content: Text(Strings.reminderDeletedSnackBar)),
         );
       }
-    } catch (e) {
-      // ignore
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(Strings.reminderScheduleFailedSnackBar)),
+        );
+      }
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -315,12 +362,12 @@ class _DayActionModalState extends State<DayActionModal> {
                 heightFactor: 0.6,
                 widthFactor: 1,
                 child: ClipRRect(
-                  borderRadius: const BorderRadius.vertical(
+                  borderRadius: BorderRadius.vertical(
                     top: Radius.circular(30),
                   ),
                   child: Container(
                     color: AppColors.black,
-                    padding: const EdgeInsets.symmetric(
+                    padding: EdgeInsets.symmetric(
                       horizontal: 12,
                       vertical: 8,
                     ),
@@ -332,33 +379,59 @@ class _DayActionModalState extends State<DayActionModal> {
                           children: [
                             Text(
                               _fmtTitle(widget.date),
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: AppColors.textColor,
                                 fontSize: 20,
                               ),
                             ),
                             Align(
                               alignment: Alignment.centerRight,
-                              child: IconButton(
-                                onPressed: () => Navigator.pop(context),
-                                icon: const Icon(
-                                  Icons.close,
-                                  color: AppColors.buttonColor,
-                                ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  IconButton(
+                                    tooltip: _reorderMode
+                                        ? Strings.finishReorderingIcons
+                                        : Strings.reorderIcons,
+                                    onPressed: () => setState(
+                                      () => _reorderMode = !_reorderMode,
+                                    ),
+                                    icon: Icon(
+                                      _reorderMode
+                                          ? Icons.check
+                                          : Icons.swap_vert,
+                                      color: AppColors.buttonColor,
+                                    ),
+                                  ),
+                                  IconButton(
+                                    onPressed: () => Navigator.pop(context),
+                                    icon: Icon(
+                                      Icons.close,
+                                      color: AppColors.buttonColor,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 8),
+                        SizedBox(height: 8),
                         Expanded(
-                          child: GridView.count(
-                            crossAxisCount: 3,
-                            childAspectRatio: 1.2,
-                            mainAxisSpacing: 12,
-                            crossAxisSpacing: 12,
-                            children: items.map((it) {
-                              return GestureDetector(
-                                onTap: () async {
+                          child: GridView.builder(
+                            itemCount: items.length,
+                            gridDelegate:
+                                SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 3,
+                                  childAspectRatio: 1.2,
+                                  mainAxisSpacing: 12,
+                                  crossAxisSpacing: 12,
+                                ),
+                            itemBuilder: (context, index) {
+                              final it = items[index];
+                              final tile = GestureDetector(
+                                onTap: _reorderMode
+                                    ? null
+                                    : () async {
                                   if (it.key == 'pill_plus') {
                                     await _changePillCount(1);
                                   } else if (it.key == 'pill_minus') {
@@ -379,7 +452,7 @@ class _DayActionModalState extends State<DayActionModal> {
                                   } else {
                                     await _toggleIcon(it.key);
                                   }
-                                },
+                                  },
                                 child: Column(
                                   mainAxisSize: MainAxisSize.max,
                                   mainAxisAlignment: MainAxisAlignment.start,
@@ -396,11 +469,11 @@ class _DayActionModalState extends State<DayActionModal> {
                                         color: AppColors.buttonColor,
                                       ),
                                     ),
-                                    const SizedBox(height: 6),
+                                    SizedBox(height: 6),
                                     Text(
                                       it.label,
                                       textAlign: TextAlign.center,
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         color: AppColors.textColor,
                                         fontSize: 12,
                                       ),
@@ -410,10 +483,33 @@ class _DayActionModalState extends State<DayActionModal> {
                                   ],
                                 ),
                               );
-                            }).toList(),
+                              if (!_reorderMode) return tile;
+                              return DragTarget<String>(
+                                onWillAcceptWithDetails: (_) => true,
+                                onAcceptWithDetails: (details) =>
+                                    _moveItem(details.data, index),
+                                builder: (context, candidate, rejected) {
+                                  return LongPressDraggable<String>(
+                                    data: it.key,
+                                    feedback: Material(
+                                      color: Colors.transparent,
+                                      child: SizedBox(
+                                        width: 100,
+                                        child: tile,
+                                      ),
+                                    ),
+                                    childWhenDragging: Opacity(
+                                      opacity: 0.3,
+                                      child: tile,
+                                    ),
+                                    child: tile,
+                                  );
+                                },
+                              );
+                            },
                           ),
                         ),
-                        if (_loading) const LinearProgressIndicator(),
+                        if (_loading) LinearProgressIndicator(),
                       ],
                     ),
                   ),

@@ -4,15 +4,15 @@ import '../constants/app_colors.dart';
 import 'package:flutter/material.dart';
 
 class LogoutDialog extends AlertDialogModel<bool> {
-  const LogoutDialog()
+  LogoutDialog()
       : super(
     title: Strings.logOut,
     message: Strings.areYouSureYouWantToLogOut,
-    buttons: const {
+    buttons: {
       Strings.cancel: false,
       Strings.logOut: true,
     },
-    buttonTextStyles: const {
+    buttonTextStyles: {
       Strings.cancel: TextStyle(color: AppColors.grey),
       Strings.logOut: TextStyle(color: AppColors.buttonColor),
     },

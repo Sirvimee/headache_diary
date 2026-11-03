@@ -24,14 +24,14 @@ class StatisticsPeriodView extends StatelessWidget {
       child: FutureBuilder<Map<String, String>>(
         future: aggregateForPeriod(start, end),
         builder: (ctx, snap) {
-          if (snap.connectionState == ConnectionState.waiting) return const Center(child: CircularProgressIndicator());
+          if (snap.connectionState == ConnectionState.waiting) return Center(child: CircularProgressIndicator());
           if (snap.hasError) return Center(child: Text('${Strings.error}: ${snap.error}'));
           final block = snap.data ?? {};
 
           block['title'] = _fmtPeriodHeader(start, end);
 
           return ListView(
-            padding: const EdgeInsets.only(bottom: 24, top: 12),
+            padding: EdgeInsets.only(bottom: 24, top: 12),
             children: [
               StatisticsBlock(
                 block: block,
