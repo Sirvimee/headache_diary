@@ -106,6 +106,31 @@ class Strings {
   static const voiceKeywordPill = 'tablett';
   static const voiceKeywordPillShort = 'tabla';
 
+  // Info
+  static const help = 'Info';
+  static const usageGuideTitle = 'Rakenduse kasutamise õpetus';
+  static const usageGuide = '''
+Peavalupäevik aitab sul iga päeva kohta oma sümptomeid, ravimeid ja võimalikke päästikuid üles märkida.
+
+Päeva märkimine
+• Ava kalendrist soovitud päev.
+• Vajuta alumisel menüüribal märkmete lisamise nupule.
+• Vali sobivad ikoonid. Tableti lisamiseks vali tableti plussmärk ja eemaldamiseks miinusmärk.
+• Tuleviku kuupäevale saab lisada ainult süsti, profülaktilise tableti või arsti tuleviku kuupäevale.
+• Kui lisada süsti, profülaktilise tableti või arsti tuleviku kuupäevale, siis selleks päevaks lisatakse meeldetuletus.
+• Ikoone saab ümber järjestada, vajutades ikoonide aknas järjestamise nuppu.
+
+Häälega lisamine (ainult sümptomid)
+• Vajuta ülaribal mikrofoni märki.
+• Räägi eesti keeles lühike kirjeldus, näiteks „peavalu vasak“, „peavalu parem“, „peavalu“ „silmavalu“, „iiveldus“, „okse“, „tablett“ või „tabla“.
+• Sobivad sümptomid ja tablett salvestatakse automaatselt tänasele päevale.
+
+Kokkuvõte ja profiil
+• Kokkuvõtte vaates saad valida ajavahemiku ning kohandada näidatavaid ridu.
+• Kokkuvõtte saab eksportida PDF-failina.
+• Profiili vaates saad muuta rakenduse värviteemat ja oma konto seadeid.
+''';
+
   // Navigation
   static const home = 'Avalehele';
   static const notes = 'Lisa märkmeid';

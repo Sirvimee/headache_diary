@@ -21,6 +21,24 @@ PreferredSizeWidget buildMainAppBar(
 }) {
   final isGuest = ref.watch(authenticationProvider).result == AuthResult.local;
 
+  void showUsageGuide() {
+    showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(Strings.usageGuideTitle),
+        content: SingleChildScrollView(
+          child: Text(Strings.usageGuide),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: Text(Strings.cancel),
+          ),
+        ],
+      ),
+    );
+  }
+
   return AppBar(
     toolbarHeight: 96,
     centerTitle: true,
@@ -137,8 +155,30 @@ PreferredSizeWidget buildMainAppBar(
       onPressed: onVoiceEntry,
     ),
     actions: [
+      TextButton(
+        onPressed: showUsageGuide,
+        style: TextButton.styleFrom(
+          padding: EdgeInsets.zero,
+          minimumSize: Size(56, 56),
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.info_outline, color: AppColors.buttonColor, size: 36),
+            SizedBox(height: 4),
+            Text(
+              Strings.help,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(color: AppColors.hintColor, fontSize: 12),
+            ),
+          ],
+        ),
+      ),
       Padding(
-        padding: EdgeInsets.only(right: 20.0),
+        padding: EdgeInsets.only(left: 8.0, right: 20.0),
         child: TextButton(
           onPressed: () async {
             final shouldLogOut = await LogoutDialog()
