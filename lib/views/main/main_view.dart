@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter/services.dart';
 import 'package:headache_diary/views/tabs/calendar/calendar_view.dart';
 import 'package:headache_diary/views/tabs/calendar/day_view.dart';
 import '../shared/main_layout.dart';
@@ -17,7 +18,8 @@ class MainView extends ConsumerStatefulWidget {
   ConsumerState<ConsumerStatefulWidget> createState() => _MainViewState();
 }
 
-class _MainViewState extends ConsumerState<MainView> {
+class _MainViewState extends ConsumerState<MainView>
+    with WidgetsBindingObserver {
   late int _currentIndex;
   Map<String, dynamic>? _pendingStatsParams;
   final _dayViewKey = GlobalKey<DayViewState>();
@@ -42,6 +44,37 @@ class _MainViewState extends ConsumerState<MainView> {
   void initState() {
     super.initState();
     _currentIndex = widget.initialIndex ?? 0;
+    WidgetsBinding.instance.addObserver(this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _consumeAddSymptomShortcut();
+    });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _consumeAddSymptomShortcut();
+    }
+  }
+
+  Future<void> _consumeAddSymptomShortcut() async {
+    try {
+      final requested = await const MethodChannel(
+        'com.example.headache_diary/speech_feedback',
+      ).invokeMethod<bool>('consumeAddSymptomShortcut');
+      if (requested != true || !mounted) return;
+      _startVoiceEntry();
+    } on PlatformException {
+      // The shortcut channel is Android-specific.
+    } on MissingPluginException {
+      // The shortcut channel is Android-specific.
+    }
   }
 
   void _startVoiceEntry() {

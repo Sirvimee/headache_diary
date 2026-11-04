@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="add_symptom"
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/shortcut_add_symptom"
+        android:shortcutLongLabel="@string/shortcut_add_symptom">
+        <intent
+            android:action="com.example.headache_diary.ADD_SYMPTOM"
+            android:targetPackage="com.example.headache_diary"
+            android:targetClass="com.example.headache_diary.MainActivity" />
+    </shortcut>
+</shortcuts>

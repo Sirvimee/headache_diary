@@ -1,4 +1,4 @@
 <resources>
     <string name="app_name">Peavalu päevik</string>
+    <string name="shortcut_add_symptom">Lisa sümptom</string>
 </resources>
-
