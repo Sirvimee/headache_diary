@@ -115,9 +115,7 @@ class NotificationService {
       body,
       scheduled,
       NotificationDetails(android: androidDetails, iOS: iosDetails),
-      uiLocalNotificationDateInterpretation:
-          UILocalNotificationDateInterpretation.absoluteTime,
-      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+      androidScheduleMode: AndroidScheduleMode.inexact,
     );
 
     return id;

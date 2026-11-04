@@ -82,6 +82,23 @@ class Strings {
   static const appColors = 'Rakenduse värvid';
   static const chooseColorTheme = 'Vali värviteema';
   static const resetColorTheme = 'Taasta vaikevärvid';
+
+  // Privacy and GDPR
+  static const privacyAndGdpr = 'Privaatsus ja GDPR';
+  static const privacyAndGdprTitle = 'Privaatsus ja GDPR';
+  static const privacyAndGdprText = '''
+Peavalupäevik töötleb ainult rakenduse toimimiseks vajalikke andmeid.
+
+Sisselogitud kasutaja päevikukirjed, konto nimi ja e-posti aadress salvestatakse Firebase'i teenustes. Neid andmeid kasutatakse päeviku, kokkuvõtete ja kasutajakonto toimimiseks.
+
+Külalisena kasutamisel salvestatakse päevikukirjed ainult sinu seadmesse. Rakenduse kustutamisel või seadme vahetamisel võivad need andmed kaduma minna.
+
+Meeldetuletuste jaoks kasutab rakendus sinu seadme teavituste luba. Teavituste andmeid kasutatakse ainult sinu seadmes meeldetuletuste kuvamiseks.
+
+Ära sisesta päevikusse andmeid, mida ei ole rakenduse kasutamiseks vaja. Sul on õigus küsida oma andmete kohta teavet, taotleda nende parandamist või kustutamist ning võtta andmetöötluse kohta ühendust rakenduse haldajaga.
+
+See teave on rakenduse lühike privaatsusteave ega asenda täielikku privaatsusteatist.
+''';
   static const purpleColorTheme = 'Lilla';
   static const blueColorTheme = 'Sinine';
   static const greenColorTheme = 'Roheline';
@@ -101,7 +118,7 @@ class Strings {
   static const voiceKeywordRight = 'parem';
   static const voiceKeywordWholeHead = 'üle pea';
   static const voiceKeywordEntireHead = 'terve pea';
-  static const voiceKeywordEyePain = 'silmavalu';
+  static const voiceKeywordEyePain = 'silmad valutavad';
   static const voiceKeywordVomiting = 'okse';
   static const voiceKeywordNausea = 'iiveldus';
   static const voiceKeywordPill = 'tablett';
@@ -124,7 +141,7 @@ Päeva märkimine
 
 Häälega lisamine (ainult sümptomid)
 • Vajuta ülaribal mikrofoni märki.
-• Räägi eesti keeles lühike kirjeldus, näiteks „peavalu vasak“, „peavalu parem“, „peavalu“ „silmavalu“, „iiveldus“, „okse“, „tablett“ või „tabla“.
+• Räägi eesti keeles lühike kirjeldus, näiteks „peavalu vasak“, „peavalu parem“, „peavalu“ „silmad valutavad“, „iiveldus“, „okse“, „tablett“ või „tabla“.
 • Sobivad sümptomid ja tablett salvestatakse automaatselt tänasele päevale.
 
 Kokkuvõte ja profiil
@@ -192,10 +209,10 @@ Kokkuvõte ja profiil
   static const enterDoctorName = 'Sisesta arsti nimi';
   static const pillName = 'Tableti nimetus';
   static const enterPillName = 'Sisesta tableti nimetus';
-  static const pillGrams = 'Tableti kogus grammides';
-  static const enterPillGrams = 'Sisesta grammid';
+  static const pillGrams = 'Tableti kogus milligrammides';
+  static const enterPillGrams = 'Sisesta milligrammid';
   static const reminderTime = 'Meeldetuletuse kellaaeg';
-  static const invalidPillGrams = 'Sisesta korrektne grammide arv';
+  static const invalidPillGrams = 'Sisesta korrektne milligrammide arv';
   static const additionalNotes = 'Märkmed';
   static const enterAdditionalNotes = 'Kirjuta siia...';
 

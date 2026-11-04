@@ -63,6 +63,27 @@ class ProfileContentState extends ConsumerState<ProfileContent> {
     if (selected != null) await AppColors.setTheme(selected);
   }
 
+  Future<void> _showPrivacyInfo() async {
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(Strings.privacyAndGdprTitle),
+        content: SingleChildScrollView(
+          child: Text(Strings.privacyAndGdprText),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: Text(
+              Strings.close,
+              style: TextStyle(color: AppColors.buttonColor),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   void dispose() {
     _nameController.dispose();
@@ -185,6 +206,19 @@ class ProfileContentState extends ConsumerState<ProfileContent> {
                       ),
                       icon: Icon(Icons.palette_outlined),
                       label: Text(Strings.appColors),
+                    ),
+                    SizedBox(height: 12),
+                    OutlinedButton.icon(
+                      onPressed: _showPrivacyInfo,
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppColors.buttonColor,
+                        side: BorderSide(color: AppColors.buttonColor),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
+                      icon: Icon(Icons.privacy_tip_outlined),
+                      label: Text(Strings.privacyAndGdpr),
                     ),
                     SizedBox(height: 20),
                     if (!isGuest) ...[

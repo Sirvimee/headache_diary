@@ -22,7 +22,7 @@ dependencies {
     // https://firebase.google.com/docs/android/setup#available-libraries
 
     // Core library desugaring required by some AARs (e.g. flutter_local_notifications)
-    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.3")
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
 }
 
 android {

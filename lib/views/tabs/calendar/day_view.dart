@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:speech_to_text/speech_to_text.dart';
 
@@ -179,6 +182,11 @@ class DayViewState extends State<DayView> {
       matches.add(FirebaseFieldName.pill);
     }
     if (matches.isEmpty) {
+      if (Platform.isAndroid) {
+        await _playRecognitionFailureSound();
+      } else {
+        await SystemSound.play(SystemSoundType.alert);
+      }
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(Strings.voiceNothingRecognized)),
@@ -196,10 +204,24 @@ class DayViewState extends State<DayView> {
         await const DayEntryStorage().toggleIcon(_currentDate, key);
       }
     }
+    await SystemSound.play(SystemSoundType.click);
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(Strings.voiceSaved)),
       );
+    }
+  }
+
+  Future<void> _playRecognitionFailureSound() async {
+    if (!Platform.isAndroid) return;
+    try {
+      await const MethodChannel(
+        'com.example.headache_diary/speech_feedback',
+      ).invokeMethod<void>('playRecognitionFailure');
+    } on PlatformException catch (_) {
+      await SystemSound.play(SystemSoundType.alert);
+    } on MissingPluginException {
+      await SystemSound.play(SystemSoundType.alert);
     }
   }
 

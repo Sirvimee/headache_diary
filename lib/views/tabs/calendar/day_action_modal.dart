@@ -177,11 +177,17 @@ class _DayActionModalState extends State<DayActionModal> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text(Strings.cancel),
+            child: Text(
+              Strings.cancel,
+              style: TextStyle(color: AppColors.grey),
+            ),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, controller.text.trim()),
-            child: Text(Strings.next),
+            child: Text(
+              Strings.next,
+              style: TextStyle(color: AppColors.buttonColor),
+            ),
           ),
         ],
       ),
@@ -204,11 +210,17 @@ class _DayActionModalState extends State<DayActionModal> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: Text(Strings.cancel),
+              child: Text(
+                Strings.cancel,
+                style: TextStyle(color: AppColors.grey),
+              ),
             ),
             TextButton(
               onPressed: () => Navigator.pop(ctx, gramsController.text.trim()),
-              child: Text(Strings.save),
+              child: Text(
+                Strings.save,
+                style: TextStyle(color: AppColors.buttonColor),
+              ),
             ),
           ],
         ),
