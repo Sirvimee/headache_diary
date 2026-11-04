@@ -33,7 +33,7 @@ class NotificationService {
         >();
 
     if (androidPlugin != null) {
-      await androidPlugin.requestNotificationsPermission();
+      await _ensureAndroidNotificationsEnabled(androidPlugin);
       const channel = AndroidNotificationChannel(
         _channelId,
         _channelName,
@@ -91,8 +91,15 @@ class NotificationService {
 
     final iosDetails = DarwinNotificationDetails();
 
-    // Check notification permission
-    try {
+    final androidPlugin = _plugin
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
+    if (androidPlugin != null) {
+      if (!await _ensureAndroidNotificationsEnabled(androidPlugin)) {
+        return null;
+      }
+    } else {
       final status = await Permission.notification.status;
       if (!status.isGranted) {
         final req = await Permission.notification.request();
@@ -100,8 +107,6 @@ class NotificationService {
           return null;
         }
       }
-    } catch (_) {
-      // If permission_handler isn't supported on a platform, proceed and let schedule fail if needed.
     }
 
     await _plugin.zonedSchedule(
@@ -123,4 +128,14 @@ class NotificationService {
       await _plugin.cancel(id);
     } catch (_) {}
   }
+}
+
+Future<bool> _ensureAndroidNotificationsEnabled(
+  AndroidFlutterLocalNotificationsPlugin androidPlugin,
+) async {
+  var enabled = await androidPlugin.areNotificationsEnabled() ?? false;
+  if (!enabled) {
+    enabled = await androidPlugin.requestNotificationsPermission() ?? false;
+  }
+  return enabled;
 }

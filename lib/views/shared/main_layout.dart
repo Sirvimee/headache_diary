@@ -32,7 +32,10 @@ PreferredSizeWidget buildMainAppBar(
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
-            child: Text(Strings.cancel),
+            style: TextButton.styleFrom(
+              foregroundColor: AppColors.buttonColor,
+            ),
+            child: Text(Strings.close),
           ),
         ],
       ),

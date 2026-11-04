@@ -64,6 +64,7 @@ class Strings {
   static const toFrontPage = 'Esilehele';
 
   // Dialogs
+  static const close = 'Sulge';
   static const logOut = 'Logi välja';
   static const areYouSureYouWantToLogOut =
       'Kas oled kindel, et soovid välja logida?';
@@ -116,6 +117,7 @@ Päeva märkimine
 • Ava kalendrist soovitud päev.
 • Vajuta alumisel menüüribal märkmete lisamise nupule.
 • Vali sobivad ikoonid. Tableti lisamiseks vali tableti plussmärk ja eemaldamiseks miinusmärk.
+• Ikooni eemaldamiseks päeva vaatest vajuta uuesti ikoonile.
 • Tuleviku kuupäevale saab lisada ainult süsti, profülaktilise tableti või arsti tuleviku kuupäevale.
 • Kui lisada süsti, profülaktilise tableti või arsti tuleviku kuupäevale, siis selleks päevaks lisatakse meeldetuletus.
 • Ikoone saab ümber järjestada, vajutades ikoonide aknas järjestamise nuppu.

@@ -40,16 +40,22 @@ class ProfileContentState extends ConsumerState<ProfileContent> {
                 leading: CircleAvatar(
                   backgroundColor: AppColors.themes[i].button,
                 ),
-                title: Text(AppColors.themes[i].name),
-                selected: AppColors.theme.value == i,
-                onTap: () => Navigator.pop(context, i),
+              title: Text(
+                AppColors.themes[i].name,
+                style: TextStyle(color: AppColors.themes[i].hint),
               ),
+              selected: AppColors.theme.value == i,
+              onTap: () => Navigator.pop(context, i),
+            ),
           ],
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, 0),
-            child: Text(Strings.resetColorTheme),
+            child: Text(
+              Strings.resetColorTheme,
+              style: TextStyle(color: AppColors.buttonColor),
+            ),
           ),
         ],
       ),
@@ -169,6 +175,14 @@ class ProfileContentState extends ConsumerState<ProfileContent> {
                     SizedBox(height: 8),
                     OutlinedButton.icon(
                       onPressed: _chooseColorTheme,
+                      style: OutlinedButton.styleFrom(
+                        backgroundColor: AppColors.buttonColor,
+                        foregroundColor: AppColors.primaryColor,
+                        side: BorderSide(color: AppColors.buttonColor),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                      ),
                       icon: Icon(Icons.palette_outlined),
                       label: Text(Strings.appColors),
                     ),

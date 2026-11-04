@@ -48,7 +48,7 @@ class DayEntryStorage {
   Future<void> _saveEntry(String uid, DayEntryModel entry) async {
     final dateIso = DayEntryFirestore.formatDate(DateTime.parse(entry.date));
     final docRef = DayEntryFirestore.daysCollection(uid).doc(dateIso);
-    await docRef.set(_toPayload(entry), SetOptions(merge: true));
+    await docRef.set(_toPayload(entry));
   }
 
   Stream<Map<DateTime, DayEntryModel>> monthEntries(

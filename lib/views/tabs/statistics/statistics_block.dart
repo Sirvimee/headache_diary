@@ -104,8 +104,16 @@ class _StatisticsBlockState extends State<StatisticsBlock> {
                 return CheckboxListTile(
                   key: ValueKey(row.key),
                   value: !hidden.contains(row.key),
-                  title: Text(row.label),
-                  subtitle: Text('Lohista rea järjekorra muutmiseks'),
+                  activeColor: AppColors.buttonColor,
+                  checkColor: AppColors.primaryColor,
+                  title: Text(
+                    row.label,
+                    style: TextStyle(color: AppColors.buttonColor),
+                  ),
+                  subtitle: Text(
+                    'Lohista rea järjekorra muutmiseks',
+                    style: TextStyle(color: AppColors.hintColor),
+                  ),
                   onChanged: (value) => setDialogState(() {
                     if (value == true) {
                       hidden.remove(row.key);
@@ -123,14 +131,20 @@ class _StatisticsBlockState extends State<StatisticsBlock> {
                 rows = List.of(_defaultRows);
                 hidden.clear();
               }),
-              child: Text(Strings.resetSummarySettings),
+              child: Text(
+                Strings.resetSummarySettings,
+                style: TextStyle(color: AppColors.buttonColor),
+              ),
             ),
             TextButton(
               onPressed: () => Navigator.pop(
                 context,
                 (rows: rows, hidden: hidden),
               ),
-              child: Text(Strings.saveSummarySettings),
+              child: Text(
+                Strings.saveSummarySettings,
+                style: TextStyle(color: AppColors.buttonColor),
+              ),
             ),
           ],
         ),

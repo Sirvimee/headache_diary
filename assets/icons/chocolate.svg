@@ -1,9 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg id="Layer_1" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 800 800">
-    <path d="M250,150 h300 v180 h-300 z" fill="#33FF57" />
-    <path d="M230,330 l40,60 l40,-40 l50,70 l60,-50 l50,40 l40,-40 l40,40 v320 h-320 z" fill="#33FF57" />
-    <!-- Vertikaalsed ja horisontaalsed vahed šokolaadi ruutude vahel (valged jooned) -->
-    <line x1="350" y1="150" x2="350" y2="330" stroke="#FFFFFF" stroke-width="16" stroke-linecap="round" />
-    <line x1="450" y1="150" x2="450" y2="330" stroke="#FFFFFF" stroke-width="16" stroke-linecap="round" />
-    <line x1="250" y1="240" x2="550" y2="240" stroke="#FFFFFF" stroke-width="16" stroke-linecap="round" />
+  <!-- Generator: Adobe Illustrator 30.2.1, SVG Export Plug-In . SVG Version: 2.1.1 Build 1)  -->
+  <defs>
+    <style>
+      .st0 {
+        fill: #33ff57;
+      }
+    </style>
+  </defs>
+  <path class="st0" d="M230,330l40,60,40-40,50,70,60-50,50,40,40-40,40,40v320H230v-400Z"/>
+  <g>
+    <rect class="st0" x="358" y="248" width="84" height="82"/>
+    <polygon class="st0" points="358 150 358 150 358 232 442 232 442 150 442 150 358 150"/>
+    <polygon class="st0" points="458 150 458 232 550 232 550 150 458 150 458 150"/>
+    <polygon class="st0" points="342 150 342 150 250 150 250 232 342 232 342 150"/>
+    <rect class="st0" x="458" y="248" width="92" height="82"/>
+    <rect class="st0" x="250" y="248" width="92" height="82"/>
+  </g>
 </svg>
