@@ -70,6 +70,7 @@ class Strings {
       'Kas oled kindel, et soovid välja logida?';
   static const cancel = 'Tühista';
   static const save = 'Salvesta';
+  static const delete = 'Kustuta';
   static const next = 'Edasi';
 
   // App customization
@@ -282,8 +283,7 @@ Tänasele päevale sümptomite kiire märkimine
   static const pdfNotesSection = 'Märkmed';
 
   // Pdf sections and subsections
-  static const pdfSymptomsSection =
-      '1. Sümptomid (Peavalu ja kaasnevad nähud)';
+  static const pdfSymptomsSection = '1. Sümptomid (Peavalu ja kaasnevad nähud)';
   static const pdfMedicationMonitoringSection =
       '2. Ravimid ja meditsiiniline jälgimine';
   static const pdfBiologySection = '3. Keha bioloogia ja hormoonid';

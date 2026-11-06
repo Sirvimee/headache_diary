@@ -8,6 +8,8 @@ import 'day_action_items.dart';
 import '../../../state/calendar/backend/day_entry_storage.dart';
 import '../../../state/auth/backend/local_storage.dart';
 
+enum _NotesAction { save, delete }
+
 class DayActionModal extends StatefulWidget {
   final DateTime date;
   const DayActionModal({super.key, required this.date});
@@ -38,9 +40,7 @@ class _DayActionModalState extends State<DayActionModal> {
       for (final key in savedKeys)
         if (byKey[key] != null) byKey[key]!,
     ];
-    ordered.addAll(
-      actionItems.where((item) => !savedKeys.contains(item.key)),
-    );
+    ordered.addAll(actionItems.where((item) => !savedKeys.contains(item.key)));
     if (mounted) setState(() => items = ordered);
   }
 
@@ -53,7 +53,10 @@ class _DayActionModalState extends State<DayActionModal> {
     if (oldIndex < 0 || oldIndex == targetIndex) return;
     final updated = List<ActionItem>.of(items);
     final item = updated.removeAt(oldIndex);
-    updated.insert(targetIndex > oldIndex ? targetIndex - 1 : targetIndex, item);
+    updated.insert(
+      targetIndex > oldIndex ? targetIndex - 1 : targetIndex,
+      item,
+    );
     setState(() => items = updated);
     await _saveActionOrder();
   }
@@ -107,9 +110,9 @@ class _DayActionModalState extends State<DayActionModal> {
         key != FirebaseFieldName.systal &&
         key != FirebaseFieldName.doctor &&
         key != FirebaseFieldName.preventivePill) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(Strings.canAddOnlyToValidDates)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(Strings.canAddOnlyToValidDates)));
       return false;
     }
     return true;
@@ -134,9 +137,7 @@ class _DayActionModalState extends State<DayActionModal> {
 
   Future<void> _addScheduledIcon(String key) async {
     if (!_canEdit(key)) return;
-    final current = await DayEntryStorage()
-        .dayEntryStream(widget.date)
-        .first;
+    final current = await DayEntryStorage().dayEntryStream(widget.date).first;
     if (current?.icons[key] == true) {
       setState(() => _loading = true);
       try {
@@ -228,9 +229,9 @@ class _DayActionModalState extends State<DayActionModal> {
       if (!mounted) return;
       if (grams == null || double.tryParse(grams) == null) {
         if (grams != null && mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(Strings.invalidPillGrams)),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(Strings.invalidPillGrams)));
         }
         return;
       }
@@ -264,9 +265,9 @@ class _DayActionModalState extends State<DayActionModal> {
               },
       );
       if (mounted && status == 1) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(Strings.reminderAddedSnackBar)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(Strings.reminderAddedSnackBar)));
       }
     } catch (_) {
       if (mounted) {
@@ -281,17 +282,20 @@ class _DayActionModalState extends State<DayActionModal> {
 
   Future<void> _editNotes() async {
     if (!_canEdit(FirebaseFieldName.notes)) return;
-    final controller = TextEditingController();
-    final res = await showDialog<String?>(
+    final currentEntry = await DayEntryStorage()
+        .dayEntryStream(widget.date)
+        .first;
+    if (!mounted) return;
+
+    final controller = TextEditingController(text: currentEntry?.notes ?? '');
+    final action = await showDialog<_NotesAction>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text(Strings.additionalNotes),
         content: TextField(
           controller: controller,
           maxLines: 6,
-          decoration: InputDecoration(
-            hintText: Strings.enterAdditionalNotes,
-          ),
+          decoration: InputDecoration(hintText: Strings.enterAdditionalNotes),
         ),
         actions: [
           TextButton(
@@ -302,7 +306,11 @@ class _DayActionModalState extends State<DayActionModal> {
             ),
           ),
           TextButton(
-            onPressed: () => Navigator.pop(ctx, controller.text),
+            onPressed: () => Navigator.pop(ctx, _NotesAction.delete),
+            child: Text(Strings.delete, style: TextStyle(color: Colors.red)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, _NotesAction.save),
             child: Text(
               Strings.save,
               style: TextStyle(color: AppColors.buttonColor),
@@ -312,12 +320,16 @@ class _DayActionModalState extends State<DayActionModal> {
       ),
     );
 
-    if (res == null) return;
+    if (action == null) return;
     if (!mounted) return;
 
     setState(() => _loading = true);
     try {
-      await DayEntryStorage().editNotes(widget.date, res);
+      if (action == _NotesAction.delete) {
+        await DayEntryStorage().deleteNotes(widget.date);
+      } else {
+        await DayEntryStorage().editNotes(widget.date, controller.text);
+      }
     } catch (e) {
       // ignore
     } finally {
@@ -339,11 +351,17 @@ class _DayActionModalState extends State<DayActionModal> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text(Strings.cancel, style: TextStyle(color: AppColors.grey)),
+            child: Text(
+              Strings.cancel,
+              style: TextStyle(color: AppColors.grey),
+            ),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, controller.text.trim()),
-            child: Text(Strings.save, style: TextStyle(color: AppColors.buttonColor)),
+            child: Text(
+              Strings.save,
+              style: TextStyle(color: AppColors.buttonColor),
+            ),
           ),
         ],
       ),
@@ -376,9 +394,9 @@ class _DayActionModalState extends State<DayActionModal> {
     final mg = double.tryParse(mgText ?? '');
     if (!mounted || mg == null || mg <= 0) {
       if (mgText != null && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(Strings.invalidPillGrams)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(Strings.invalidPillGrams)));
       }
       return;
     }
@@ -424,9 +442,9 @@ class _DayActionModalState extends State<DayActionModal> {
       );
       if (!mounted) return;
       if (status == 1) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(Strings.reminderAddedSnackBar)),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(Strings.reminderAddedSnackBar)));
       } else if (status == 2) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(Strings.failedToScheduleReminderSnackBar)),
@@ -465,15 +483,10 @@ class _DayActionModalState extends State<DayActionModal> {
                 heightFactor: 0.6,
                 widthFactor: 1,
                 child: ClipRRect(
-                  borderRadius: BorderRadius.vertical(
-                    top: Radius.circular(30),
-                  ),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
                   child: Container(
                     color: AppColors.black,
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 12,
-                      vertical: 8,
-                    ),
+                    padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
@@ -535,29 +548,29 @@ class _DayActionModalState extends State<DayActionModal> {
                                 onTap: _reorderMode
                                     ? null
                                     : () async {
-                                  if (it.key == 'pill_plus') {
-                                    await _changePillCount(1);
-                                  } else if (it.key == 'pill_minus') {
-                                    await _changePillCount(-1);
-                                  } else if (it.key ==
-                                      FirebaseFieldName.notes) {
-                                    await _editNotes();
-                                  } else if (it.key ==
-                                      FirebaseFieldName.systal) {
-                                    await _addInjections();
-                                  } else if (it.key ==
-                                      FirebaseFieldName.preventivePill) {
-                                    await _addPreventiveMedication(
-                                      injection: false,
-                                    );
-                                  } else if (it.key ==
-                                      FirebaseFieldName.doctor &&
-                                      _isFutureDate()) {
-                                    await _addScheduledIcon(it.key);
-                                  } else {
-                                    await _toggleIcon(it.key);
-                                  }
-                                  },
+                                        if (it.key == 'pill_plus') {
+                                          await _changePillCount(1);
+                                        } else if (it.key == 'pill_minus') {
+                                          await _changePillCount(-1);
+                                        } else if (it.key ==
+                                            FirebaseFieldName.notes) {
+                                          await _editNotes();
+                                        } else if (it.key ==
+                                            FirebaseFieldName.systal) {
+                                          await _addInjections();
+                                        } else if (it.key ==
+                                            FirebaseFieldName.preventivePill) {
+                                          await _addPreventiveMedication(
+                                            injection: false,
+                                          );
+                                        } else if (it.key ==
+                                                FirebaseFieldName.doctor &&
+                                            _isFutureDate()) {
+                                          await _addScheduledIcon(it.key);
+                                        } else {
+                                          await _toggleIcon(it.key);
+                                        }
+                                      },
                                 child: Column(
                                   mainAxisSize: MainAxisSize.max,
                                   mainAxisAlignment: MainAxisAlignment.start,
@@ -598,10 +611,7 @@ class _DayActionModalState extends State<DayActionModal> {
                                     data: it.key,
                                     feedback: Material(
                                       color: Colors.transparent,
-                                      child: SizedBox(
-                                        width: 100,
-                                        child: tile,
-                                      ),
+                                      child: SizedBox(width: 100, child: tile),
                                     ),
                                     childWhenDragging: Opacity(
                                       opacity: 0.3,

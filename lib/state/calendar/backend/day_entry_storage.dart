@@ -162,6 +162,8 @@ class DayEntryStorage {
     await _saveEntry(uid, updated);
   }
 
+  Future<void> deleteNotes(DateTime date) => editNotes(date, '');
+
   /// Adds systal for a future date. If the icon already exists it will be removed instead.
   /// Returns:
   /// 0 = added or removed for today/past date
@@ -322,15 +324,18 @@ class DayEntryStorage {
 
     final selected = DateTime(date.year, date.month, date.day);
     final today = DateTime.now();
-    final isFuture = selected.isAfter(DateTime(today.year, today.month, today.day));
+    final isFuture = selected.isAfter(
+      DateTime(today.year, today.month, today.day),
+    );
     final medication = Map<String, dynamic>.from(entry.medication)
       ..addAll({
         FirebaseFieldName.preventiveMedicationName: name,
         FirebaseFieldName.preventiveMedicationMg: milligrams,
         FirebaseFieldName.preventiveMedicationStart: entry.date,
         if (endDate != null)
-          FirebaseFieldName.preventiveMedicationEnd:
-              endDate.toIso8601String().substring(0, 10),
+          FirebaseFieldName.preventiveMedicationEnd: endDate
+              .toIso8601String()
+              .substring(0, 10),
         if (iconKey == FirebaseFieldName.preventivePill) ...{
           FirebaseFieldName.preventivePillName: name,
           FirebaseFieldName.preventivePillGrams: milligrams,
@@ -362,11 +367,7 @@ class DayEntryStorage {
         : null;
     await _saveEntry(
       uid,
-      entry.copyWith(
-        icons: icons,
-        medication: medication,
-        reminder: reminder,
-      ),
+      entry.copyWith(icons: icons, medication: medication, reminder: reminder),
     );
     if (!isFuture) return 0;
     return scheduledId == null ? 2 : 1;
