@@ -99,6 +99,12 @@ class NotificationService {
       if (!await _ensureAndroidNotificationsEnabled(androidPlugin)) {
         return null;
       }
+      // Exact alarms require a special access grant on Android 12+.
+      final exactAlarmsGranted =
+          await androidPlugin.requestExactAlarmsPermission() ?? false;
+      if (!exactAlarmsGranted) {
+        return null;
+      }
     } else {
       final status = await Permission.notification.status;
       if (!status.isGranted) {
@@ -115,7 +121,7 @@ class NotificationService {
       body,
       scheduled,
       NotificationDetails(android: androidDetails, iOS: iosDetails),
-      androidScheduleMode: AndroidScheduleMode.inexact,
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
     );
 
     return id;

@@ -49,5 +49,16 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>UIApplicationShortcutItems</key>
+	<array>
+		<dict>
+			<key>UIApplicationShortcutItemType</key>
+			<string>com.example.headache_diary.ADD_SYMPTOM</string>
+			<key>UIApplicationShortcutItemTitle</key>
+			<string>Lisa sümptom</string>
+			<key>UIApplicationShortcutItemIconFile</key>
+			<string>AppIcon</string>
+		</dict>
+	</array>
 </dict>
 </plist>

@@ -33,6 +33,10 @@ class FirebaseFieldName {
   static const preventivePill = 'preventive_pill';
   static const preventivePillName = 'preventive_pill_name';
   static const preventivePillGrams = 'preventive_pill_grams';
+  static const preventiveMedicationName = 'preventive_medication_name';
+  static const preventiveMedicationMg = 'preventive_medication_mg';
+  static const preventiveMedicationStart = 'preventive_medication_start';
+  static const preventiveMedicationEnd = 'preventive_medication_end';
   static const reminderType = 'type';
   static const doctorName = 'doctor_name';
 

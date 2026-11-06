@@ -112,7 +112,9 @@ class DayEntryStorage {
       icons.remove(key);
       var reminder = entry.reminder;
 
-      if (key == FirebaseFieldName.systal && reminder != null) {
+      if ((key == FirebaseFieldName.systal ||
+              key == FirebaseFieldName.preventivePill) &&
+          reminder != null) {
         try {
           final notificationId = reminder[FirebaseFieldName.notificationId];
           if (notificationId != null) {
@@ -278,6 +280,95 @@ class DayEntryStorage {
       uid,
       entry.copyWith(icons: icons, medication: medication, reminder: reminder),
     );
+    return scheduledId == null ? 2 : 1;
+  }
+
+  Future<int> addPreventiveMedication({
+    required DateTime date,
+    required String iconKey,
+    required String name,
+    required double milligrams,
+    DateTime? endDate,
+    DateTime? reminderDate,
+    required String title,
+    required String body,
+  }) async {
+    if (LocalStorage.isGuest) {
+      return _localStorage.addPreventiveMedication(
+        date: date,
+        iconKey: iconKey,
+        name: name,
+        milligrams: milligrams,
+        endDate: endDate,
+        reminderDate: reminderDate,
+        title: title,
+        body: body,
+      );
+    }
+    final uid = _uid() ?? '';
+    if (uid.isEmpty) return 0;
+
+    final entry = await _getOrCreate(uid, date);
+    final icons = Map<String, dynamic>.from(entry.icons);
+    if (icons[iconKey] == true) {
+      icons.remove(iconKey);
+      final id = entry.reminder?[FirebaseFieldName.notificationId];
+      if (id is num) {
+        await NotificationService().cancelNotificationById(id.toInt());
+      }
+      await _saveEntry(uid, entry.copyWith(icons: icons, reminder: null));
+      return 3;
+    }
+
+    final selected = DateTime(date.year, date.month, date.day);
+    final today = DateTime.now();
+    final isFuture = selected.isAfter(DateTime(today.year, today.month, today.day));
+    final medication = Map<String, dynamic>.from(entry.medication)
+      ..addAll({
+        FirebaseFieldName.preventiveMedicationName: name,
+        FirebaseFieldName.preventiveMedicationMg: milligrams,
+        FirebaseFieldName.preventiveMedicationStart: entry.date,
+        if (endDate != null)
+          FirebaseFieldName.preventiveMedicationEnd:
+              endDate.toIso8601String().substring(0, 10),
+        if (iconKey == FirebaseFieldName.preventivePill) ...{
+          FirebaseFieldName.preventivePillName: name,
+          FirebaseFieldName.preventivePillGrams: milligrams,
+        },
+      });
+
+    int? scheduledId;
+    if (isFuture && reminderDate != null) {
+      scheduledId = await NotificationService().scheduleNotification(
+        reminderDate,
+        title,
+        body,
+        NotificationService().notificationIdForDate(reminderDate) +
+            (iconKey == FirebaseFieldName.systal ? 30000000 : 20000000),
+      );
+    }
+
+    icons[iconKey] = true;
+    final reminder = isFuture && reminderDate != null
+        ? {
+            FirebaseFieldName.enabled: true,
+            FirebaseFieldName.reminderType: iconKey,
+            FirebaseFieldName.time: reminderDate.toIso8601String(),
+            FirebaseFieldName.preventiveMedicationName: name,
+            FirebaseFieldName.preventiveMedicationMg: milligrams,
+            if (scheduledId != null)
+              FirebaseFieldName.notificationId: scheduledId,
+          }
+        : null;
+    await _saveEntry(
+      uid,
+      entry.copyWith(
+        icons: icons,
+        medication: medication,
+        reminder: reminder,
+      ),
+    );
+    if (!isFuture) return 0;
     return scheduledId == null ? 2 : 1;
   }
 }

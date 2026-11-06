@@ -23,41 +23,59 @@ class PreventiveMedicationStatisticsView extends StatelessWidget {
   }
 
   List<_Course> _courses(List<DayEntryModel> entries) {
-    final grouped = <String, List<DateTime>>{};
+    final grouped = <String, List<_MedicationDay>>{};
     for (final entry in entries) {
-      if (entry.icons[FirebaseFieldName.preventivePill] != true) {
+      final isPill = entry.icons[FirebaseFieldName.preventivePill] == true;
+      final isInjection = entry.icons[FirebaseFieldName.systal] == true;
+      if (!isPill && !isInjection) {
         continue;
       }
-      final name = entry.medication[FirebaseFieldName.preventivePillName]
+      final name = (entry.medication[
+                  FirebaseFieldName.preventiveMedicationName] ??
+              entry.medication[FirebaseFieldName.preventivePillName])
           ?.toString()
           .trim();
-      final grams = entry.medication[FirebaseFieldName.preventivePillGrams]
+      final mg = (entry.medication[FirebaseFieldName.preventiveMedicationMg] ??
+              entry.medication[FirebaseFieldName.preventivePillGrams])
           ?.toString()
           .trim();
-      if (name == null || name.isEmpty || grams == null || grams.isEmpty) {
+      if (name == null || name.isEmpty || mg == null || mg.isEmpty) {
         continue;
       }
-      final key = '$name|$grams';
-      grouped.putIfAbsent(key, () => []).add(DateTime.parse(entry.date));
+      final type = isPill ? Strings.preventivePill : Strings.injection;
+      final key = '$type|$name|$mg';
+      final end = entry.medication[FirebaseFieldName.preventiveMedicationEnd];
+      grouped.putIfAbsent(key, () => []).add(
+        _MedicationDay(
+          DateTime.parse(entry.date),
+          end == null ? null : DateTime.tryParse(end.toString()),
+        ),
+      );
     }
 
     final result = <_Course>[];
     for (final item in grouped.entries) {
-      final dates = item.value..sort();
-      var start = dates.first;
-      var previous = dates.first;
+      final days = item.value..sort((a, b) => a.date.compareTo(b.date));
+      var start = days.first.date;
+      var previous = days.first.date;
       var taken = 1;
-      for (var i = 1; i < dates.length; i++) {
-        final gap = dates[i].difference(previous).inDays;
+      DateTime? explicitEnd = days.first.end;
+      for (var i = 1; i < days.length; i++) {
+        final gap = days[i].date.difference(previous).inDays;
         if (gap > 7) {
-          result.add(_Course(item.key, start, previous, taken));
-          start = dates[i];
+          result.add(_Course(item.key, start, explicitEnd ?? previous, taken));
+          start = days[i].date;
           taken = 0;
+          explicitEnd = null;
         }
-        previous = dates[i];
+        previous = days[i].date;
+        if (days[i].end != null &&
+            (explicitEnd == null || days[i].end!.isAfter(explicitEnd))) {
+          explicitEnd = days[i].end;
+        }
         taken++;
       }
-      result.add(_Course(item.key, start, previous, taken));
+      result.add(_Course(item.key, start, explicitEnd ?? previous, taken));
     }
     result.sort((a, b) => b.start.compareTo(a.start));
     return result;
@@ -80,17 +98,30 @@ class PreventiveMedicationStatisticsView extends StatelessWidget {
           if (snapshot.hasError) {
             return Center(child: Text('${Strings.error}: ${snapshot.error}'));
           }
-          final courses = _courses(snapshot.data ?? []);
+          final entries = snapshot.data ?? [];
+          final courses = _courses(entries);
+          final reminders = entries.where((entry) {
+            final time = entry.reminder?[FirebaseFieldName.time];
+            final enabled = entry.reminder?[FirebaseFieldName.enabled] == true;
+            final date = time == null ? null : DateTime.tryParse(time.toString());
+            return enabled && date != null && date.isAfter(DateTime.now());
+          }).toList()..sort((a, b) {
+            final aDate = DateTime.parse(a.reminder![FirebaseFieldName.time].toString());
+            final bDate = DateTime.parse(b.reminder![FirebaseFieldName.time].toString());
+            return aDate.compareTo(bDate);
+          });
           if (courses.isEmpty) {
-            return Center(
-              child: Text(Strings.noPreventiveMedicationData),
+            return ListView(
+              padding: EdgeInsets.all(12),
+              children: [_activeReminders(reminders)],
             );
           }
           return ListView.builder(
             padding: EdgeInsets.all(12),
-            itemCount: courses.length,
+            itemCount: courses.length + 1,
             itemBuilder: (context, index) {
-              final course = courses[index];
+              if (index == 0) return _activeReminders(reminders);
+              final course = courses[index - 1];
               final parts = course.key.split('|');
               return Card(
                 color: AppColors.black,
@@ -100,7 +131,7 @@ class PreventiveMedicationStatisticsView extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        parts.first,
+                        '${parts[0]}: ${parts[1]}',
                         style: TextStyle(
                           color: AppColors.textColor,
                           fontSize: 20,
@@ -109,7 +140,7 @@ class PreventiveMedicationStatisticsView extends StatelessWidget {
                       ),
                       SizedBox(height: 4),
                       Text(
-                        '${Strings.dose}: ${parts.last} g',
+                        '${Strings.dose}: ${parts[2]} mg',
                         style: TextStyle(color: AppColors.textColor),
                       ),
                       SizedBox(height: 12),
@@ -135,6 +166,52 @@ class PreventiveMedicationStatisticsView extends StatelessWidget {
       ),
     );
   }
+
+  Widget _activeReminders(List<DayEntryModel> entries) {
+    return Card(
+      color: AppColors.black,
+      child: Padding(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              Strings.activeReminders,
+              style: TextStyle(
+                color: AppColors.textColor,
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            if (entries.isEmpty)
+              Padding(
+                padding: EdgeInsets.only(top: 8),
+                child: Text(
+                  Strings.noActiveReminders,
+                  style: TextStyle(color: AppColors.textColor),
+                ),
+              ),
+            for (final entry in entries)
+              ListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(
+                  entry.reminder?[FirebaseFieldName.preventiveMedicationName]
+                          ?.toString() ??
+                      entry.reminder?[FirebaseFieldName.reminderType]
+                          ?.toString() ??
+                      Strings.reminderFor,
+                  style: TextStyle(color: AppColors.textColor),
+                ),
+                subtitle: Text(
+                  '${_date(DateTime.parse(entry.reminder![FirebaseFieldName.time].toString()))} • ${entry.date}',
+                  style: TextStyle(color: AppColors.textColor),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class _Course {
@@ -144,4 +221,11 @@ class _Course {
   final int taken;
 
   _Course(this.key, this.start, this.end, this.taken);
+}
+
+class _MedicationDay {
+  final DateTime date;
+  final DateTime? end;
+
+  _MedicationDay(this.date, this.end);
 }

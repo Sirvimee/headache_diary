@@ -325,10 +325,103 @@ class _DayActionModalState extends State<DayActionModal> {
     }
   }
 
-  Future<void> _addInjections() async {
+  Future<String?> _askText(String title, String hint) async {
+    final controller = TextEditingController();
+    return showDialog<String?>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(title),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          decoration: InputDecoration(hintText: hint),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text(Strings.cancel, style: TextStyle(color: AppColors.grey)),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, controller.text.trim()),
+            child: Text(Strings.save, style: TextStyle(color: AppColors.buttonColor)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _addPreventiveMedication({required bool injection}) async {
+    final iconKey = injection
+        ? FirebaseFieldName.systal
+        : FirebaseFieldName.preventivePill;
+    final current = await DayEntryStorage().dayEntryStream(widget.date).first;
+    if (current?.icons[iconKey] == true) {
+      setState(() => _loading = true);
+      try {
+        await DayEntryStorage().toggleIcon(widget.date, iconKey);
+      } finally {
+        if (mounted) setState(() => _loading = false);
+      }
+      return;
+    }
+    final name = await _askText(
+      injection ? Strings.injectionName : Strings.pillName,
+      injection ? Strings.enterInjectionName : Strings.enterPillName,
+    );
+    if (!mounted || name == null || name.isEmpty) return;
+    final mgText = await _askText(
+      injection ? Strings.injectionMg : Strings.pillGrams,
+      injection ? Strings.enterInjectionMg : Strings.enterPillGrams,
+    );
+    final mg = double.tryParse(mgText ?? '');
+    if (!mounted || mg == null || mg <= 0) {
+      if (mgText != null && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(Strings.invalidPillGrams)),
+        );
+      }
+      return;
+    }
+
+    DateTime? endDate;
+    if (!injection) {
+      endDate = await showDatePicker(
+        context: context,
+        initialDate: widget.date,
+        firstDate: widget.date,
+        lastDate: DateTime(2100),
+        helpText: Strings.treatmentEndDate,
+      );
+      if (!mounted) return;
+    }
+
+    DateTime? reminderDate;
+    if (_isFutureDate()) {
+      final time = await _pickReminderTime();
+      if (!mounted || time == null) return;
+      reminderDate = DateTime(
+        widget.date.year,
+        widget.date.month,
+        widget.date.day,
+        time.hour,
+        time.minute,
+      );
+    }
+
     setState(() => _loading = true);
     try {
-      final status = await DayEntryStorage().addInjections(widget.date);
+      final status = await DayEntryStorage().addPreventiveMedication(
+        date: widget.date,
+        iconKey: iconKey,
+        name: name,
+        milligrams: mg,
+        endDate: endDate,
+        reminderDate: reminderDate,
+        title: injection ? Strings.injection : Strings.preventivePill,
+        body: injection
+            ? '${Strings.notificationBody}: $name'
+            : '${Strings.pillNotificationBody}: $name',
+      );
       if (!mounted) return;
       if (status == 1) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -336,13 +429,7 @@ class _DayActionModalState extends State<DayActionModal> {
         );
       } else if (status == 2) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(Strings.failedToScheduleReminderSnackBar),
-          ),
-        );
-      } else if (status == 3) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(Strings.reminderDeletedSnackBar)),
+          SnackBar(content: Text(Strings.failedToScheduleReminderSnackBar)),
         );
       }
     } catch (_) {
@@ -354,6 +441,10 @@ class _DayActionModalState extends State<DayActionModal> {
     } finally {
       if (mounted) setState(() => _loading = false);
     }
+  }
+
+  Future<void> _addInjections() async {
+    await _addPreventiveMedication(injection: true);
   }
 
   @override
@@ -454,11 +545,13 @@ class _DayActionModalState extends State<DayActionModal> {
                                   } else if (it.key ==
                                       FirebaseFieldName.systal) {
                                     await _addInjections();
-                                  } else if ((it.key ==
-                                              FirebaseFieldName.doctor ||
-                                          it.key ==
-                                              FirebaseFieldName
-                                                  .preventivePill) &&
+                                  } else if (it.key ==
+                                      FirebaseFieldName.preventivePill) {
+                                    await _addPreventiveMedication(
+                                      injection: false,
+                                    );
+                                  } else if (it.key ==
+                                      FirebaseFieldName.doctor &&
                                       _isFutureDate()) {
                                     await _addScheduledIcon(it.key);
                                   } else {

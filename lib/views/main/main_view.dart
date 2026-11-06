@@ -71,9 +71,9 @@ class _MainViewState extends ConsumerState<MainView>
       if (requested != true || !mounted) return;
       _startVoiceEntry();
     } on PlatformException {
-      // The shortcut channel is Android-specific.
+      // The shortcut channel is unavailable on this platform.
     } on MissingPluginException {
-      // The shortcut channel is Android-specific.
+      // The shortcut channel is unavailable on this platform.
     }
   }
 

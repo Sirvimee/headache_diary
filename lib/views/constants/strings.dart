@@ -148,6 +148,12 @@ Kokkuvõte ja profiil
 • Kokkuvõtte vaates saad valida ajavahemiku ning kohandada näidatavaid ridu.
 • Kokkuvõtte saab eksportida PDF-failina.
 • Profiili vaates saad muuta rakenduse värviteemat ja oma konto seadeid.
+
+Tänasele päevale sümptomite kiire märkimine
+• Vajuta telefoni avakuval rakenduse ikooni pikalt.
+• Vali „Lisa sümptom”.
+• Rakendus avaneb ja läheb tänase päeva vaatesse, mikrofon käivitub automaatselt.
+• Tuvastatud sümptom lisatakse päevikusse.
 ''';
 
   // Navigation
@@ -211,6 +217,15 @@ Kokkuvõte ja profiil
   static const enterPillName = 'Sisesta tableti nimetus';
   static const pillGrams = 'Tableti kogus milligrammides';
   static const enterPillGrams = 'Sisesta milligrammid';
+  static const injectionName = 'Süsti nimetus';
+  static const enterInjectionName = 'Sisesta süsti nimetus';
+  static const injectionMg = 'Süsti kogus milligrammides';
+  static const enterInjectionMg = 'Sisesta milligrammid';
+  static const treatmentEndDate = 'Ravikuuri lõppkuupäev (valikuline)';
+  static const noEndDate = 'Lõppkuupäeva ei ole määratud';
+  static const activeReminders = 'Aktiivsed meeldetuletused';
+  static const noActiveReminders = 'Aktiivseid meeldetuletusi ei ole';
+  static const reminderFor = 'Meeldetuletus';
   static const reminderTime = 'Meeldetuletuse kellaaeg';
   static const invalidPillGrams = 'Sisesta korrektne milligrammide arv';
   static const additionalNotes = 'Märkmed';
