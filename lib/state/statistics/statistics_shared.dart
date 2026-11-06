@@ -149,7 +149,15 @@ Future<List<Map<String, dynamic>>> _fetchDocsForRange(
         .toList();
   }
 
-  final snap = await query.get();
+  QuerySnapshot<Map<String, dynamic>> snap;
+  try {
+    snap = await query.get();
+  } on FirebaseException catch (error) {
+    if (error.code != 'unavailable' && error.code != 'deadline-exceeded') {
+      rethrow;
+    }
+    return [];
+  }
   return snap.docs.map((doc) => Map<String, dynamic>.from(doc.data())).toList();
 }
 

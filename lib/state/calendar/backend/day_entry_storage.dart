@@ -35,11 +35,17 @@ class DayEntryStorage {
       return DayEntryModel.fromJson(Map<String, dynamic>.from(snap.data()!));
     }
 
-    final serverSnap = await docRef.get();
-    if (serverSnap.exists && serverSnap.data() != null) {
-      return DayEntryModel.fromJson(
-        Map<String, dynamic>.from(serverSnap.data()!),
-      );
+    try {
+      final serverSnap = await docRef.get();
+      if (serverSnap.exists && serverSnap.data() != null) {
+        return DayEntryModel.fromJson(
+          Map<String, dynamic>.from(serverSnap.data()!),
+        );
+      }
+    } on FirebaseException catch (error) {
+      if (error.code != 'unavailable' && error.code != 'deadline-exceeded') {
+        rethrow;
+      }
     }
 
     return DayEntryModel(date: dateIso, icons: {}, medication: {}, notes: '');
@@ -95,7 +101,19 @@ class DayEntryStorage {
     }
     final uid = _uid() ?? '';
     if (uid.isEmpty) return [];
-    final snapshot = await DayEntryFirestore.daysCollection(uid).get();
+    final collection = DayEntryFirestore.daysCollection(uid);
+    QuerySnapshot<Map<String, dynamic>> snapshot;
+    try {
+      snapshot = await collection.get(const GetOptions(source: Source.cache));
+      if (snapshot.docs.isEmpty) {
+        snapshot = await collection.get();
+      }
+    } on FirebaseException catch (error) {
+      if (error.code != 'unavailable' && error.code != 'deadline-exceeded') {
+        rethrow;
+      }
+      snapshot = await collection.get(const GetOptions(source: Source.cache));
+    }
     return snapshot.docs.map(_fromDoc).whereType<DayEntryModel>().toList();
   }
 

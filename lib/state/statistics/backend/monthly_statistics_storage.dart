@@ -17,7 +17,16 @@ class MonthlyStatisticsStorage {
 
     final col = DayEntryFirestore.daysCollection(uid);
     final cacheSnap = await col.get(const GetOptions(source: Source.cache));
-    final snap = cacheSnap.docs.isNotEmpty ? cacheSnap : await col.get();
+    QuerySnapshot<Map<String, dynamic>> snap = cacheSnap;
+    if (snap.docs.isEmpty) {
+      try {
+        snap = await col.get();
+      } on FirebaseException catch (error) {
+        if (error.code != 'unavailable' && error.code != 'deadline-exceeded') {
+          rethrow;
+        }
+      }
+    }
     if (snap.docs.isEmpty) return [];
 
     final parsedDocs = <Map<String, dynamic>>[];

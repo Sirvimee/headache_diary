@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:headache_diary/router/router.dart';
@@ -12,6 +13,10 @@ void main() async {
   await LocalStorage.initialize();
   AppColors.theme.value = LocalStorage.colorTheme;
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  FirebaseFirestore.instance.settings = const Settings(
+    persistenceEnabled: true,
+    cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
+  );
   await NotificationService().initialize();
   runApp(ProviderScope(child: MyApp()));
 }
@@ -39,7 +44,7 @@ class MyApp extends StatelessWidget {
           bodyColor: AppColors.textColor,
           displayColor: AppColors.textColor,
         ),
-        // InputDecorationTheme controls hint/label and border colors for input fields
+        // InputDecorationTheme controls hint/label and border colors for text fields
         inputDecorationTheme: InputDecorationTheme(
           hintStyle: TextStyle(color: AppColors.hintColor),
           labelStyle: TextStyle(color: AppColors.hintColor),
