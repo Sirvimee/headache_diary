@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/services.dart';
+import 'package:home_widget/home_widget.dart';
 import 'package:headache_diary/views/tabs/calendar/calendar_view.dart';
 import 'package:headache_diary/views/tabs/calendar/day_view.dart';
 import '../shared/main_layout.dart';
@@ -23,36 +26,45 @@ class _MainViewState extends ConsumerState<MainView>
   late int _currentIndex;
   Map<String, dynamic>? _pendingStatsParams;
   final _dayViewKey = GlobalKey<DayViewState>();
+  StreamSubscription<Uri?>? _widgetClickSubscription;
 
   static DateTime get date => DateTime.now();
 
   List<Widget> get screens => [
-        const CalendarView(),
-        DayView(
-          key: _dayViewKey,
-          date: widget.initialDate ?? date,
-        ),
-        // Build StatisticsView with any pending params
-        if (_pendingStatsParams != null && _pendingStatsParams!['mode'] == 'period' && _pendingStatsParams!['start'] != null && _pendingStatsParams!['end'] != null)
-          StatisticsPeriodView(start: _pendingStatsParams!['start'], end: _pendingStatsParams!['end'])
-        else
-          const StatisticsView.monthly(),
-        const ProfileContent(),
-      ];
+    const CalendarView(),
+    DayView(key: _dayViewKey, date: widget.initialDate ?? date),
+    // Build StatisticsView with any pending params
+    if (_pendingStatsParams != null &&
+        _pendingStatsParams!['mode'] == 'period' &&
+        _pendingStatsParams!['start'] != null &&
+        _pendingStatsParams!['end'] != null)
+      StatisticsPeriodView(
+        start: _pendingStatsParams!['start'],
+        end: _pendingStatsParams!['end'],
+      )
+    else
+      const StatisticsView.monthly(),
+    const ProfileContent(),
+  ];
 
   @override
   void initState() {
     super.initState();
     _currentIndex = widget.initialIndex ?? 0;
     WidgetsBinding.instance.addObserver(this);
+    _widgetClickSubscription = HomeWidget.widgetClicked.listen(
+      _handleHomeWidgetClick,
+    );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _consumeAddSymptomShortcut();
+      _consumeHomeWidgetLaunch();
     });
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _widgetClickSubscription?.cancel();
     super.dispose();
   }
 
@@ -77,6 +89,22 @@ class _MainViewState extends ConsumerState<MainView>
     }
   }
 
+  Future<void> _consumeHomeWidgetLaunch() async {
+    try {
+      final uri = await HomeWidget.initiallyLaunchedFromHomeWidget();
+      _handleHomeWidgetClick(uri);
+    } on PlatformException {
+      // The widget channel is unavailable on this platform.
+    } on MissingPluginException {
+      // The widget channel is unavailable on this platform.
+    }
+  }
+
+  void _handleHomeWidgetClick(Uri? uri) {
+    if (!mounted || uri?.host != 'addSymptom') return;
+    _startVoiceEntry();
+  }
+
   void _startVoiceEntry() {
     if (_currentIndex != 1) {
       setState(() => _currentIndex = 1);
@@ -91,16 +119,17 @@ class _MainViewState extends ConsumerState<MainView>
 
   @override
   Widget build(BuildContext context) {
-    final navIndex = (_currentIndex >= 0 && _currentIndex <= 2) ? _currentIndex : 0;
+    final navIndex = (_currentIndex >= 0 && _currentIndex <= 2)
+        ? _currentIndex
+        : 0;
 
     return Scaffold(
-      appBar: buildMainAppBar(
-        context,
-        ref,
-        onVoiceEntry: _startVoiceEntry,
-      ),
+      appBar: buildMainAppBar(context, ref, onVoiceEntry: _startVoiceEntry),
       body: screens[_currentIndex],
-      bottomNavigationBar: buildMainBottomNavigationBar(context, navIndex, (index, [params]) {
+      bottomNavigationBar: buildMainBottomNavigationBar(context, navIndex, (
+        index, [
+        params,
+      ]) {
         // If called with params from statistics picker, store them then navigate
         if (index == 2 && params is Map<String, dynamic>) {
           _pendingStatsParams = params;

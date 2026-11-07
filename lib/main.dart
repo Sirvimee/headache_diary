@@ -7,6 +7,7 @@ import 'firebase_options.dart';
 import 'views/constants/app_colors.dart';
 import 'services/notifications/notification_service.dart';
 import 'state/auth/backend/local_storage.dart';
+import 'services/home_widget_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -17,6 +18,7 @@ void main() async {
     persistenceEnabled: true,
     cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
   );
+  await HomeWidgetService.initialize();
   await NotificationService().initialize();
   runApp(ProviderScope(child: MyApp()));
 }
