@@ -1,1 +1,34 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"headache-diary-a0b70","appId":"1:27351916548:android:05e31e62f7503d0f185551","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"headache-diary-a0b70","configurations":{"android":"1:27351916548:android:05e31e62f7503d0f185551","ios":"1:27351916548:ios:b97408a60cf2bfbd185551","web":"1:27351916548:web:5b08f8a7b56588d2185551"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "headache-diary-a0b70",
+          "appId": "1:27351916548:android:05e31e62f7503d0f185551",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "headache-diary-a0b70",
+          "configurations": {
+            "android": "1:27351916548:android:05e31e62f7503d0f185551",
+            "ios": "1:27351916548:ios:b97408a60cf2bfbd185551",
+            "web": "1:27351916548:web:5b08f8a7b56588d2185551"
+          }
+        }
+      }
+    }
+  },
+  "firestore": {
+    "rules": "firestore.rules"
+  },
+  "hosting": {
+    "public": "public",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ]
+  }
+}

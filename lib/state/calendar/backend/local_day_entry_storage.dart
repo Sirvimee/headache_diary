@@ -1,6 +1,7 @@
 import '../../../services/notifications/notification_service.dart';
 import '../../auth/backend/local_storage.dart';
 import '../../constants/firebase_field_name.dart';
+import '../../../views/constants/strings.dart';
 import '../models/day_entry_model.dart';
 
 class LocalDayEntryStorage {
@@ -16,6 +17,26 @@ class LocalDayEntryStorage {
 
   Future<void> _save(DayEntryModel entry) {
     return LocalStorage.saveEntry(entry.date, entry.toJson());
+  }
+
+  Future<int?> _scheduleReminder({
+    required DateTime reminderDate,
+    required String title,
+    required String body,
+    required String iconKey,
+  }) {
+    final id = NotificationService().notificationIdForDate(reminderDate) +
+        (iconKey == FirebaseFieldName.doctor
+            ? 10000000
+            : iconKey == FirebaseFieldName.systal
+            ? 30000000
+            : 20000000);
+    return NotificationService().scheduleNotification(
+      reminderDate,
+      title,
+      body,
+      id,
+    );
   }
 
   Stream<Map<DateTime, DayEntryModel>> monthEntries(
@@ -95,12 +116,12 @@ class LocalDayEntryStorage {
     }
     icons[FirebaseFieldName.systal] = true;
     final scheduledDate = DateTime(date.year, date.month, date.day, 12);
-    int? id;
-    try {
-      id = await NotificationService().scheduleInjectionNotification(
-        scheduledDate,
-      );
-    } catch (_) {}
+    final id = await _scheduleReminder(
+      reminderDate: scheduledDate,
+      title: Strings.notificationTitle,
+      body: Strings.notificationBody,
+      iconKey: FirebaseFieldName.systal,
+    );
     await _save(
       entry.copyWith(
         icons: icons,
@@ -143,14 +164,11 @@ class LocalDayEntryStorage {
             details[FirebaseFieldName.preventivePillGrams],
       });
     }
-    final id =
-        NotificationService().notificationIdForDate(reminderDate) +
-        (iconKey == FirebaseFieldName.doctor ? 10000000 : 20000000);
-    final scheduledId = await NotificationService().scheduleNotification(
-      reminderDate,
-      title,
-      body,
-      id,
+    final scheduledId = await _scheduleReminder(
+      reminderDate: reminderDate,
+      title: title,
+      body: body,
+      iconKey: iconKey,
     );
     await _save(
       entry.copyWith(
@@ -213,12 +231,11 @@ class LocalDayEntryStorage {
 
     int? scheduledId;
     if (isFuture && reminderDate != null) {
-      scheduledId = await NotificationService().scheduleNotification(
-        reminderDate,
-        title,
-        body,
-        NotificationService().notificationIdForDate(reminderDate) +
-            (iconKey == FirebaseFieldName.systal ? 30000000 : 20000000),
+      scheduledId = await _scheduleReminder(
+        reminderDate: reminderDate,
+        title: title,
+        body: body,
+        iconKey: iconKey,
       );
     }
     icons[iconKey] = true;

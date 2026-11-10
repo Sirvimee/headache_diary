@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Peavalu päevik</string>
+    <string name="app_name">Migreenipäevik</string>
     <string name="widget_add_symptom">Lisa sümptom</string>
     <string name="shortcut_add_symptom">Lisa sümptom</string>
 </resources>

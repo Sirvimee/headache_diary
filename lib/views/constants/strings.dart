@@ -3,7 +3,7 @@ import 'package:flutter/foundation.dart';
 @immutable
 class Strings {
   // General app information
-  static const appName = 'Peavalupäevik';
+  static const appName = 'Migreenipäevik';
   static const welcomeToAppName = 'Welcome to ${Strings.appName}';
   static const channelId = 'systal_channel';
   static const channelName = 'Süstimise meeldetuletused';
@@ -56,6 +56,14 @@ class Strings {
       'Saatsime juhised parooli taastamiseks e-postile';
   static const userNotFound = 'Kasutajat ei leitud';
   static const userDataIsChanged = 'Kasutaja andmed on muudetud';
+  static const deleteAccount = 'Kustuta konto';
+  static const deleteAccountTitle = 'Kustuta konto ja kõik andmed?';
+  static const deleteAccountText =
+      'See kustutab konto, päevikukirjed ja kasutajaprofiili andmed jäädavalt. Seda tegevust ei saa tagasi võtta.';
+  static const accountDeleted = 'Konto ja andmed kustutati';
+  static const accountDeletionRequiresLogin =
+      'Turvalisuse huvides logi uuesti sisse ja proovi konto kustutamist uuesti';
+  static const accountDeletionFailed = 'Konto kustutamine ebaõnnestus';
 
   // Interaction strings
   static const or = 'või';
@@ -88,7 +96,7 @@ class Strings {
   static const privacyAndGdpr = 'Privaatsus ja GDPR';
   static const privacyAndGdprTitle = 'Privaatsus ja GDPR';
   static const privacyAndGdprText = '''
-Peavalupäevik töötleb ainult rakenduse toimimiseks vajalikke andmeid.
+Migreenipäevik töötleb ainult rakenduse toimimiseks vajalikke andmeid.
 
 Sisselogitud kasutaja päevikukirjed, konto nimi ja e-posti aadress salvestatakse Firebase'i teenustes. Neid andmeid kasutatakse päeviku, kokkuvõtete ja kasutajakonto toimimiseks.
 
@@ -129,7 +137,7 @@ See teave on rakenduse lühike privaatsusteave ega asenda täielikku privaatsust
   static const help = 'Info';
   static const usageGuideTitle = 'Rakenduse kasutamise õpetus';
   static const usageGuide = '''
-Peavalupäevik aitab sul iga päeva kohta oma sümptomeid, ravimeid ja võimalikke päästikuid üles märkida.
+Migreenipäevik aitab sul iga päeva kohta oma sümptomeid, ravimeid ja võimalikke päästikuid üles märkida.
 
 Päeva märkimine
 • Ava kalendrist soovitud päev.
@@ -142,7 +150,7 @@ Päeva märkimine
 
 Häälega lisamine (ainult sümptomid)
 • Vajuta ülaribal mikrofoni märki.
-• Räägi eesti keeles lühike kirjeldus, näiteks „peavalu vasak“, „peavalu parem“, „peavalu“ „silmad valutavad“, „iiveldus“, „okse“, „tablett“ või „tabla“.
+• Räägi eesti keeles lühike kirjeldus, näiteks „vasakpoolne peavalu“, „parempoolne peavalu“, „peavalu“ „silmad valutavad“, „iiveldus“, „okse“, „tablett“ või „tabla“.
 • Sobivad sümptomid ja tablett salvestatakse automaatselt tänasele päevale.
 
 Kokkuvõte ja profiil
@@ -153,6 +161,16 @@ Kokkuvõte ja profiil
 Tänasele päevale sümptomite kiire märkimine
 • Vajuta telefoni avakuval rakenduse ikooni pikalt.
 • Vali „Lisa sümptom”.
+• Rakendus avaneb ja läheb tänase päeva vaatesse, mikrofon käivitub automaatselt.
+• Tuvastatud sümptom lisatakse päevikusse.
+
+Vidina lisamine avakuvale
+• Hoia sõrme telefoni avakuval, tühjal kohal vähemalt 2 sekundit.
+• Vali „Vidinate lisamine”.
+• Vali Migreenipäeviku vidin.
+• Paiguta vidin endale sobivasse kohta
+Kasutamine:
+• Kliki Migreenipäeviku vidinal.
 • Rakendus avaneb ja läheb tänase päeva vaatesse, mikrofon käivitub automaatselt.
 • Tuvastatud sümptom lisatakse päevikusse.
 ''';
@@ -273,7 +291,7 @@ Tänasele päevale sümptomite kiire märkimine
   static const exportPdf = 'Ekspordi PDF';
   static const pdfExporting = 'Eksporditakse...';
   static const pdfExportFailed = 'PDF eksport ebaõnnestus';
-  static const pdfReportTitle = 'Peavalupäeviku kokkuvõte';
+  static const pdfReportTitle = 'Migreenipäeviku kokkuvõte';
   static const pdfUserLabel = 'Kasutaja';
   static const pdfPeriodLabel = 'Periood';
   static const pdfGeneratedLabel = 'Genereeritud';

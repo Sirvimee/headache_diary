@@ -1,11 +1,11 @@
 {
-    "name": "headache_diary",
-    "short_name": "headache_diary",
+    "name": "Migreenipäevik",
+    "short_name": "Migreenipäevik",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "Headache diary app",
+    "description": "Migreenipäevik",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

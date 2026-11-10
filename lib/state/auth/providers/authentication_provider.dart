@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 
 import '../../user_info/backend/user_info_storage.dart';
 import '../backend/authenticator.dart';
+import '../backend/account_deletion_service.dart';
 import '../models/auth_result.dart';
 import '../models/auth_state.dart';
 import '../backend/local_storage.dart';
@@ -12,6 +13,7 @@ part 'authentication_provider.g.dart';
 @riverpod
 class Authentication extends _$Authentication {
   final _authenticator = const Authenticator();
+  final _accountDeletionService = const AccountDeletionService();
   final _userInfoStorage = const UserInfoStorage();
 
   @override
@@ -50,6 +52,12 @@ class Authentication extends _$Authentication {
 
   Future<void> logOut() async {
     await _authenticator.logOut();
+    await LocalStorage.setGuest(false);
+    state = AuthState.unknown();
+  }
+
+  Future<void> deleteAccount() async {
+    await _accountDeletionService.deleteAccount();
     await LocalStorage.setGuest(false);
     state = AuthState.unknown();
   }

@@ -57,6 +57,26 @@ class DayEntryStorage {
     await docRef.set(_toPayload(entry));
   }
 
+  Future<int?> _scheduleReminder({
+    required DateTime reminderDate,
+    required String title,
+    required String body,
+    required String iconKey,
+  }) {
+    final id = NotificationService().notificationIdForDate(reminderDate) +
+        (iconKey == FirebaseFieldName.doctor
+            ? 10000000
+            : iconKey == FirebaseFieldName.systal
+            ? 30000000
+            : 20000000);
+    return NotificationService().scheduleNotification(
+      reminderDate,
+      title,
+      body,
+      id,
+    );
+  }
+
   Stream<Map<DateTime, DayEntryModel>> monthEntries(
     DateTime start,
     DateTime end,
@@ -104,10 +124,9 @@ class DayEntryStorage {
     final collection = DayEntryFirestore.daysCollection(uid);
     QuerySnapshot<Map<String, dynamic>> snapshot;
     try {
-      snapshot = await collection.get(const GetOptions(source: Source.cache));
-      if (snapshot.docs.isEmpty) {
-        snapshot = await collection.get();
-      }
+      // The cache can contain only documents that have already been opened
+      // locally, so it must not be the primary source for the full summary.
+      snapshot = await collection.get(const GetOptions(source: Source.server));
     } on FirebaseException catch (error) {
       if (error.code != 'unavailable' && error.code != 'deadline-exceeded') {
         rethrow;
@@ -280,14 +299,11 @@ class DayEntryStorage {
             details[FirebaseFieldName.preventivePillGrams],
       });
     }
-    final id =
-        NotificationService().notificationIdForDate(reminderDate) +
-        (iconKey == FirebaseFieldName.doctor ? 10000000 : 20000000);
-    final scheduledId = await NotificationService().scheduleNotification(
-      reminderDate,
-      title,
-      body,
-      id,
+    final scheduledId = await _scheduleReminder(
+      reminderDate: reminderDate,
+      title: title,
+      body: body,
+      iconKey: iconKey,
     );
     final reminder = {
       FirebaseFieldName.enabled: true,
@@ -362,12 +378,11 @@ class DayEntryStorage {
 
     int? scheduledId;
     if (isFuture && reminderDate != null) {
-      scheduledId = await NotificationService().scheduleNotification(
-        reminderDate,
-        title,
-        body,
-        NotificationService().notificationIdForDate(reminderDate) +
-            (iconKey == FirebaseFieldName.systal ? 30000000 : 20000000),
+      scheduledId = await _scheduleReminder(
+        reminderDate: reminderDate,
+        title: title,
+        body: body,
+        iconKey: iconKey,
       );
     }
 

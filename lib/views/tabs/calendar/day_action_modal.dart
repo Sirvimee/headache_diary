@@ -268,6 +268,10 @@ class _DayActionModalState extends State<DayActionModal> {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text(Strings.reminderAddedSnackBar)));
+      } else if (mounted && status == 2) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(Strings.failedToScheduleReminderSnackBar)),
+        );
       }
     } catch (_) {
       if (mounted) {

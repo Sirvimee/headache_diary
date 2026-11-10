@@ -40,13 +40,13 @@ class ProfileContentState extends ConsumerState<ProfileContent> {
                 leading: CircleAvatar(
                   backgroundColor: AppColors.themes[i].button,
                 ),
-              title: Text(
-                AppColors.themes[i].name,
-                style: TextStyle(color: AppColors.themes[i].hint),
+                title: Text(
+                  AppColors.themes[i].name,
+                  style: TextStyle(color: AppColors.themes[i].hint),
+                ),
+                selected: AppColors.theme.value == i,
+                onTap: () => Navigator.pop(context, i),
               ),
-              selected: AppColors.theme.value == i,
-              onTap: () => Navigator.pop(context, i),
-            ),
           ],
         ),
         actions: [
@@ -68,9 +68,7 @@ class ProfileContentState extends ConsumerState<ProfileContent> {
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: Text(Strings.privacyAndGdprTitle),
-        content: SingleChildScrollView(
-          child: Text(Strings.privacyAndGdprText),
-        ),
+        content: SingleChildScrollView(child: Text(Strings.privacyAndGdprText)),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(dialogContext).pop(),
@@ -97,7 +95,9 @@ class ProfileContentState extends ConsumerState<ProfileContent> {
     final form = _passwordFormKey.currentState;
     if (form == null) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(Strings.formNotAvailable)));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(Strings.formNotAvailable)));
       return;
     }
     if (!form.validate()) return;
@@ -110,7 +110,9 @@ class ProfileContentState extends ConsumerState<ProfileContent> {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(Strings.userNotFound)));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(Strings.userNotFound)));
       if (mounted) setState(() => _isLoading = false);
       return;
     }
@@ -119,7 +121,9 @@ class ProfileContentState extends ConsumerState<ProfileContent> {
 
     if (enteredEmail != currentEmail) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(Strings.wrongEmailAddress)));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(Strings.wrongEmailAddress)));
       if (mounted) setState(() => _isLoading = false);
       return;
     }
@@ -132,10 +136,14 @@ class ProfileContentState extends ConsumerState<ProfileContent> {
     } on FirebaseAuthException catch (e) {
       if (!mounted) return;
       final message = e.message ?? e.code;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${Strings.errorMessage} $e')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('${Strings.errorMessage} $e')));
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -149,7 +157,9 @@ class ProfileContentState extends ConsumerState<ProfileContent> {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(Strings.userNotFound)));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(Strings.userNotFound)));
       if (mounted) setState(() => _isLoading = false);
       return;
     }
@@ -165,7 +175,58 @@ class ProfileContentState extends ConsumerState<ProfileContent> {
       if (mounted) context.push('/data-changed');
     } catch (e) {
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('${Strings.errorMessage} $e')));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('${Strings.errorMessage} $e')));
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _deleteAccount() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(Strings.deleteAccountTitle),
+        content: Text(Strings.deleteAccountText),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(
+              Strings.cancel,
+              style: TextStyle(color: AppColors.buttonColor),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(
+              Strings.deleteAccount,
+              style: TextStyle(color: Colors.red),
+            ),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true || !mounted) return;
+
+    setState(() => _isLoading = true);
+    try {
+      await ref.read(authenticationProvider.notifier).deleteAccount();
+      if (!mounted) return;
+      context.go('/');
+    } on FirebaseAuthException catch (error) {
+      if (!mounted) return;
+      final message = error.code == 'requires-recent-login'
+          ? Strings.accountDeletionRequiresLogin
+          : '${Strings.accountDeletionFailed}: ${error.message ?? error.code}';
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('${Strings.accountDeletionFailed}: $error')),
+      );
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -188,7 +249,9 @@ class ProfileContentState extends ConsumerState<ProfileContent> {
             ),
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             child: ConstrainedBox(
-              constraints: BoxConstraints(minHeight: constraints.maxHeight - 48),
+              constraints: BoxConstraints(
+                minHeight: constraints.maxHeight - 48,
+              ),
               child: IntrinsicHeight(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -223,166 +286,210 @@ class ProfileContentState extends ConsumerState<ProfileContent> {
                     SizedBox(height: 20),
                     if (!isGuest) ...[
                       Text(
-                      Strings.changePassword,
-                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        color: AppColors.textColor,
-                        fontWeight: FontWeight.w600,
+                        Strings.changePassword,
+                        style: Theme.of(context).textTheme.headlineMedium
+                            ?.copyWith(
+                              color: AppColors.textColor,
+                              fontWeight: FontWeight.w600,
+                            ),
+                        textAlign: TextAlign.center,
                       ),
-                      textAlign: TextAlign.center,
-                    ),
-                    SizedBox(height: 20),
+                      SizedBox(height: 20),
 
-                    Form(
-                      key: _passwordFormKey,
-                      child: Column(
-                        children: [
-
-                          // Email
-                          SizedBox(
-                            height: 60,
-                            child: TextFormField(
-                              controller: _emailController,
-                              style: TextStyle(fontSize: 20),
-                              decoration: InputDecoration(
-                                hintText: Strings.emailAddress,
+                      Form(
+                        key: _passwordFormKey,
+                        child: Column(
+                          children: [
+                            // Email
+                            SizedBox(
+                              height: 60,
+                              child: TextFormField(
+                                controller: _emailController,
+                                style: TextStyle(fontSize: 20),
+                                decoration: InputDecoration(
+                                  hintText: Strings.emailAddress,
+                                ),
+                                keyboardType: TextInputType.emailAddress,
+                                validator: (value) => validateEmail(value),
                               ),
-                              keyboardType: TextInputType.emailAddress,
-                              validator: (value) => validateEmail(value),
                             ),
-                          ),
 
-                          SizedBox(height: 16),
+                            SizedBox(height: 16),
 
-                          // Password
-                          SizedBox(
-                            height: 60,
-                            child: TextFormField(
-                              controller: _passwordController,
-                              obscureText: true,
-                              style: TextStyle(fontSize: 20),
-                              decoration: InputDecoration(
-                                hintText: Strings.password,
+                            // Password
+                            SizedBox(
+                              height: 60,
+                              child: TextFormField(
+                                controller: _passwordController,
+                                obscureText: true,
+                                style: TextStyle(fontSize: 20),
+                                decoration: InputDecoration(
+                                  hintText: Strings.password,
+                                ),
+                                validator: (value) => validatePassword(value),
                               ),
-                              validator: (value) => validatePassword(value),
                             ),
-                          ),
 
-                          SizedBox(height: 16),
+                            SizedBox(height: 16),
 
-                          // Confirm password
-                          SizedBox(
-                            height: 60,
-                            child: TextFormField(
-                              controller: _confirmPasswordController,
-                              obscureText: true,
-                              style: TextStyle(fontSize: 20),
-                              decoration: InputDecoration(
-                                hintText: Strings.repeatPassword,
+                            // Confirm password
+                            SizedBox(
+                              height: 60,
+                              child: TextFormField(
+                                controller: _confirmPasswordController,
+                                obscureText: true,
+                                style: TextStyle(fontSize: 20),
+                                decoration: InputDecoration(
+                                  hintText: Strings.repeatPassword,
+                                ),
+                                validator: (value) =>
+                                    value == _passwordController.text
+                                    ? null
+                                    : Strings.passwordsDoNotMatch,
                               ),
-                              validator: (value) => value == _passwordController.text ? null : Strings.passwordsDoNotMatch,
                             ),
-                          ),
 
-                          SizedBox(height: 24),
+                            SizedBox(height: 24),
 
-                          SizedBox(
-                            width: double.infinity,
-                            height: 70,
-                            child: ElevatedButton(
-                              onPressed: _isLoading ? null : _attemptToChangePassword,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.buttonColor,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                                elevation: 0,
+                            SizedBox(
+                              width: double.infinity,
+                              height: 70,
+                              child: ElevatedButton(
+                                onPressed: _isLoading
+                                    ? null
+                                    : _attemptToChangePassword,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.buttonColor,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  elevation: 0,
+                                ),
+                                child: _isLoading
+                                    ? SizedBox(
+                                        height: 24,
+                                        width: 24,
+                                        child: CircularProgressIndicator(
+                                          color: AppColors.textColor,
+                                          strokeWidth: 2,
+                                        ),
+                                      )
+                                    : Text(
+                                        Strings.change,
+                                        style: TextStyle(
+                                          color: AppColors.primaryColor,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
                               ),
-                              child: _isLoading
-                                  ? SizedBox(
-                                      height: 24,
-                                      width: 24,
-                                      child: CircularProgressIndicator(color: AppColors.textColor, strokeWidth: 2),
-                                    )
-                                  : Text(
-                                      Strings.change,
-                                      style: TextStyle(color: AppColors.primaryColor, fontSize: 18, fontWeight: FontWeight.w600),
-                                    ),
                             ),
-                          ),
 
-                          SizedBox(height: 16),
-                        ],
+                            SizedBox(height: 16),
+                          ],
+                        ),
                       ),
-                    ),
 
-                    SizedBox(height: 24),
+                      SizedBox(height: 24),
 
-                    // Change name section
-                    Text(
-                      Strings.changeUsername,
-                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        color: AppColors.textColor,
-                        fontWeight: FontWeight.w600,
+                      // Change name section
+                      Text(
+                        Strings.changeUsername,
+                        style: Theme.of(context).textTheme.headlineMedium
+                            ?.copyWith(
+                              color: AppColors.textColor,
+                              fontWeight: FontWeight.w600,
+                            ),
+                        textAlign: TextAlign.center,
                       ),
-                      textAlign: TextAlign.center,
-                    ),
 
-                    SizedBox(height: 20),
+                      SizedBox(height: 20),
 
-                    Form(
-                      key: _nameFormKey,
-                      child: Column(
-                        children: [
-                          // New name
-                          SizedBox(
-                            height: 60,
-                            child: TextFormField(
-                              controller: _nameController,
-                              // username should not be obscured
-                              obscureText: false,
-                              style: TextStyle(fontSize: 20),
-                              decoration: InputDecoration(
-                                hintText: Strings.newUsername,
+                      Form(
+                        key: _nameFormKey,
+                        child: Column(
+                          children: [
+                            // New name
+                            SizedBox(
+                              height: 60,
+                              child: TextFormField(
+                                controller: _nameController,
+                                // username should not be obscured
+                                obscureText: false,
+                                style: TextStyle(fontSize: 20),
+                                decoration: InputDecoration(
+                                  hintText: Strings.newUsername,
+                                ),
                               ),
                             ),
-                          ),
 
-                          SizedBox(height: 16),
+                            SizedBox(height: 16),
 
-                          SizedBox(
-                            width: double.infinity,
-                            height: 70,
-                            child: ElevatedButton(
-                              onPressed: _isLoading ? null : _attemptToChangeUsername,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.buttonColor,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                                elevation: 0,
-                              ),
-                              child: _isLoading
-                                  ? SizedBox(
-                                height: 24,
-                                width: 24,
-                                child: CircularProgressIndicator(color: AppColors.textColor, strokeWidth: 2),
-                              )
-                                  : Text(
-                                Strings.change,
-                                style: TextStyle(color: AppColors.primaryColor, fontSize: 18, fontWeight: FontWeight.w600),
+                            SizedBox(
+                              width: double.infinity,
+                              height: 70,
+                              child: ElevatedButton(
+                                onPressed: _isLoading
+                                    ? null
+                                    : _attemptToChangeUsername,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.buttonColor,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  elevation: 0,
+                                ),
+                                child: _isLoading
+                                    ? SizedBox(
+                                        height: 24,
+                                        width: 24,
+                                        child: CircularProgressIndicator(
+                                          color: AppColors.textColor,
+                                          strokeWidth: 2,
+                                        ),
+                                      )
+                                    : Text(
+                                        Strings.change,
+                                        style: TextStyle(
+                                          color: AppColors.primaryColor,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
                               ),
                             ),
-                          ),
 
-                          SizedBox(height: 16),
-                        ],
+                            SizedBox(height: 16),
+                          ],
+                        ),
                       ),
-                    ),
 
+                      SizedBox(height: 24),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 56,
+                        child: OutlinedButton.icon(
+                          onPressed: _isLoading ? null : _deleteAccount,
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.red,
+                            side: BorderSide(color: Colors.red),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                          ),
+                          icon: Icon(Icons.delete_forever_outlined),
+                          label: Text(Strings.deleteAccount),
+                        ),
+                      ),
                     ],
                     Spacer(),
                   ],
                 ),
               ),
-            ));
-          },
-        ),
-      );
+            ),
+          );
+        },
+      ),
+    );
   }
 }
