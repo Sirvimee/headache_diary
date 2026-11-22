@@ -11,6 +11,7 @@
 .svn/
 .swiftpm/
 migrate_working_dir/
+.vscode/
 
 # IntelliJ related
 *.iml
@@ -45,6 +46,8 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 /android/app/google-services.json
+/android/app/upload-keystore.jks
+/android/key.properties
 
 # Generated Android reports and task logs
 /android/build/reports/
@@ -52,3 +55,5 @@ app.*.map.json
 
 # Thesis working files
 /thesis/
+
+

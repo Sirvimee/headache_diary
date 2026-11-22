@@ -1,4 +1,4 @@
-package com.example.headache_diary
+package ee.meeli.migreenipaevik
 
 import android.media.AudioManager
 import android.media.ToneGenerator

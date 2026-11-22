@@ -1,4 +1,4 @@
-package com.example.headache_diary
+package ee.meeli.migreenipaevik
 
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
@@ -9,8 +9,11 @@ import android.widget.RemoteViews
 import es.antonborri.home_widget.HomeWidgetProvider
 
 class HeadacheDiaryWidgetProvider : HomeWidgetProvider() {
-    private val addSymptomAction = "com.example.headache_diary.ADD_SYMPTOM"
+    private companion object {
+        const val ADD_SYMPTOM_ACTION = "com.example.headache_diary.ADD_SYMPTOM"
+    }
 
+    @Suppress("UNUSED_PARAMETER")
     override fun onUpdate(
         context: Context,
         appWidgetManager: AppWidgetManager,
@@ -23,7 +26,7 @@ class HeadacheDiaryWidgetProvider : HomeWidgetProvider() {
                 R.layout.headache_diary_widget,
             ).apply {
                 val launchIntent = Intent(context, MainActivity::class.java).apply {
-                    action = addSymptomAction
+                    action = ADD_SYMPTOM_ACTION
                 }
                 val launchPendingIntent = PendingIntent.getActivity(
                     context,
