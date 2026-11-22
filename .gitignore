@@ -57,3 +57,5 @@ app.*.map.json
 /thesis/
 
 
+
+.idea/
